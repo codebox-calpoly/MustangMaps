@@ -1,5 +1,6 @@
 import {useEffect, useRef} from 'react';
 import maplibregl from 'maplibre-gl';
+import { BuildingLayer } from './layers/BuildingLayer';
 
 export function MapContainer({children}) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -20,7 +21,7 @@ export function MapContainer({children}) {
 
     return (
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }}>
-          {/* Layer components will go here */}
+          <BuildingLayer />
         </div>
     );
 }
