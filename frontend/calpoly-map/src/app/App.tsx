@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { MapScreen } from '../components/MapScreen';
+import { MapScreen } from '../components/map/MapContainer';
 
 export default function App() {
   return (
