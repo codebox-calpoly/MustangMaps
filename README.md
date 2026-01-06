@@ -14,6 +14,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 - [Siddharth Balaji](https://www.linkedin.com/in/siddharth-balaji-9b47712a5/) - Tech Lead
 - [Winnie Trinh](www.linkedin.com/in/winnie-trinh) - Tech Lead
 - [First Last](https://www.linkedin.com/) - Designer
+- [Osbaldo Orozco](https://www.linkedin.com/) - Developer
 - [First Last](https://www.linkedin.com/) - Developer
 - [Rodney Fujiyama](https://www.linkedin.com/in/rodney-fujiyama-86a59b38a/) - Designer
 - [Scout Knight-Pheng](https://www.linkedin.com/in/scout-knight-pheng-208457391/) - Developer
