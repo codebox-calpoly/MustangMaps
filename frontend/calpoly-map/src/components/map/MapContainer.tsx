@@ -2,7 +2,7 @@ import {useEffect, useRef} from 'react';
 import maplibregl from 'maplibre-gl';
 import { BuildingLayer } from './layers/BuildingLayer';
 
-export function MapContainer({children}) {
+export function MapContainer({children}: {children?: React.ReactNode}) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<maplibregl.Map | null>(null);
 
