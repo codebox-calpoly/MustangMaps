@@ -20,6 +20,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 - [Scout Knight-Pheng](https://www.linkedin.com/in/scout-knight-pheng-208457391/) - Developer
 - [Ally Stauffer](https://www.linkedin.com/in/ally-stauffer/) - Developer
 - [Nick Endresen](https://www.linkedin.com/in/nick-endresen-1208a42b1/) - Developer
+- [Snehil Kakani](https://linkedin.com/in/snehilkakani) - Developer
 
 ## Contributing
 
