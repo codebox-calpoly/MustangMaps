@@ -21,7 +21,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 - [Ally Stauffer](https://www.linkedin.com/in/ally-stauffer/) - Developer
 - [Nick Endresen](https://www.linkedin.com/in/nick-endresen-1208a42b1/) - Developer
 - [Snehil Kakani](https://linkedin.com/in/snehilkakani) - Developer
-
+- [Daniel Erazo](https://www.linkedin.com/in/danzo/) - Developer
 ## Contributing
 
 Visit [contributing.md](docs/contributing.md) on info for how to contribute to this repo.
