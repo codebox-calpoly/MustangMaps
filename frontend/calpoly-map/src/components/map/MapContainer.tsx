@@ -1,27 +1,28 @@
-import {useEffect, useRef} from 'react';
-import maplibregl from 'maplibre-gl';
-import { BuildingLayer } from './layers/BuildingLayer';
+import React from 'react';
+import { MapView, Camera, setAccessToken } from '@maplibre/maplibre-react-native';
+import { StyleSheet } from 'react-native';
+
+// Disable telemetry
+setAccessToken(null);
 
 export function MapContainer({children}: {children?: React.ReactNode}) {
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapRef = useRef<maplibregl.Map | null>(null);
-
-    useEffect(() => {
-        if (!mapContainerRef.current) return;
-        
-        mapRef.current = new maplibregl.Map({
-        container: mapContainerRef.current,
-        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-        center: [-120.6596, 35.3050],
-        zoom: 15,
-        });
-
-        return () => mapRef.current?.remove();
-    }, []);
-
     return (
-        <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }}>
-          <BuildingLayer />
-        </div>
+        <MapView
+            style={styles.map}
+            mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+            logoEnabled={false}
+        >
+            <Camera
+                centerCoordinate={[-120.6596, 35.3050]}
+                zoomLevel={15}
+            />
+            {children}
+        </MapView>
     );
 }
+
+const styles = StyleSheet.create({
+    map: {
+        flex: 1,
+    },
+});
