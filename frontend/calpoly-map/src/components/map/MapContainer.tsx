@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapView, Camera, setAccessToken } from '@maplibre/maplibre-react-native';
 import { StyleSheet } from 'react-native';
+import { AmenitiesLayer } from './layers/AmenitiesLayer';
 
 // Disable telemetry
 setAccessToken(null);
@@ -16,6 +17,7 @@ export function MapContainer({children}: {children?: React.ReactNode}) {
                 centerCoordinate={[-120.6596, 35.3050]}
                 zoomLevel={15}
             />
+            <AmenitiesLayer />
             {children}
         </MapView>
     );
