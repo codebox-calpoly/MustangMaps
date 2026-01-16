@@ -7,6 +7,7 @@ import {
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
+import { SearchPanel } from "../features/search/SearchPanel";
 
 // Disable telemetry
 setAccessToken(null);
@@ -33,6 +34,7 @@ export function MapContainer({ children }: { children?: React.ReactNode }) {
 
   return (
     <View style={styles.container}>
+      <SearchPanel />
       <MapView
         ref={mapRef}
         style={styles.map}
