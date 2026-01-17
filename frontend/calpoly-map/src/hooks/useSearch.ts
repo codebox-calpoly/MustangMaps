@@ -1,5 +1,14 @@
-import { useCallback } from "react";
+import React from "react";
+import { useCallback, useState } from "react";
 
-const useSearch = useCallback((input: string) => {
-    return input;
- }, []);
+export const [search, setSearch] = useState("");
+
+export const handleSearch = useCallback((text?: string) => {
+    if (text !== undefined) {
+        setSearch(text);
+    }
+ }, [setSearch]);
+
+export const getSearch = React.useCallback((text: string) => {
+    return search;
+}, [search]);
