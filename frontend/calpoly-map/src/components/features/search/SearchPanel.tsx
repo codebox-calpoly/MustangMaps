@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useSearch } from "../../../hooks/useSearch";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import geoData from "./test.json";
+
 export function SearchPanel() {
   const [ search, setSearch ] = useState("")
 
