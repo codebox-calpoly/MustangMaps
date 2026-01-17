@@ -1,23 +1,38 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import { handleSearch, search } from "../../../hooks/useSearch";
+import useSearch from "../../../hooks/useSearch";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export function SearchPanel() {
+  const [ search, setSearch ] = useState("")
+
+  const handleSearch = useCallback((input: string) => {
+    setSearch(input)
+  }, [])
 
   return (
+    <SafeAreaView
+    style={styles.searchContainer}>
       <TextInput
+      style={styles.input}
         placeholder="Type Destination Here..."
+        clearButtonMode="always"
         onChangeText={handleSearch}
-        value={search} 
+        value={search}
       />
-    )
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
+  searchContainer: {
+    marginHorizontal: 20,
+  },
   input: {
-    height: 40,
-    margin: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderColor: "#ccc",
     borderWidth: 1,
-    padding: 10,
+    borderRadius: 8,
   },
 });
