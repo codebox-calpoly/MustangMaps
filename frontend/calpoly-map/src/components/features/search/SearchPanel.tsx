@@ -17,6 +17,8 @@ export function SearchPanel() {
       style={styles.input}
         placeholder="Type Destination Here..."
         clearButtonMode="always"
+        autoCapitalize="none"
+        autoCorrect={false}
         onChangeText={handleSearch}
         value={search}
       />
