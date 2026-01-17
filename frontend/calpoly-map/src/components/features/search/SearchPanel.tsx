@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import useSearch from "../../../hooks/useSearch";
+import { useSearch } from "../../../hooks/useSearch";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export function SearchPanel() {

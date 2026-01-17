@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 
 export const [search, setSearch] = useState("");
 
-export const handleSearch = useCallback((text?: string) => {
+export const useSearch = useCallback((text?: string) => {
     if (text !== undefined) {
         setSearch(text);
     }
