@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
+  Button,
   FlatList,
   Image,
   Pressable,
@@ -15,14 +16,17 @@ import geoData from "./test.json";
 
 export function SearchPanel() {
   const [search, setSearch] = useState("");
-  const [count, setcount] = useState(0);
+  const [focused, setFocused] = useState(false);
 
-  const handleSearch = useCallback(
-    (input: string) => {
-      setSearch(input);
-    },
-    [setSearch],
-  );
+  const handleSearch = useCallback((input: string) => {
+    setSearch(input);
+    // show results if user is searching for a building
+    if (input) {
+      setFocused(true);
+    } else {
+      setFocused(false);
+    }
+  }, [setSearch]);
 
   const data = geoData.features;
 
@@ -33,7 +37,8 @@ export function SearchPanel() {
       return name && match && match.length > 0;
     });
 
-    return filteredData;
+    // sort and return results
+    return filteredData.sort();
   }, [data, search]);
 
   return (
@@ -47,15 +52,23 @@ export function SearchPanel() {
         onChangeText={handleSearch}
         value={search}
       />
-
+      {focused &&
       <FlatList
         data={filteredData}
+        
         keyExtractor={(item) => {
           return item.id;
         }}
         renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            {/* insert logo based on type of building */}
+          <Pressable 
+          onPress={() => {console.log("here")}}
+          style={({pressed}) => [
+            {
+              backgroundColor: pressed ? '#D2E6FF' : 'white',
+            },
+            styles.itemContainer,
+          ]}>
+            {/* TODO: insert logo based on type of building */}
             <Text style={{ fontSize: 50 }}>
               {item.properties.building.charAt(0).toUpperCase()}
             </Text>
@@ -65,9 +78,10 @@ export function SearchPanel() {
               </Text>
               <Text style={styles.subscript}>{item.id}</Text>
             </View>
-          </View>
+          </Pressable>
         )}
       />
+}
     </SafeAreaView>
   );
 }
@@ -88,6 +102,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginLeft: 10,
     marginTop: 10,
+  },
+  button: {
+    
   },
   icon: {
     width: 50,
