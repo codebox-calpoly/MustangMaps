@@ -17,20 +17,21 @@ export function SearchPanel() {
   const [search, setSearch] = useState("");
   const [count, setcount] = useState(0);
 
-  const handleSearch = useCallback((input: string) => {
-    setSearch(input);
-  }, [setSearch]);
+  const handleSearch = useCallback(
+    (input: string) => {
+      setSearch(input);
+    },
+    [setSearch],
+  );
 
   const data = geoData.features;
 
   const filteredData = useMemo(() => {
-    console.log("here")
     const filteredData = data.filter((item) => {
-      console.log(item.id)
       const name = item.properties.name;
       const match = name?.toLowerCase().match(search.toLowerCase());
       return name && match && match.length > 0;
-  });
+    });
 
     return filteredData;
   }, [data, search]);
@@ -50,12 +51,14 @@ export function SearchPanel() {
       <FlatList
         data={filteredData}
         keyExtractor={(item) => {
-          return item.id
+          return item.id;
         }}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             {/* insert logo based on type of building */}
-            <Text style={{fontSize: 50}}>{item.properties.building.charAt(0).toUpperCase()}</Text>
+            <Text style={{ fontSize: 50 }}>
+              {item.properties.building.charAt(0).toUpperCase()}
+            </Text>
             <View>
               <Text style={styles.buildingName}>
                 {item.properties.name ? item.properties.name : "none"}
@@ -71,7 +74,7 @@ export function SearchPanel() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   input: {
     paddingHorizontal: 20,
@@ -99,8 +102,6 @@ const styles = StyleSheet.create({
   subscript: {
     fontSize: 14,
     marginLeft: 10,
-    color: "grey"
-  }
-
-  
+    color: "grey",
+  },
 });
