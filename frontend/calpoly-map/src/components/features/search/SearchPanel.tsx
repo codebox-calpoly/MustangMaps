@@ -19,15 +19,21 @@ export function SearchPanel() {
 
   const handleSearch = useCallback((input: string) => {
     setSearch(input);
-  }, []);
+  }, [setSearch]);
 
   const data = geoData.features;
 
   const filteredData = useMemo(() => {
-    const filteredData = data.filter((item) => item.properties.name);
+    console.log("here")
+    const filteredData = data.filter((item) => {
+      console.log(item.id)
+      const name = item.properties.name;
+      const match = name?.toLowerCase().match(search.toLowerCase());
+      return name && match && match.length > 0;
+  });
 
     return filteredData;
-  }, [geoData]);
+  }, [data, search]);
 
   return (
     <SafeAreaView style={styles.searchContainer}>
