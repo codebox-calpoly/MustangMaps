@@ -15,25 +15,29 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import geoData from "./test.json";
 
 interface Props {
-  cameraMove: (coordinates: number[]) => {}
+  cameraMove: (coordinates: number[]) => {};
 }
 
 export function SearchPanel({ cameraMove }: Props) {
   const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(false);
 
-  const handleSearch = useCallback((input: string) => {
-    setSearch(input);
-    // show results if user is searching for a building
-    if (input) {
-      setFocused(true);
-    } else {
-      setFocused(false);
-    }
-  }, [setSearch]);
+  const handleSearch = useCallback(
+    (input: string) => {
+      setSearch(input);
+      // show results if user is searching for a building
+      if (input) {
+        setFocused(true);
+      } else {
+        setFocused(false);
+      }
+    },
+    [setSearch],
+  );
 
   const data = geoData.features;
 
+  // data filters off a regex match with input in search bar
   const filteredData = useMemo(() => {
     const filteredData = data.filter((item) => {
       const name = item.properties.name;
@@ -45,6 +49,7 @@ export function SearchPanel({ cameraMove }: Props) {
     return filteredData.sort();
   }, [data, search]);
 
+  // averages the middle of a building based off all its constituent coordinates
   const middle = useCallback((coordinates: number[][]) => {
     let result: number[] = [0.0, 0.0];
     let count = 0;
@@ -58,7 +63,7 @@ export function SearchPanel({ cameraMove }: Props) {
     result[0] /= count;
     result[1] /= count;
     return result;
-  }, [])
+  }, []);
 
   return (
     <SafeAreaView style={styles.searchContainer}>
@@ -71,36 +76,38 @@ export function SearchPanel({ cameraMove }: Props) {
         onChangeText={handleSearch}
         value={search}
       />
-      {focused &&
-      <FlatList
-        data={filteredData}
-        
-        keyExtractor={(item) => {
-          return item.id;
-        }}
-        renderItem={({ item }) => (
-          <Pressable 
-          onPress={() => {cameraMove(middle(item.geometry.coordinates[0]))}}
-          style={({pressed}) => [
-            {
-              backgroundColor: pressed ? '#D2E6FF' : 'white',
-            },
-            styles.itemContainer,
-          ]}>
-            {/* TODO: insert logo based on type of building */}
-            <Text style={{ fontSize: 50 }}>
-              {item.properties.building.charAt(0).toUpperCase()}
-            </Text>
-            <View>
-              <Text style={styles.buildingName}>
-                {item.properties.name ? item.properties.name : "none"}
+      {focused && (
+        <FlatList
+          data={filteredData}
+          keyExtractor={(item) => {
+            return item.id;
+          }}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => {
+                cameraMove(middle(item.geometry.coordinates[0]));
+              }}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? "#D2E6FF" : "white",
+                },
+                styles.itemContainer,
+              ]}
+            >
+              {/* TODO: insert logo based on type of building */}
+              <Text style={{ fontSize: 50 }}>
+                {item.properties.building.charAt(0).toUpperCase()}
               </Text>
-              <Text style={styles.subscript}>{item.id}</Text>
-            </View>
-          </Pressable>
-        )}
-      />
-}
+              <View>
+                <Text style={styles.buildingName}>
+                  {item.properties.name ? item.properties.name : "none"}
+                </Text>
+                <Text style={styles.subscript}>{item.id}</Text>
+              </View>
+            </Pressable>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -122,9 +129,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 10,
   },
-  button: {
-    
-  },
+  button: {},
   icon: {
     width: 50,
     height: 50,
