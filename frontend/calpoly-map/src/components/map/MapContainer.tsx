@@ -32,9 +32,25 @@ export function MapContainer({ children }: { children?: React.ReactNode }) {
     }
   }, []);
 
+  const handleCameraMove = useCallback(async (loc: number[]) => {
+    const map = mapRef.current;
+    const camera = cameraRef.current;
+    if (!map || !camera) {
+      return;
+    }
+
+    try {
+      camera.flyTo(loc, 200);
+      camera.zoomTo(17, 150)
+    } catch {
+      // Ignore transient zoom errors to keep taps safe.
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
-      <SearchPanel />
+      <SearchPanel 
+        cameraMove={handleCameraMove}/>
       <MapView
         ref={mapRef}
         style={styles.map}

@@ -14,7 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import geoData from "./test.json";
 
-export function SearchPanel() {
+interface Props {
+  cameraMove: (coordinates: number[]) => {}
+}
+
+export function SearchPanel({ cameraMove }: Props) {
   const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(false);
 
@@ -41,6 +45,21 @@ export function SearchPanel() {
     return filteredData.sort();
   }, [data, search]);
 
+  const middle = useCallback((coordinates: number[][]) => {
+    let result: number[] = [0.0, 0.0];
+    let count = 0;
+
+    coordinates.forEach((position: number[]) => {
+      result[0] += position[0];
+      result[1] += position[1];
+      count++;
+    });
+
+    result[0] /= count;
+    result[1] /= count;
+    return result;
+  }, [])
+
   return (
     <SafeAreaView style={styles.searchContainer}>
       <TextInput
@@ -61,7 +80,7 @@ export function SearchPanel() {
         }}
         renderItem={({ item }) => (
           <Pressable 
-          onPress={() => {console.log("here")}}
+          onPress={() => {cameraMove(middle(item.geometry.coordinates[0]))}}
           style={({pressed}) => [
             {
               backgroundColor: pressed ? '#D2E6FF' : 'white',
