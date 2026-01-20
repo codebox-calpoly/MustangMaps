@@ -5,6 +5,7 @@ import {
   setAccessToken,
   type MapViewRef,
   type CameraRef,
+  type OnPressEvent,
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
@@ -12,9 +13,16 @@ import { SearchPanel } from "../features/search/SearchPanel";
 // Disable telemetry
 setAccessToken(null);
 
-export function MapContainer({ children }: { children?: React.ReactNode }) {
+export function MapContainer({
+  children,
+  onMapPress,
+}: {
+  children?: React.ReactNode;
+  onMapPress?: (e: OnPressEvent) => void;
+}) {
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
+
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -58,6 +66,7 @@ export function MapContainer({ children }: { children?: React.ReactNode }) {
         logoEnabled={false}
         zoomEnabled
         scrollEnabled
+        onPress={onMapPress}
       >
         <Camera
           ref={cameraRef}

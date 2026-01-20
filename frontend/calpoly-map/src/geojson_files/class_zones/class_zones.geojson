@@ -1,0 +1,39 @@
+{
+    "type": "FeatureCollection",
+    "name": "class_zones",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "building_id": "...",
+          "building_name": "...",
+          "floor": 2,
+          "zone_id": "14_2_left",
+          "label": "Left side, 2nd floor",
+          "room_min": 210,
+          "room_max": 240
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660500, 35.303200]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "building_id": "...",
+          "building_name": "...",
+          "floor": 2,
+          "zone_id": "14_2_right",
+          "label": "Right side, 2nd floor",
+          "room_min": 241,
+          "room_max": 270
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660300, 35.303250]
+        }
+      }
+    ]
+  }
+  
