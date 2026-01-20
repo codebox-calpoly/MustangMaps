@@ -1,5 +1,8 @@
 {
   "expo": {
+    "plugins": [
+      "@maplibre/maplibre-react-native"
+    ],
     "name": "calpoly-map",
     "slug": "calpoly-map",
     "version": "1.0.0",
