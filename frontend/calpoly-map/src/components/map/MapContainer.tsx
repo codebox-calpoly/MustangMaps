@@ -7,6 +7,7 @@ import {
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
+import { SearchPanel } from "../features/search/SearchPanel";
 
 // Disable telemetry
 setAccessToken(null);
@@ -31,8 +32,25 @@ export function MapContainer({ children }: { children?: React.ReactNode }) {
     }
   }, []);
 
+  const handleCameraMove = useCallback(async (loc: number[]) => {
+    const map = mapRef.current;
+    const camera = cameraRef.current;
+    if (!map || !camera) {
+      return;
+    }
+
+    try {
+      camera.flyTo(loc, 200);
+      camera.zoomTo(17, 150)
+    } catch {
+      // Ignore transient zoom errors to keep taps safe.
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
+      <SearchPanel 
+        cameraMove={handleCameraMove}/>
       <MapView
         ref={mapRef}
         style={styles.map}
