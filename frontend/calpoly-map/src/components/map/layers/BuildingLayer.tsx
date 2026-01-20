@@ -1,47 +1,55 @@
-import React from "react";
-import {
-  ShapeSource,
-  FillLayer,
-  LineLayer,
-  type OnPressEvent,
-} from "@maplibre/maplibre-react-native";
+import React, { useEffect, useState } from "react";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system/legacy";
+import type { FeatureCollection } from "geojson";
 
-const buildings = require("../../../geojson_files/buildings.geojson");
+import { addGeoJSONLayer } from "../../../lib/map/loadGeoJSON";
 
-export type SelectedBuilding = {
-  coordinate: [number, number]; // [lng,lat]
-  properties: Record<string, any>;
-};
+export function BuildingLayer() {
+  const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
 
-export function BuildingLayer({
-  onSelectBuilding,
-}: {
-  onSelectBuilding: (b: SelectedBuilding) => void;
-}) {
-  const onBuildingPress = (e: OnPressEvent) => {
-    const feature = e.features?.[0];
-    if (!feature) return;
+  useEffect(() => {
+    let cancelled = false;
 
-    const lng = e.coordinates?.longitude;
-    const lat = e.coordinates?.latitude;
-    if (typeof lng !== "number" || typeof lat !== "number") return;
+    (async () => {
+      try {
+        // From: src/components/map/layers/BuildingLayer.tsx
+        // To:   geojson_files/buildings.geojson (project root)
+        const asset = Asset.fromModule(
+          require("../../../../geojson_files/buildings.geojson")
+        );
 
-    onSelectBuilding({
-      coordinate: [lng, lat],
-      properties: feature.properties ?? {},
-    });
-  };
+        // make sure it's available locally
+        await asset.downloadAsync();
 
-  return (
-    <ShapeSource id="buildings-source" shape={buildings} onPress={onBuildingPress}>
-      <FillLayer
-        id="buildings-fill"
-        style={{ fillColor: "#2563EB", fillOpacity: 0.18 }}
-      />
-      <LineLayer
-        id="buildings-outline"
-        style={{ lineColor: "#1F2937", lineWidth: 1 }}
-      />
-    </ShapeSource>
-  );
+        const uri = asset.localUri ?? asset.uri;
+        const text = await FileSystem.readAsStringAsync(uri);
+        const parsed = JSON.parse(text);
+
+        // Validate it's a FeatureCollection (what ShapeSource expects)
+        if (!parsed || typeof parsed !== "object" || parsed.type !== "FeatureCollection") {
+          throw new Error("buildings.geojson is not a valid GeoJSON FeatureCollection");
+        }
+
+        if (!cancelled) setBuildingData(parsed as FeatureCollection);
+      } catch (e) {
+        console.error("Failed to load buildings GeoJSON:", e);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!buildingData) return null;
+
+  return addGeoJSONLayer({
+    id: "buildings", // <-- this is just your layer name/id (NOT a field in the geojson file)
+    data: buildingData,
+    fillColor: "#6B7280",
+    fillOpacity: 0.25,
+    outlineColor: "#111827",
+    outlineWidth: 1,
+  });
 }

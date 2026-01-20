@@ -1,10 +1,7 @@
 import React, { useRef, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet, Text, View } from "react-native";
-import { MarkerView, type OnPressEvent } from "@maplibre/maplibre-react-native";
-
-import { MapContainer } from "../components/map/MapContainer";
-import { BuildingLayer, type SelectedBuilding } from "../components/map/layers/BuildingLayer";
+import { MapContainer } from '../components/map/MapContainer';
+import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 
 export default function App() {
   const [selected, setSelected] = useState<SelectedBuilding | null>(null);
@@ -28,29 +25,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <MapContainer onMapPress={onMapPress}>
-          <BuildingLayer onSelectBuilding={onSelectBuilding} />
-
-          {selected && (
-            <MarkerView
-              id="building-popup"
-              coordinate={selected.coordinate}
-              anchor={{ x: 0.5, y: 1 }}
-            >
-              <View style={styles.popup}>
-                <Text style={styles.title}>
-                  {name}
-                  {ref ? ` (${ref})` : ""}
-                </Text>
-
-                {/* optional extra info */}
-                {selected.properties?.amenity ? (
-                  <Text style={styles.body}>Amenity: {String(selected.properties.amenity)}</Text>
-                ) : null}
-              </View>
-            </MarkerView>
-          )}
-        </MapContainer>
+        <MapContainer>
+          <BuildingLayer />
+        </MapContainer> 
       </SafeAreaView>
     </SafeAreaProvider>
   );

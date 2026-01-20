@@ -1,0 +1,37 @@
+{
+    "type": "FeatureCollection",
+    "name": "campus_amenities",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_001",
+          "category": "toilet",
+          "name": "Example Restroom",
+          "building": "Yakitutu Building A",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.000000, 35.000000]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "printer_001",
+          "category": "printer",
+          "name": "Example Printer",
+          "building": "Library",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.000000, 35.000000]
+        }
+      }
+    ]
+  }
+  
