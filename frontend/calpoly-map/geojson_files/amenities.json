@@ -1,0 +1,52 @@
+{
+    "type": "FeatureCollection",
+    "name": "campus_amenities",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "fountain_001",
+          "category": "water_fountain",
+          "name": "Example Fountain",
+          "building": "Yakitutu Building A",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65930965347077, 35.300144769896825]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "bathroom_001",
+          "category": "bathroom",
+          "name": "Example Restroom",
+          "building": "Yakitutu Building A",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65958033612218, 35.29966651111824]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "printer_001",
+          "category": "printer",
+          "name": "Example Printer",
+          "building": "University Union",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65851501615165, 35.30033126098619]
+        }
+      }
+    ]
+  }
+  
