@@ -6,6 +6,7 @@
     ],
     "name": "calpoly-map",
     "slug": "calpoly-map",
+    "plugins": ["@maplibre/maplibre-react-native"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
