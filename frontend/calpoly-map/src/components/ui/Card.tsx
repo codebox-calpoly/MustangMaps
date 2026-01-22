@@ -21,6 +21,7 @@ export function Card({ title, subtitle, children, onPress, style }: CardProps) {
           <text style={styles.title}>{title}</text>
           <text style={styles.subtitle}>{subtitle}</text>
         </View>
+        {children}
       </Pressable>
     </SafeAreaView>
   );
