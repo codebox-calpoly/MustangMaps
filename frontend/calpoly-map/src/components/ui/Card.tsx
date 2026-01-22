@@ -17,7 +17,7 @@ export function Card({ title, subtitle, children, onPress, style }: CardProps) {
   return (
     <SafeAreaView>
       <Pressable onPress={onPress}>
-        <View style={[style, { flex: 1 }]}>
+        <View style={[style ? style : styles.defaultViewStyle, { flex: 1 }]}>
           <text style={styles.title}>{title}</text>
           <text style={styles.subtitle}>{subtitle}</text>
         </View>
