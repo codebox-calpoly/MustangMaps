@@ -9,6 +9,7 @@ import {
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
+import useLocation from "../../hooks/useLocation";
 
 // Disable telemetry
 setAccessToken(null);
@@ -20,6 +21,7 @@ export function MapContainer({
   children?: React.ReactNode;
   onMapPress?: (e: OnPressEvent) => void;
 }) {
+  const { latitude, longitude, errorMsg } = useLocation();
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
 
