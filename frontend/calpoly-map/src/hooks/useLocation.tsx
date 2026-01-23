@@ -20,13 +20,6 @@ const UseLocation = () => {
     if (coords) {
       const { latitude, longitude } = coords;
       console.log("lat and long is", latitude, longitude);
-      setLatitude(latitude);
-      setLongitude(longitude);
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      console.log("USER LOCATION IS", response);
     }
   };
 
