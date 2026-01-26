@@ -1,54 +1,70 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { MapContainer } from '../components/map/MapContainer';
-import { BuildingLayer } from '../components/map/layers/BuildingLayer';
+import { MapContainer } from "../components/map/MapContainer";
+import { AmenitiesLayer } from "../components/map/layers/AmenitiesLayer";
+import { BuildingLayer } from "../components/map/layers/BuildingLayer";
+import { RoutesLayer } from "../components/map/layers/RoutesLayer";
+import type {
+  AmenityFilterOption,
+  BuildingFilterOption,
+  MapMode,
+} from "../components/features/map/MapFilters";
 
 export default function App() {
-  const [selected, setSelected] = useState<SelectedBuilding | null>(null);
+  const [mapMode, setMapMode] = useState<MapMode>("buildings");
+  const [buildingFilterId, setBuildingFilterId] = useState("all");
+  const [amenityTypeIds, setAmenityTypeIds] = useState<string[]>([
+    "bathroom",
+    "printer",
+    "water_fountain",
+  ]);
 
-  const suppressNextMapPress = useRef(false);
+  const buildingOptions: BuildingFilterOption[] = useMemo(
+    () => [
+      { id: "all", label: "All", types: null },
+      { id: "academic", label: "Academic", types: ["university", "school"] },
+      { id: "dorms", label: "Dorms", types: ["dormitory"] },
+      { id: "residential", label: "Residential", types: ["residential", "apartments"] },
+      { id: "parking", label: "Parking", types: ["parking"] },
+    ],
+    [],
+  );
 
-  const onSelectBuilding = (b: SelectedBuilding) => {
-    suppressNextMapPress.current = true;
-    setTimeout(() => (suppressNextMapPress.current = false), 0);
-    setSelected(b);
-  };
+  const amenityOptions: AmenityFilterOption[] = useMemo(
+    () => [
+      { id: "bathroom", label: "Bathrooms" },
+      { id: "printer", label: "Printers" },
+      { id: "water_fountain", label: "Water" },
+    ],
+    [],
+  );
 
-  const onMapPress = (_e: OnPressEvent) => {
-    if (suppressNextMapPress.current) return;
-    setSelected(null);
-  };
-
-  const name = selected?.properties?.name ?? "Building";
-  const ref = selected?.properties?.ref;
+  const buildingTypes = useMemo(() => {
+    return buildingOptions.find((option) => option.id === buildingFilterId)?.types ?? null;
+  }, [buildingOptions, buildingFilterId]);
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <MapContainer>
-          <BuildingLayer />
-        </MapContainer> 
+        <MapContainer
+          mapMode={mapMode}
+          onMapModeChange={setMapMode}
+          buildingFilterId={buildingFilterId}
+          onBuildingFilterChange={setBuildingFilterId}
+          amenityTypeIds={amenityTypeIds}
+          onAmenityTypesChange={setAmenityTypeIds}
+          buildingOptions={buildingOptions}
+          amenityOptions={amenityOptions}
+        >
+          {mapMode === "buildings" && (
+            <BuildingLayer buildingTypes={buildingTypes ?? undefined} />
+          )}
+          {mapMode === "amenities" && amenityTypeIds.length > 0 && (
+            <AmenitiesLayer amenityTypes={amenityTypeIds} />
+          )}
+          {mapMode === "routes" && <RoutesLayer />}
+        </MapContainer>
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  popup: {
-    maxWidth: 240,
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 5,
-  },
-  title: { fontWeight: "700", fontSize: 14, marginBottom: 3, color: "#111827" },
-  body: { fontSize: 12, color: "#374151" },
-});
-

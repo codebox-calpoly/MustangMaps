@@ -9,6 +9,12 @@ import {
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
+import {
+  MapFilters,
+  type AmenityFilterOption,
+  type BuildingFilterOption,
+  type MapMode,
+} from "../features/map/MapFilters";
 
 // Disable telemetry
 setAccessToken(null);
@@ -16,9 +22,25 @@ setAccessToken(null);
 export function MapContainer({
   children,
   onMapPress,
+  mapMode,
+  onMapModeChange,
+  buildingFilterId,
+  onBuildingFilterChange,
+  amenityTypeIds,
+  onAmenityTypesChange,
+  buildingOptions,
+  amenityOptions,
 }: {
   children?: React.ReactNode;
   onMapPress?: (e: OnPressEvent) => void;
+  mapMode: MapMode;
+  onMapModeChange: (mode: MapMode) => void;
+  buildingFilterId: string;
+  onBuildingFilterChange: (id: string) => void;
+  amenityTypeIds: string[];
+  onAmenityTypesChange: (ids: string[]) => void;
+  buildingOptions: BuildingFilterOption[];
+  amenityOptions: AmenityFilterOption[];
 }) {
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
@@ -59,6 +81,16 @@ export function MapContainer({
     <View style={styles.container}>
       <SearchPanel 
         cameraMove={handleCameraMove}/>
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={onMapModeChange}
+        buildingFilterId={buildingFilterId}
+        onBuildingFilterChange={onBuildingFilterChange}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={onAmenityTypesChange}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
       <MapView
         ref={mapRef}
         style={styles.map}
