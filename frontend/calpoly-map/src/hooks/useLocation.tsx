@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 
 const UseLocation = () => {
