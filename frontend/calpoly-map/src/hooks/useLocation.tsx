@@ -4,8 +4,8 @@ import * as Location from "expo-location";
 
 const UseLocation = () => {
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude] = useState<number | null>(null);
+  const [latitude] = useState<number | null>(null);
 
   const getUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
