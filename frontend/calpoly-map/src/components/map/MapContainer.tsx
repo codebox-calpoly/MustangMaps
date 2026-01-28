@@ -23,7 +23,9 @@ export function MapContainer({
   children?: React.ReactNode;
   onMapPress?: (e: OnPressEvent) => void;
 }) {
+  // Loads user's current lat and long
   const { latitude, longitude } = useLocation();
+
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
 
@@ -72,8 +74,8 @@ export function MapContainer({
         onPress={onMapPress}
       >
         <UserLocation
+        // Renders user's location as dot with arrow for facing direction
           visible={true}
-          // show heading indicator (compass-like arrow); prop name may vary.
           showsUserHeadingIndicator={true}
         />
         <Camera
