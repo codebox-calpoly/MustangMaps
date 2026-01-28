@@ -10,7 +10,6 @@ import {
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
-import UserLocationMarker from "./markers/UserLocationMarker";
 import useLocation from "../../hooks/useLocation";
 
 // Disable telemetry
