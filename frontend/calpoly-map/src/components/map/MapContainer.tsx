@@ -3,12 +3,14 @@ import {
   MapView,
   Camera,
   setAccessToken,
+  UserLocation,
   type MapViewRef,
   type CameraRef,
   type OnPressEvent,
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
+import useLocation from "../../hooks/useLocation";
 
 // Disable telemetry
 setAccessToken(null);
@@ -20,9 +22,11 @@ export function MapContainer({
   children?: React.ReactNode;
   onMapPress?: (e: OnPressEvent) => void;
 }) {
+  // Loads user's current lat and long
+  const { latitude, longitude } = useLocation();
+
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
-
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -68,6 +72,11 @@ export function MapContainer({
         scrollEnabled
         onPress={onMapPress}
       >
+        <UserLocation
+        // Renders user's location as dot with arrow for facing direction
+          visible={true}
+          showsUserHeadingIndicator={true}
+        />
         <Camera
           ref={cameraRef}
           centerCoordinate={[-120.6596, 35.305]}
