@@ -3,6 +3,7 @@ import {
   MapView,
   Camera,
   setAccessToken,
+  UserLocation,
   type MapViewRef,
   type CameraRef,
   type OnPressEvent,
@@ -42,9 +43,11 @@ export function MapContainer({
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
 }) {
+  // Loads user's current lat and long
+  const { latitude, longitude } = useLocation();
+
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
-
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -100,6 +103,11 @@ export function MapContainer({
         scrollEnabled
         onPress={onMapPress}
       >
+        <UserLocation
+        // Renders user's location as dot with arrow for facing direction
+          visible={true}
+          showsUserHeadingIndicator={true}
+        />
         <Camera
           ref={cameraRef}
           centerCoordinate={[-120.6596, 35.305]}
