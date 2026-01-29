@@ -6,9 +6,6 @@ import {
 } from "@maplibre/maplibre-react-native";
 import features from "../../../../geojson_files/amenities.json";
 
-// Define the categories of amenities to be displayed. Leave empty to show none.
-const amenityCategories : string[] = ["bathroom", "printer", "water_fountain"];
-
 // Function to add a GeoJSON layer with specified styling and filtering
 type AddGeoJSONLayerArgs = {
   sourceId: string;
@@ -46,14 +43,14 @@ function addGeoJSONLayer({
 }
 
 // Main component to render the amenities layer on the map
-export function AmenitiesLayer() {
+export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
   return (
     <>
       {addGeoJSONLayer({
         sourceId: "amenities-source",
         layerId: "amenities-layer",
         data: features as FeatureCollection<Point>,
-        amenityTypes: amenityCategories,
+        amenityTypes,
         circleStyle: {
           circleRadius: 8,
           circleColor: "#fff422ff",

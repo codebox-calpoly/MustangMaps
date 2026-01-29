@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
 
-import { addGeoJSONLayer } from "../../../lib/map/loadGeoJSON";
+import { FillLayer, LineLayer, ShapeSource } from "@maplibre/maplibre-react-native";
 
-export function BuildingLayer() {
+export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
+  const buildingFilter = useMemo(() => {
+    if (!buildingTypes || buildingTypes.length === 0) {
+      return undefined;
+    }
+    return ["in", ["get", "building"], ["literal", buildingTypes]] as const;
+  }, [buildingTypes]);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,12 +50,24 @@ export function BuildingLayer() {
 
   if (!buildingData) return null;
 
-  return addGeoJSONLayer({
-    id: "buildings", // <-- this is just your layer name/id (NOT a field in the geojson file)
-    data: buildingData,
-    fillColor: "#6B7280",
-    fillOpacity: 0.25,
-    outlineColor: "#111827",
-    outlineWidth: 1,
-  });
+  return (
+    <ShapeSource id="buildings-source" shape={buildingData}>
+      <FillLayer
+        id="buildings-fill"
+        filter={buildingFilter}
+        style={{
+          fillColor: "#6B7280",
+          fillOpacity: 0.25,
+        }}
+      />
+      <LineLayer
+        id="buildings-outline"
+        filter={buildingFilter}
+        style={{
+          lineColor: "#111827",
+          lineWidth: 1,
+        }}
+      />
+    </ShapeSource>
+  );
 }
