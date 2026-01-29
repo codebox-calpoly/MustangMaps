@@ -1,30 +1,29 @@
 import React, { useCallback, useMemo, useState } from "react";
 import {
-  Button,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { useSearch } from "../../../hooks/useSearch";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useMapContext } from "../../../context/MapContext";
+import type { Geometry } from "geojson";
 
 import geoData from "./test.json";
 
 interface Props {
-  cameraMove: (coordinates: number[]) => {};
+  cameraMove: (coordinates: number[]) => void;
 }
 
 export function SearchPanel({ cameraMove }: Props) {
-  const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(false);
+  const { searchQuery, setSearchQuery } = useMapContext();
 
   const handleSearch = useCallback(
     (input: string) => {
-      setSearch(input);
+      setSearchQuery(input);
       // show results if user is searching for a building
       if (input) {
         setFocused(true);
@@ -32,7 +31,7 @@ export function SearchPanel({ cameraMove }: Props) {
         setFocused(false);
       }
     },
-    [setSearch],
+    [setSearchQuery],
   );
 
   const data = geoData.features;
@@ -41,13 +40,13 @@ export function SearchPanel({ cameraMove }: Props) {
   const filteredData = useMemo(() => {
     const filteredData = data.filter((item) => {
       const name = item.properties.name;
-      const match = name?.toLowerCase().match(search.toLowerCase());
+      const match = name?.toLowerCase().match(searchQuery.toLowerCase());
       return name && match && match.length > 0;
     });
 
     // sort and return results
     return filteredData.sort();
-  }, [data, search]);
+  }, [data, searchQuery]);
 
   // averages the middle of a building based off all its constituent coordinates
   const middle = useCallback((coordinates: number[][]) => {
@@ -65,6 +64,16 @@ export function SearchPanel({ cameraMove }: Props) {
     return result;
   }, []);
 
+  const getRingCoordinates = useCallback((geometry: Geometry): number[][] | null => {
+    if (geometry.type === "Polygon") {
+      return geometry.coordinates[0] ?? null;
+    }
+    if (geometry.type === "MultiPolygon") {
+      return geometry.coordinates[0]?.[0] ?? null;
+    }
+    return null;
+  }, []);
+
   return (
     <SafeAreaView style={styles.searchContainer}>
       <TextInput
@@ -74,7 +83,7 @@ export function SearchPanel({ cameraMove }: Props) {
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={handleSearch}
-        value={search}
+        value={searchQuery}
       />
       {focused && (
         <FlatList
@@ -85,7 +94,12 @@ export function SearchPanel({ cameraMove }: Props) {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => {
-                cameraMove(middle(item.geometry.coordinates[0]));
+                const ring = getRingCoordinates(item.geometry as Geometry);
+                if (!ring || ring.length === 0) {
+                  return;
+                }
+                cameraMove(middle(ring));
+                setFocused(false);
               }}
               style={({ pressed }) => [
                 {
