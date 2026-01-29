@@ -12,6 +12,9 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
 import useLocation from "../../hooks/useLocation";
 
+import { Image } from "react-native"; //
+
+
 // Disable telemetry
 setAccessToken(null);
 
@@ -59,6 +62,29 @@ export function MapContainer({
     }
   }, []);
 
+const loadAmenityIcons = async () => {
+    console.log("Loading amenity icons");
+
+  const map = mapRef.current;
+  if (!map) return;
+
+// if adding new, just copy line and input name of amenity (ie amenity-cookie, or something like that)
+
+  const icons: Array<[string, any]> = [
+    ["amenity-bathroom", require("../../../assets/map-icons/amenity-bathroom.png")],
+    ["amenity-water-fountain", require("../../../assets/map-icons/amenity-water-fountain.png")],
+    ["amenity-printer", require("../../../assets/map-icons/amenity-printer.png")],
+    ["amenity-classroom", require("../../../assets/map-icons/amenity-classroom.png")],
+  ];
+
+  for (const [name, asset] of icons) {
+    if (map.hasImage?.(name)) continue;
+
+    const resolved = Image.resolveAssetSource(asset);
+    await map.addImage(name, resolved.uri);
+  }
+};
+
   return (
     <View style={styles.container}>
       <SearchPanel 
@@ -71,6 +97,7 @@ export function MapContainer({
         zoomEnabled
         scrollEnabled
         onPress={onMapPress}
+        onDidFinishLoadingStyle={loadAmenityIcons}  // adds images after style is ready
       >
         <UserLocation
         // Renders user's location as dot with arrow for facing direction
