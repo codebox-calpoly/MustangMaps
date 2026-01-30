@@ -43,9 +43,6 @@ export function MapContainer({
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
 }) {
-  // Loads user's current lat and long
-  const { latitude, longitude } = useLocation();
-
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
 
