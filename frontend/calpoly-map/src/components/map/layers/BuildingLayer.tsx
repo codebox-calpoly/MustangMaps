@@ -149,33 +149,6 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
     };
   }, []);
 
-  // Create a MapLibre match expression for data-driven styling
-  // Check properties in priority order: university-function > building:use > amenity > building
-  const fillColorExpression = useMemo(() => {
-    const matchExpression: any[] = [
-      "match",
-      // Use coalesce to check properties from most specific to most generic
-      [
-        "coalesce",
-        ["get", "university-function"], // Most specific - university building function
-        ["get", "building:use"],        // Specific - building use
-        ["get", "amenity"],             // Specific - amenity type
-        ["get", "building"],            // Generic - building type
-        "",
-      ],
-    ];
-
-    // Add color mappings for each building/amenity type
-    Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
-      matchExpression.push(type, color);
-    });
-
-    // Add default color as fallback
-    matchExpression.push(DEFAULT_BUILDING_COLOR);
-
-    return matchExpression;
-  }, []);
-
   if (!buildingData) return null;
 
   return (
@@ -187,13 +160,6 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
         if (event.features && event.features.length > 0) {
           const feature = event.features[0];
           console.log('Building tapped:', feature.properties?.name);
-
-          // Call the callback directly (works on iOS)
-          if (onBuildingPress) {
-            onBuildingPress(feature);
-          } else {
-            console.warn('onBuildingPress callback not available');
-          }
         }
         return true;
       }}
