@@ -2,8 +2,9 @@
   "type": "FeatureCollection",
   "generator": "overpass-turbo",
   "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
-  "timestamp": "2026-01-30T08:31:58Z",
+  "timestamp": "2025-12-31T06:32:08Z",
   "features": [
+
     {
       "type": "Feature",
       "properties": {
@@ -176,13 +177,11 @@
         "addr:postcode": "93407",
         "addr:street": "Grand",
         "building": "university",
-        "amenity": "engineering_building",
         "name": "Engineering",
         "ref": "13",
         "type": "multipolygon",
         "university-function": "academic school or college",
-        "wheelchair": "yes",
-        "amenity": "engineering_building"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -274,12 +273,10 @@
         "addr:city": "San Luis Obispo",
         "addr:postcode": "93407",
         "addr:street": "Grand",
-        "amenity": "dormitory",
         "building": "dormitory",
         "building:levels": "2",
         "name": "100 Shasta Hall",
-        "ref": "100",
-        "amenity": "dormitory"
+        "ref": "100"
       },
       "geometry": {
         "type": "Polygon",
@@ -317,12 +314,10 @@
         "addr:city": "San Luis Obispo",
         "addr:postcode": "93407",
         "addr:street": "Grand",
-        "amenity": "dormitory",
         "building": "dormitory",
         "building:levels": "2",
         "name": "101 Diablo Hall",
-        "ref": "101",
-        "amenity": "dormitory"
+        "ref": "101"
       },
       "geometry": {
         "type": "Polygon",
@@ -360,12 +355,10 @@
         "addr:city": "San Luis Obispo",
         "addr:postcode": "93407",
         "addr:street": "Grand",
-        "amenity": "dormitory",
         "building": "dormitory",
         "building:levels": "2",
         "name": "102 Palomar Hall",
-        "ref": "102",
-        "amenity": "dormitory"
+        "ref": "102"
       },
       "geometry": {
         "type": "Polygon",
@@ -403,7 +396,6 @@
         "addr:city": "San Luis Obispo",
         "addr:postcode": "93407",
         "addr:street": "Grand",
-        "amenity": "miscellaneous",
         "building": "university",
         "name": "Old Power House",
         "ref": "76"
@@ -460,11 +452,9 @@
         "addr:city": "San Luis Obispo",
         "addr:postcode": "93407",
         "addr:street": "Grand",
-        "amenity": "miscellaneous",
         "building": "university",
         "name": "Farm Shop",
-        "ref": "09",
-        "amenity": "agriculture"
+        "ref": "09"
       },
       "geometry": {
         "type": "Polygon",
@@ -521,8 +511,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering IV",
-        "ref": "192",
-        "amenity": "engineering_building"
+        "ref": "192"
       },
       "geometry": {
         "type": "Polygon",
@@ -639,8 +628,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Bonderson Projects Center",
-        "ref": "197",
-        "amenity": "academic"
+        "ref": "197"
       },
       "geometry": {
         "type": "Polygon",
@@ -713,8 +701,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Advanced Technologies Laboratory",
-        "ref": "07",
-        "amenity": "academic"
+        "ref": "07"
       },
       "geometry": {
         "type": "Polygon",
@@ -782,8 +769,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering South",
-        "ref": "40",
-        "amenity": "engineering_building"
+        "ref": "40"
       },
       "geometry": {
         "type": "Polygon",
@@ -847,8 +833,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Graphic Arts",
-        "ref": "26",
-        "amenity": "computer_science"
+        "ref": "26"
       },
       "geometry": {
         "type": "Polygon",
@@ -912,8 +897,7 @@
       "properties": {
         "@id": "way/38939880",
         "building": "university",
-        "name": "Printing Press",
-        "amenity": "academic"
+        "name": "Printing Press"
       },
       "geometry": {
         "type": "Polygon",
@@ -954,8 +938,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Engineering East",
-        "ref": "20",
-        "amenity": "engineering_building"
+        "ref": "20"
       },
       "geometry": {
         "type": "Polygon",
@@ -1079,8 +1062,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Bert and Candace Forbes Center for Excellence",
-        "ref": "20A",
-        "amenity": "academic"
+        "ref": "20A"
       },
       "geometry": {
         "type": "Polygon",
@@ -1121,8 +1103,7 @@
         "building": "university",
         "building:levels": "3",
         "name": "Frank E. Pilling Building",
-        "ref": "14",
-        "amenity": "academic"
+        "ref": "14"
       },
       "geometry": {
         "type": "Polygon",
@@ -1250,8 +1231,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering West Addition",
-        "ref": "21A",
-        "amenity": "engineering_building"
+        "ref": "21A"
       },
       "geometry": {
         "type": "Polygon",
@@ -1434,8 +1414,7 @@
         "name": "Engineering West: Architectural Engineering",
         "phone": "+1 805-756-1314",
         "university-function": "academic school or college",
-        "website": "https://arce.calpoly.edu/",
-        "amenity": "engineering_building"
+        "website": "https://arce.calpoly.edu/"
       },
       "geometry": {
         "type": "Polygon",
@@ -1512,8 +1491,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Walter F. Dexter Building",
-        "ref": "34",
-        "amenity": "academic"
+        "ref": "34"
       },
       "geometry": {
         "type": "Polygon",
@@ -1635,8 +1613,7 @@
         "building:levels": "2",
         "name": "Davidson Music Center",
         "official_name": "H. P. Davidson Music Center",
-        "ref": "45",
-        "amenity": "performing_arts"
+        "ref": "45"
       },
       "geometry": {
         "type": "Polygon",
@@ -1716,8 +1693,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Robert E. Mott Physical Education",
-        "ref": "42",
-        "amenity": "recreation"
+        "ref": "42"
       },
       "geometry": {
         "type": "Polygon",
@@ -1834,8 +1810,7 @@
         "phone": "+1 805-756-1315",
         "university-function": "academic school or college",
         "website": "https://planning.calpoly.edu/",
-        "wheelchair": "yes",
-        "amenity": "engineering_building"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -1939,8 +1914,7 @@
         "building": "university",
         "leisure": "sports_hall",
         "name": "Crandall Gymnasium",
-        "ref": "60",
-        "amenity": "recreation"
+        "ref": "60"
       },
       "geometry": {
         "type": "Polygon",
@@ -2012,8 +1986,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Aero Hanger",
-        "ref": "04A",
-        "amenity": "academic"
+        "ref": "04A"
       },
       "geometry": {
         "type": "Polygon",
@@ -2086,8 +2059,7 @@
         "@id": "way/45600385",
         "building": "university",
         "name": "Research Development Center",
-        "ref": "04",
-        "amenity": "academic"
+        "ref": "04"
       },
       "geometry": {
         "type": "Polygon",
@@ -2124,8 +2096,7 @@
         "@id": "way/45600386",
         "building": "yes",
         "name": "Public Safety Lab",
-        "ref": "04C",
-        "amenity": "police"
+        "ref": "04C"
       },
       "geometry": {
         "type": "Polygon",
@@ -2235,8 +2206,7 @@
         "building": "university",
         "building:levels": "2",
         "building:use": "education",
-        "name": "Mathematics and Science (38)",
-        "amenity": "science_building"
+        "name": "Mathematics and Science (38)"
       },
       "geometry": {
         "type": "Polygon",
@@ -2345,8 +2315,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Alan A. Erhart Agriculture",
-        "university-function": "academic school or college",
-        "amenity": "agriculture"
+        "university-function": "academic school or college"
       },
       "geometry": {
         "type": "Polygon",
@@ -2408,8 +2377,7 @@
         "building:levels": "3",
         "name": "105 Trinity Hall",
         "ref": "105",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -2511,8 +2479,7 @@
         "building:levels": "3",
         "name": "108 Sequoia Hall",
         "ref": "108",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -2633,8 +2600,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Dining Complex",
-        "ref": "19",
-        "amenity": "dining"
+        "ref": "19"
       },
       "geometry": {
         "type": "Polygon",
@@ -2903,8 +2869,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Transportation Services",
-        "ref": "71",
-        "amenity": "academic"
+        "ref": "71"
       },
       "geometry": {
         "type": "Polygon",
@@ -2962,8 +2927,7 @@
         "building": "university",
         "description": "By Cal Poly Irrigation Training and Research",
         "name": "Bioresource and Agricultural Engineering",
-        "ref": "08A",
-        "amenity": "engineering_building"
+        "ref": "08A"
       },
       "geometry": {
         "type": "Polygon",
@@ -3003,8 +2967,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Facility Services/Receiving Warehouse",
-        "ref": "70",
-        "amenity": "academic"
+        "ref": "70"
       },
       "geometry": {
         "type": "Polygon",
@@ -3092,8 +3055,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Housing Warehouse/Risk Management",
-        "ref": "80",
-        "amenity": "academic"
+        "ref": "80"
       },
       "geometry": {
         "type": "Polygon",
@@ -3141,8 +3103,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Corporation Administration",
-        "ref": "15",
-        "amenity": "administrative"
+        "ref": "15"
       },
       "geometry": {
         "type": "Polygon",
@@ -3238,7 +3199,7 @@
       "properties": {
         "@id": "way/45600405",
         "addr:city": "San Luis Obispo",
-        "amenity": "engineering_building",
+        "amenity": "college",
         "building": "university",
         "description": "BRAE Department",
         "name": "Bioresource and Agricultural Engineering",
@@ -3337,8 +3298,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "English",
-        "university-function": "academic school or college",
-        "amenity": "academic"
+        "university-function": "academic school or college"
       },
       "geometry": {
         "type": "Polygon",
@@ -3412,8 +3372,7 @@
         "building:levels": "2",
         "name": "107 Muir Hall",
         "ref": "107",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -3523,8 +3482,7 @@
         "building:levels": "3",
         "name": "110 Tenaya Hall",
         "ref": "110",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -3626,8 +3584,7 @@
         "building:levels": "3",
         "name": "109 Fremont Hall",
         "ref": "109",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -3723,8 +3680,7 @@
       "properties": {
         "@id": "way/45637272",
         "building": "university",
-        "name": "Beef Unit",
-        "amenity": "academic"
+        "name": "Beef Unit"
       },
       "geometry": {
         "type": "Polygon",
@@ -3770,8 +3726,7 @@
         "max_level": "2",
         "min_level": "0",
         "name": "Faculty Offices East",
-        "ref": "25",
-        "amenity": "administrative"
+        "ref": "25"
       },
       "geometry": {
         "type": "Polygon",
@@ -4091,8 +4046,7 @@
         "name": "Bishop",
         "operator": "California Polytechnic State University",
         "ref": "170E",
-        "residential": "university",
-        "amenity": "maintenance"
+        "residential": "university"
       },
       "geometry": {
         "type": "Polygon",
@@ -5324,8 +5278,7 @@
         "addr:housenumber": "41B",
         "building": "university",
         "name": "Reinhold Aerospace",
-        "ref": "41B",
-        "amenity": "academic"
+        "ref": "41B"
       },
       "geometry": {
         "type": "Polygon",
@@ -5548,8 +5501,7 @@
         "name": "106 Santa Lucia Hall",
         "ref": "106",
         "smoking": "no",
-        "university-function": "hall of residence",
-        "amenity": "dormitory"
+        "university-function": "hall of residence"
       },
       "geometry": {
         "type": "Polygon",
@@ -5710,8 +5662,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Welding",
-        "ref": "58",
-        "amenity": "academic"
+        "ref": "58"
       },
       "geometry": {
         "type": "Polygon",
@@ -5760,8 +5711,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Agricultural Sciences",
-        "ref": "11",
-        "amenity": "science_building"
+        "ref": "11"
       },
       "geometry": {
         "type": "Polygon",
@@ -5866,8 +5816,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Food Processing/Cal Poly Meats",
-        "ref": "24",
-        "amenity": "academic"
+        "ref": "24"
       },
       "geometry": {
         "type": "Polygon",
@@ -5907,8 +5856,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Science North",
-        "ref": "53",
-        "amenity": "science_building"
+        "ref": "53"
       },
       "geometry": {
         "type": "Polygon",
@@ -5967,8 +5915,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Faculty Offices North",
-        "ref": "47",
-        "amenity": "administrative"
+        "ref": "47"
       },
       "geometry": {
         "type": "Polygon",
@@ -6128,8 +6075,7 @@
         "name": "Cal Poly Campus Market",
         "opening_hours": "Mo-Th 07:30-16:30; Fr 07:30-16:00",
         "ref": "24",
-        "shop": "convenience",
-        "amenity": "dining"
+        "shop": "convenience"
       },
       "geometry": {
         "type": "Polygon",
@@ -6258,8 +6204,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Science",
-        "ref": "52",
-        "amenity": "science_building"
+        "ref": "52"
       },
       "geometry": {
         "type": "Polygon",
@@ -6591,8 +6536,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Cal Poly University Store",
-        "ref": "65",
-        "amenity": "academic"
+        "ref": "65"
       },
       "geometry": {
         "type": "Polygon",
@@ -6684,8 +6628,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Administration",
-        "ref": "01",
-        "amenity": "administrative"
+        "ref": "01"
       },
       "geometry": {
         "type": "Polygon",
@@ -6747,8 +6690,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Clyde P. Fisher Science",
-        "ref": "33",
-        "amenity": "science_building"
+        "ref": "33"
       },
       "geometry": {
         "type": "Polygon",
@@ -6861,8 +6803,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "103 Whitney Hall",
-        "ref": "103",
-        "amenity": "dormitory"
+        "ref": "103"
       },
       "geometry": {
         "type": "Polygon",
@@ -6907,8 +6848,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "104 Lassen Hall",
-        "ref": "104",
-        "amenity": "dormitory"
+        "ref": "104"
       },
       "geometry": {
         "type": "Polygon",
@@ -6949,8 +6889,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Architecture and Environmental Design",
-        "ref": "05",
-        "amenity": "architecture"
+        "ref": "05"
       },
       "geometry": {
         "type": "Polygon",
@@ -7138,8 +7077,7 @@
         "building": "university",
         "min_level": "-1",
         "name": "Construction Innovations Center",
-        "ref": "186",
-        "amenity": "academic"
+        "ref": "186"
       },
       "geometry": {
         "type": "Polygon",
@@ -7768,8 +7706,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "31 Housing and Residential Life",
-        "ref": "31",
-        "amenity": "academic"
+        "ref": "31"
       },
       "geometry": {
         "type": "Polygon",
@@ -7865,8 +7802,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Brown Engineering",
-        "ref": "41A",
-        "amenity": "engineering_building"
+        "ref": "41A"
       },
       "geometry": {
         "type": "Polygon",
@@ -7971,8 +7907,7 @@
         "building": "university",
         "building:use": "office",
         "name": "Julian A. McPhee University Union (65)",
-        "office": "Cal Poly ASI",
-        "amenity": "student_services"
+        "office": "Cal Poly ASI"
       },
       "geometry": {
         "type": "Polygon",
@@ -8098,8 +8033,7 @@
         "max_level": "2",
         "min_level": "-1",
         "name": "Cotchett Education Building",
-        "ref": "02",
-        "amenity": "academic"
+        "ref": "02"
       },
       "geometry": {
         "type": "Polygon",
@@ -8226,8 +8160,7 @@
         "name": "Orfalea College Of Business Building",
         "phone": "+1-805-756-2705",
         "ref": "03",
-        "website": "https://www.cob.calpoly.edu/",
-        "amenity": "business"
+        "website": "https://www.cob.calpoly.edu/"
       },
       "geometry": {
         "type": "Polygon",
@@ -8584,8 +8517,7 @@
       "properties": {
         "@id": "way/205393261",
         "building": "yes",
-        "name": "04D- Aero Jet Engine Test Facility",
-        "amenity": "maintenance"
+        "name": "04D- Aero Jet Engine Test Facility"
       },
       "geometry": {
         "type": "Polygon",
@@ -8726,8 +8658,7 @@
       "properties": {
         "@id": "way/205393309",
         "building": "yes",
-        "name": "160F- Sport Complex Maintenance Building",
-        "amenity": "maintenance"
+        "name": "160F- Sport Complex Maintenance Building"
       },
       "geometry": {
         "type": "Polygon",
@@ -8871,8 +8802,7 @@
         "addr:housenumber": "187",
         "building": "university",
         "name": "Materials Demonstration Lab",
-        "university-function": "academic school or college",
-        "amenity": "academic"
+        "university-function": "academic school or college"
       },
       "geometry": {
         "type": "Polygon",
@@ -9113,8 +9043,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Natatorium Faculty Office",
-        "ref": "46T",
-        "amenity": "administrative"
+        "ref": "46T"
       },
       "geometry": {
         "type": "Polygon",
@@ -9217,8 +9146,7 @@
       "properties": {
         "@id": "way/205411407",
         "building": "yes",
-        "name": "61E- Spanos Stadium Concession",
-        "amenity": "performing_arts"
+        "name": "61E- Spanos Stadium Concession"
       },
       "geometry": {
         "type": "Polygon",
@@ -9293,8 +9221,7 @@
         "building": "university",
         "building:levels": "7",
         "name": "Warren J. Baker Center",
-        "ref": "180",
-        "amenity": "academic"
+        "ref": "180"
       },
       "geometry": {
         "type": "Polygon",
@@ -9445,8 +9372,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Faculty Offices North",
-        "ref": "47",
-        "amenity": "administrative"
+        "ref": "47"
       },
       "geometry": {
         "type": "Polygon",
@@ -9629,8 +9555,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Faculty Offices North",
-        "ref": "47",
-        "amenity": "administrative"
+        "ref": "47"
       },
       "geometry": {
         "type": "Polygon",
@@ -10011,8 +9936,7 @@
         "smoking": "no",
         "start_date": "1996",
         "website": "https://www.pacslo.org/",
-        "wheelchair": "yes",
-        "amenity": "performing_arts"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -10619,8 +10543,7 @@
         "@id": "way/1115832121",
         "building": "university",
         "building:levels": "1",
-        "name": "Building 072 Offices",
-        "amenity": "administrative"
+        "name": "Building 072 Offices"
       },
       "geometry": {
         "type": "Polygon",
@@ -10774,8 +10697,7 @@
         "addr:street": "Grand Avenue",
         "building": "university",
         "building:levels": "4",
-        "name": "William and Linda Frost Center for Research and Innovation (181)",
-        "amenity": "academic"
+        "name": "William and Linda Frost Center for Research and Innovation (181)"
       },
       "geometry": {
         "type": "Polygon",
@@ -10980,8 +10902,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Pavilion",
-        "ref": "19A",
-        "amenity": "academic"
+        "ref": "19A"
       },
       "geometry": {
         "type": "Polygon",
@@ -11146,5059 +11067,6 @@
         ]
       },
       "id": "way/1431844835"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45599075",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "113A Sierra Madre Hall: Tower 0",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6550425,
-              35.2992363
-            ],
-            [
-              -120.6550535,
-              35.2992615
-            ],
-            [
-              -120.6552732,
-              35.2991972
-            ],
-            [
-              -120.6552621,
-              35.2991718
-            ],
-            [
-              -120.6553367,
-              35.2991499
-            ],
-            [
-              -120.6553131,
-              35.299096
-            ],
-            [
-              -120.6552704,
-              35.2991085
-            ],
-            [
-              -120.6552477,
-              35.2990567
-            ],
-            [
-              -120.6552139,
-              35.2990666
-            ],
-            [
-              -120.6552025,
-              35.2990407
-            ],
-            [
-              -120.6549851,
-              35.2991042
-            ],
-            [
-              -120.6549969,
-              35.2991311
-            ],
-            [
-              -120.6549226,
-              35.2991528
-            ],
-            [
-              -120.6549459,
-              35.299206
-            ],
-            [
-              -120.6549886,
-              35.2991935
-            ],
-            [
-              -120.6550114,
-              35.2992454
-            ],
-            [
-              -120.6550425,
-              35.2992363
-            ]
-          ]
-        ]
-      },
-      "id": "way/45599075"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45599078",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "113C Sierra Madre Hall: Tower 2",
-        "smoking": "no",
-        "wheelchair": "no",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6547369,
-              35.2993086
-            ],
-            [
-              -120.65472,
-              35.2992694
-            ],
-            [
-              -120.6547834,
-              35.2992512
-            ],
-            [
-              -120.6547722,
-              35.2992252
-            ],
-            [
-              -120.6548044,
-              35.299216
-            ],
-            [
-              -120.6547281,
-              35.2990391
-            ],
-            [
-              -120.6546959,
-              35.2990483
-            ],
-            [
-              -120.6546696,
-              35.2989872
-            ],
-            [
-              -120.6546037,
-              35.2990061
-            ],
-            [
-              -120.6546182,
-              35.2990399
-            ],
-            [
-              -120.6545555,
-              35.2990579
-            ],
-            [
-              -120.6545681,
-              35.2990872
-            ],
-            [
-              -120.6545364,
-              35.2990963
-            ],
-            [
-              -120.654614,
-              35.2992764
-            ],
-            [
-              -120.6546474,
-              35.2992668
-            ],
-            [
-              -120.6546732,
-              35.2993268
-            ],
-            [
-              -120.6547369,
-              35.2993086
-            ]
-          ]
-        ]
-      },
-      "id": "way/45599078"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600314",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6559458,
-              35.2956485
-            ],
-            [
-              -120.6559461,
-              35.2957107
-            ],
-            [
-              -120.6560185,
-              35.2957105
-            ],
-            [
-              -120.6560182,
-              35.2956483
-            ],
-            [
-              -120.6559458,
-              35.2956485
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600314"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600315",
-        "addr:full": "1525 Slack",
-        "addr:housenumber": "1525",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6565463,
-              35.2958866
-            ],
-            [
-              -120.6565467,
-              35.2957392
-            ],
-            [
-              -120.6565019,
-              35.2957391
-            ],
-            [
-              -120.6565019,
-              35.2957168
-            ],
-            [
-              -120.6563863,
-              35.2957166
-            ],
-            [
-              -120.6563862,
-              35.2957453
-            ],
-            [
-              -120.6563627,
-              35.2957452
-            ],
-            [
-              -120.6563625,
-              35.2958321
-            ],
-            [
-              -120.6564253,
-              35.2958322
-            ],
-            [
-              -120.6564253,
-              35.2958371
-            ],
-            [
-              -120.6564586,
-              35.2958371
-            ],
-            [
-              -120.6564584,
-              35.2958864
-            ],
-            [
-              -120.6565463,
-              35.2958866
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600315"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600316",
-        "addr:full": "1475 Slack",
-        "addr:housenumber": "1475",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6570518,
-              35.2958936
-            ],
-            [
-              -120.6570512,
-              35.295866
-            ],
-            [
-              -120.6571211,
-              35.295865
-            ],
-            [
-              -120.6571205,
-              35.2958341
-            ],
-            [
-              -120.6571549,
-              35.2958336
-            ],
-            [
-              -120.6571536,
-              35.29577
-            ],
-            [
-              -120.6570988,
-              35.2957708
-            ],
-            [
-              -120.6570977,
-              35.2957172
-            ],
-            [
-              -120.6569667,
-              35.2957191
-            ],
-            [
-              -120.6569691,
-              35.2958346
-            ],
-            [
-              -120.6569888,
-              35.2958343
-            ],
-            [
-              -120.6569901,
-              35.2958945
-            ],
-            [
-              -120.6570518,
-              35.2958936
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600316"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600317",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "228",
-        "addr:postcode": "93405",
-        "addr:state": "CA",
-        "addr:street": "Albert Drive",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6569474,
-              35.2954877
-            ],
-            [
-              -120.6569542,
-              35.2953687
-            ],
-            [
-              -120.6567711,
-              35.2953618
-            ],
-            [
-              -120.6567643,
-              35.2954808
-            ],
-            [
-              -120.6569474,
-              35.2954877
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600317"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600345",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "120",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6529021,
-              35.2958123
-            ],
-            [
-              -120.6529021,
-              35.2958038
-            ],
-            [
-              -120.6529202,
-              35.2958038
-            ],
-            [
-              -120.6529203,
-              35.2957552
-            ],
-            [
-              -120.6529027,
-              35.2957552
-            ],
-            [
-              -120.6529027,
-              35.2957443
-            ],
-            [
-              -120.6527975,
-              35.2957441
-            ],
-            [
-              -120.6527974,
-              35.2958122
-            ],
-            [
-              -120.6529021,
-              35.2958123
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600345"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600349",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "110",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.652795,
-              35.2959163
-            ],
-            [
-              -120.6529022,
-              35.2959165
-            ],
-            [
-              -120.6529022,
-              35.2959072
-            ],
-            [
-              -120.6529191,
-              35.2959072
-            ],
-            [
-              -120.6529193,
-              35.2958581
-            ],
-            [
-              -120.6529008,
-              35.2958581
-            ],
-            [
-              -120.6529008,
-              35.2958484
-            ],
-            [
-              -120.6527952,
-              35.2958482
-            ],
-            [
-              -120.652795,
-              35.2959163
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600349"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600350",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "166",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6528798,
-              35.2955106
-            ],
-            [
-              -120.6528794,
-              35.2954828
-            ],
-            [
-              -120.6528944,
-              35.2954827
-            ],
-            [
-              -120.6528932,
-              35.2953954
-            ],
-            [
-              -120.6528114,
-              35.2953962
-            ],
-            [
-              -120.6528126,
-              35.2954789
-            ],
-            [
-              -120.6527938,
-              35.2954791
-            ],
-            [
-              -120.6527942,
-              35.2955114
-            ],
-            [
-              -120.6528798,
-              35.2955106
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600350"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600352",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "140",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.652887,
-              35.2955914
-            ],
-            [
-              -120.6528865,
-              35.295524
-            ],
-            [
-              -120.652791,
-              35.2955245
-            ],
-            [
-              -120.6527912,
-              35.295553
-            ],
-            [
-              -120.6527778,
-              35.2955531
-            ],
-            [
-              -120.652778,
-              35.2955919
-            ],
-            [
-              -120.652887,
-              35.2955914
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600352"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600353",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "130",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6529051,
-              35.2956725
-            ],
-            [
-              -120.6529213,
-              35.2956726
-            ],
-            [
-              -120.6529215,
-              35.2956458
-            ],
-            [
-              -120.6529041,
-              35.2956458
-            ],
-            [
-              -120.6529042,
-              35.2956229
-            ],
-            [
-              -120.6527844,
-              35.2956225
-            ],
-            [
-              -120.6527841,
-              35.2956916
-            ],
-            [
-              -120.652905,
-              35.2956921
-            ],
-            [
-              -120.6529051,
-              35.2956725
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600353"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600360",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "Sierra Madre Hall: Tower 3",
-        "smoking": "no",
-        "wheelchair": "no",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6544118,
-              35.2989675
-            ],
-            [
-              -120.6543834,
-              35.2989029
-            ],
-            [
-              -120.6544148,
-              35.2988936
-            ],
-            [
-              -120.6543371,
-              35.2987171
-            ],
-            [
-              -120.6543065,
-              35.2987261
-            ],
-            [
-              -120.6542951,
-              35.2987002
-            ],
-            [
-              -120.6542326,
-              35.2987186
-            ],
-            [
-              -120.654217,
-              35.2986834
-            ],
-            [
-              -120.6541519,
-              35.2987025
-            ],
-            [
-              -120.6541788,
-              35.2987635
-            ],
-            [
-              -120.6541458,
-              35.2987732
-            ],
-            [
-              -120.6542249,
-              35.2989527
-            ],
-            [
-              -120.6542573,
-              35.2989432
-            ],
-            [
-              -120.654269,
-              35.2989697
-            ],
-            [
-              -120.6543308,
-              35.2989516
-            ],
-            [
-              -120.6543463,
-              35.2989867
-            ],
-            [
-              -120.6544118,
-              35.2989675
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600360"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600361",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "Sierra Madre Hall: Tower 5",
-        "smoking": "no",
-        "wheelchair": "no",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6545528,
-              35.2986818
-            ],
-            [
-              -120.6545645,
-              35.2987081
-            ],
-            [
-              -120.6547752,
-              35.2986452
-            ],
-            [
-              -120.654766,
-              35.2986246
-            ],
-            [
-              -120.6548084,
-              35.2986119
-            ],
-            [
-              -120.6547825,
-              35.298554
-            ],
-            [
-              -120.6548339,
-              35.2985387
-            ],
-            [
-              -120.654826,
-              35.2985212
-            ],
-            [
-              -120.6548177,
-              35.2985237
-            ],
-            [
-              -120.6548008,
-              35.2984859
-            ],
-            [
-              -120.654726,
-              35.2985083
-            ],
-            [
-              -120.6547145,
-              35.2984827
-            ],
-            [
-              -120.6544947,
-              35.2985483
-            ],
-            [
-              -120.6545068,
-              35.2985752
-            ],
-            [
-              -120.6544745,
-              35.2985848
-            ],
-            [
-              -120.6544975,
-              35.2986361
-            ],
-            [
-              -120.6544534,
-              35.2986493
-            ],
-            [
-              -120.654478,
-              35.2987041
-            ],
-            [
-              -120.6545528,
-              35.2986818
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600361"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600362",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "amenity": "community_centre",
-        "building": "dormitory",
-        "name": "113 Sierra Madre Community Center",
-        "smoking": "no",
-        "wheelchair": "limited"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6551052,
-              35.2989642
-            ],
-            [
-              -120.6550467,
-              35.2988303
-            ],
-            [
-              -120.6551092,
-              35.2988121
-            ],
-            [
-              -120.6550979,
-              35.2987863
-            ],
-            [
-              -120.655127,
-              35.2987778
-            ],
-            [
-              -120.65508,
-              35.2986704
-            ],
-            [
-              -120.6550663,
-              35.2986744
-            ],
-            [
-              -120.6550222,
-              35.2985736
-            ],
-            [
-              -120.6549914,
-              35.2985825
-            ],
-            [
-              -120.6549811,
-              35.2985589
-            ],
-            [
-              -120.6548982,
-              35.298583
-            ],
-            [
-              -120.6549318,
-              35.2986597
-            ],
-            [
-              -120.6548365,
-              35.2986875
-            ],
-            [
-              -120.6548627,
-              35.2987473
-            ],
-            [
-              -120.6549253,
-              35.2987291
-            ],
-            [
-              -120.6549323,
-              35.2987449
-            ],
-            [
-              -120.6547746,
-              35.2987909
-            ],
-            [
-              -120.6548321,
-              35.2989224
-            ],
-            [
-              -120.6549912,
-              35.298876
-            ],
-            [
-              -120.6550383,
-              35.2989836
-            ],
-            [
-              -120.6551052,
-              35.2989642
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600362"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600363",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "Sierra Madre Hall: Tower 4",
-        "smoking": "no",
-        "wheelchair": "no",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6544047,
-              35.2986223
-            ],
-            [
-              -120.6543823,
-              35.2985709
-            ],
-            [
-              -120.6544142,
-              35.2985617
-            ],
-            [
-              -120.654336,
-              35.2983826
-            ],
-            [
-              -120.6543054,
-              35.2983915
-            ],
-            [
-              -120.6542942,
-              35.2983657
-            ],
-            [
-              -120.6542339,
-              35.2983832
-            ],
-            [
-              -120.6542185,
-              35.2983479
-            ],
-            [
-              -120.6541502,
-              35.2983678
-            ],
-            [
-              -120.6541771,
-              35.2984293
-            ],
-            [
-              -120.6541454,
-              35.2984386
-            ],
-            [
-              -120.6542233,
-              35.298617
-            ],
-            [
-              -120.6542546,
-              35.2986079
-            ],
-            [
-              -120.6542659,
-              35.2986337
-            ],
-            [
-              -120.6543291,
-              35.2986153
-            ],
-            [
-              -120.6543403,
-              35.298641
-            ],
-            [
-              -120.6544047,
-              35.2986223
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600363"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600364",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "amenity": "community_centre",
-        "building": "dormitory",
-        "name": "Yosemite Community Center"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.653852,
-              35.2978918
-            ],
-            [
-              -120.6538063,
-              35.2977886
-            ],
-            [
-              -120.6538962,
-              35.297762
-            ],
-            [
-              -120.6538332,
-              35.2976199
-            ],
-            [
-              -120.6538161,
-              35.2976249
-            ],
-            [
-              -120.653775,
-              35.2975321
-            ],
-            [
-              -120.6537449,
-              35.2975409
-            ],
-            [
-              -120.653733,
-              35.2975142
-            ],
-            [
-              -120.6536516,
-              35.2975382
-            ],
-            [
-              -120.6536864,
-              35.2976166
-            ],
-            [
-              -120.6535913,
-              35.2976447
-            ],
-            [
-              -120.6536173,
-              35.2977034
-            ],
-            [
-              -120.6536785,
-              35.2976854
-            ],
-            [
-              -120.6536871,
-              35.2977049
-            ],
-            [
-              -120.6535301,
-              35.2977512
-            ],
-            [
-              -120.6535897,
-              35.2978857
-            ],
-            [
-              -120.653753,
-              35.2978375
-            ],
-            [
-              -120.6537857,
-              35.2979114
-            ],
-            [
-              -120.653852,
-              35.2978918
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600364"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600411",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "dormitory",
-        "name": "113B Sierra Madre Hall: Tower 1",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6550001,
-              35.2995766
-            ],
-            [
-              -120.6549843,
-              35.2995402
-            ],
-            [
-              -120.655047,
-              35.299522
-            ],
-            [
-              -120.6550355,
-              35.2994956
-            ],
-            [
-              -120.6550665,
-              35.2994867
-            ],
-            [
-              -120.6549886,
-              35.2993072
-            ],
-            [
-              -120.6549571,
-              35.2993163
-            ],
-            [
-              -120.6549302,
-              35.2992544
-            ],
-            [
-              -120.6548628,
-              35.2992739
-            ],
-            [
-              -120.6548789,
-              35.2993109
-            ],
-            [
-              -120.6548203,
-              35.2993278
-            ],
-            [
-              -120.6548331,
-              35.2993573
-            ],
-            [
-              -120.6547971,
-              35.2993678
-            ],
-            [
-              -120.6548734,
-              35.2995436
-            ],
-            [
-              -120.6549056,
-              35.2995343
-            ],
-            [
-              -120.6549324,
-              35.2995961
-            ],
-            [
-              -120.6550001,
-              35.2995766
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600411"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636599",
-        "addr:housenumber": "23",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6552958,
-              35.2956552
-            ],
-            [
-              -120.6552948,
-              35.2955257
-            ],
-            [
-              -120.6552132,
-              35.2955261
-            ],
-            [
-              -120.6552142,
-              35.2956556
-            ],
-            [
-              -120.6552958,
-              35.2956552
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636599"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636600",
-        "addr:housenumber": "24",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6553817,
-              35.2956571
-            ],
-            [
-              -120.6553811,
-              35.2955261
-            ],
-            [
-              -120.6552999,
-              35.2955264
-            ],
-            [
-              -120.6553005,
-              35.2956573
-            ],
-            [
-              -120.6553817,
-              35.2956571
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636600"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636601",
-        "addr:housenumber": "25",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6554746,
-              35.2956643
-            ],
-            [
-              -120.6554728,
-              35.2955255
-            ],
-            [
-              -120.655395,
-              35.2955262
-            ],
-            [
-              -120.6553967,
-              35.2956567
-            ],
-            [
-              -120.6554359,
-              35.2956564
-            ],
-            [
-              -120.655436,
-              35.2956646
-            ],
-            [
-              -120.6554746,
-              35.2956643
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636601"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636602",
-        "amenity": "library",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6536357,
-              35.2955931
-            ],
-            [
-              -120.6536419,
-              35.295451
-            ],
-            [
-              -120.6536035,
-              35.2954184
-            ],
-            [
-              -120.653419,
-              35.2954144
-            ],
-            [
-              -120.6533772,
-              35.2954484
-            ],
-            [
-              -120.6533738,
-              35.2955537
-            ],
-            [
-              -120.6533848,
-              35.2955541
-            ],
-            [
-              -120.6533841,
-              35.2955925
-            ],
-            [
-              -120.6536357,
-              35.2955931
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636602"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636607",
-        "addr:full": "1497 Slack",
-        "addr:housenumber": "1497",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6569522,
-              35.2959004
-            ],
-            [
-              -120.6569496,
-              35.2956977
-            ],
-            [
-              -120.6568339,
-              35.2956987
-            ],
-            [
-              -120.6568352,
-              35.2958017
-            ],
-            [
-              -120.656763,
-              35.2958023
-            ],
-            [
-              -120.6567642,
-              35.295902
-            ],
-            [
-              -120.6569522,
-              35.2959004
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636607"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636609",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "236",
-        "addr:postcode": "93405",
-        "addr:state": "CA",
-        "addr:street": "Albert Drive",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6565191,
-              35.2953819
-            ],
-            [
-              -120.6565025,
-              35.2954628
-            ],
-            [
-              -120.6566885,
-              35.2954882
-            ],
-            [
-              -120.6567056,
-              35.2954051
-            ],
-            [
-              -120.6567278,
-              35.2954082
-            ],
-            [
-              -120.6567407,
-              35.2953455
-            ],
-            [
-              -120.656663,
-              35.2953349
-            ],
-            [
-              -120.6566514,
-              35.2953919
-            ],
-            [
-              -120.6565207,
-              35.295374
-            ],
-            [
-              -120.6565191,
-              35.2953819
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636609"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636610",
-        "addr:housenumber": "18",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6548742,
-              35.2956562
-            ],
-            [
-              -120.654874,
-              35.2955238
-            ],
-            [
-              -120.6547923,
-              35.2955239
-            ],
-            [
-              -120.6547925,
-              35.2956563
-            ],
-            [
-              -120.6548742,
-              35.2956562
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636610"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636611",
-        "addr:housenumber": "19",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6549576,
-              35.2956557
-            ],
-            [
-              -120.6549576,
-              35.295525
-            ],
-            [
-              -120.6548786,
-              35.295525
-            ],
-            [
-              -120.6548787,
-              35.2956557
-            ],
-            [
-              -120.6549576,
-              35.2956557
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636611"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636612",
-        "addr:housenumber": "20",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6550425,
-              35.2956559
-            ],
-            [
-              -120.6550425,
-              35.2955254
-            ],
-            [
-              -120.6549615,
-              35.2955253
-            ],
-            [
-              -120.6549614,
-              35.2956558
-            ],
-            [
-              -120.6550425,
-              35.2956559
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636612"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636613",
-        "addr:housenumber": "21",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6551263,
-              35.2956556
-            ],
-            [
-              -120.6551256,
-              35.2955259
-            ],
-            [
-              -120.6550459,
-              35.2955262
-            ],
-            [
-              -120.6550466,
-              35.2956559
-            ],
-            [
-              -120.6551263,
-              35.2956556
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636613"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636614",
-        "addr:housenumber": "22",
-        "building": "school"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6552104,
-              35.2956558
-            ],
-            [
-              -120.65521,
-              35.2955259
-            ],
-            [
-              -120.6551301,
-              35.2955261
-            ],
-            [
-              -120.6551304,
-              35.2956559
-            ],
-            [
-              -120.6552104,
-              35.2956558
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636614"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636615",
-        "addr:full": "1541 Slack",
-        "addr:housenumber": "1541",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6563353,
-              35.2958866
-            ],
-            [
-              -120.6563303,
-              35.2957357
-            ],
-            [
-              -120.6562742,
-              35.2957369
-            ],
-            [
-              -120.6562736,
-              35.2957185
-            ],
-            [
-              -120.6561798,
-              35.2957206
-            ],
-            [
-              -120.656182,
-              35.295789
-            ],
-            [
-              -120.6561519,
-              35.2957896
-            ],
-            [
-              -120.6561552,
-              35.2958888
-            ],
-            [
-              -120.6562275,
-              35.2958872
-            ],
-            [
-              -120.6562261,
-              35.2958461
-            ],
-            [
-              -120.6562486,
-              35.2958456
-            ],
-            [
-              -120.6562501,
-              35.2958885
-            ],
-            [
-              -120.6563353,
-              35.2958866
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636615"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636616",
-        "addr:full": "1555 Slack",
-        "addr:housenumber": "1555",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6561412,
-              35.295891
-            ],
-            [
-              -120.6561328,
-              35.2956786
-            ],
-            [
-              -120.656039,
-              35.2956811
-            ],
-            [
-              -120.6560428,
-              35.2957771
-            ],
-            [
-              -120.655982,
-              35.2957787
-            ],
-            [
-              -120.655986,
-              35.2958794
-            ],
-            [
-              -120.6560392,
-              35.295878
-            ],
-            [
-              -120.6560395,
-              35.2958855
-            ],
-            [
-              -120.6560648,
-              35.2958848
-            ],
-            [
-              -120.6560651,
-              35.295893
-            ],
-            [
-              -120.6561412,
-              35.295891
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636616"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636618",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "244",
-        "addr:postcode": "93405",
-        "addr:state": "CA",
-        "addr:street": "Albert Drive",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6563938,
-              35.2955708
-            ],
-            [
-              -120.6564143,
-              35.2955345
-            ],
-            [
-              -120.6564289,
-              35.29554
-            ],
-            [
-              -120.6564571,
-              35.2954901
-            ],
-            [
-              -120.6564267,
-              35.2954787
-            ],
-            [
-              -120.6564468,
-              35.2954432
-            ],
-            [
-              -120.6564719,
-              35.2954526
-            ],
-            [
-              -120.6564903,
-              35.2954202
-            ],
-            [
-              -120.6564673,
-              35.2954115
-            ],
-            [
-              -120.656523,
-              35.2953133
-            ],
-            [
-              -120.6564289,
-              35.2952778
-            ],
-            [
-              -120.6563902,
-              35.2953461
-            ],
-            [
-              -120.6563643,
-              35.2953363
-            ],
-            [
-              -120.656356,
-              35.2953509
-            ],
-            [
-              -120.6563,
-              35.2953298
-            ],
-            [
-              -120.6562677,
-              35.2953868
-            ],
-            [
-              -120.6563306,
-              35.2954106
-            ],
-            [
-              -120.656308,
-              35.2954504
-            ],
-            [
-              -120.6563663,
-              35.2954725
-            ],
-            [
-              -120.6563413,
-              35.2955166
-            ],
-            [
-              -120.6563517,
-              35.2955205
-            ],
-            [
-              -120.6563357,
-              35.2955488
-            ],
-            [
-              -120.6563938,
-              35.2955708
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636618"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636619",
-        "addr:full": "1591 Slack",
-        "addr:housenumber": "1591",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6557223,
-              35.2958922
-            ],
-            [
-              -120.6557222,
-              35.2958172
-            ],
-            [
-              -120.6556961,
-              35.2958172
-            ],
-            [
-              -120.6556957,
-              35.2956845
-            ],
-            [
-              -120.6556103,
-              35.2956846
-            ],
-            [
-              -120.6556102,
-              35.2956657
-            ],
-            [
-              -120.6555726,
-              35.2956658
-            ],
-            [
-              -120.655573,
-              35.2958207
-            ],
-            [
-              -120.6556328,
-              35.2958206
-            ],
-            [
-              -120.655633,
-              35.2958923
-            ],
-            [
-              -120.6557223,
-              35.2958922
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636619"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636620",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6556963,
-              35.2956781
-            ],
-            [
-              -120.6556923,
-              35.295602
-            ],
-            [
-              -120.6556263,
-              35.2956043
-            ],
-            [
-              -120.6556303,
-              35.2956804
-            ],
-            [
-              -120.6556963,
-              35.2956781
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636620"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636621",
-        "addr:full": "1503 Slack",
-        "addr:housenumber": "1503",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6567429,
-              35.2958982
-            ],
-            [
-              -120.6567468,
-              35.2957512
-            ],
-            [
-              -120.6567091,
-              35.2957506
-            ],
-            [
-              -120.6567097,
-              35.295729
-            ],
-            [
-              -120.6565691,
-              35.2957265
-            ],
-            [
-              -120.6565647,
-              35.295895
-            ],
-            [
-              -120.6567429,
-              35.2958982
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636621"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45636622",
-        "addr:full": "1573 Slack",
-        "addr:housenumber": "1573",
-        "addr:state": "CA",
-        "addr:street": "Slack",
-        "building": "house"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6559277,
-              35.2958719
-            ],
-            [
-              -120.6559295,
-              35.2956391
-            ],
-            [
-              -120.6558396,
-              35.2956386
-            ],
-            [
-              -120.6558392,
-              35.295685
-            ],
-            [
-              -120.655856,
-              35.2956851
-            ],
-            [
-              -120.6558557,
-              35.295716
-            ],
-            [
-              -120.655789,
-              35.2957157
-            ],
-            [
-              -120.6557886,
-              35.2957637
-            ],
-            [
-              -120.6558106,
-              35.2957638
-            ],
-            [
-              -120.6558104,
-              35.2957834
-            ],
-            [
-              -120.6557948,
-              35.2957834
-            ],
-            [
-              -120.6557945,
-              35.295819
-            ],
-            [
-              -120.6557434,
-              35.2958188
-            ],
-            [
-              -120.6557429,
-              35.2958897
-            ],
-            [
-              -120.6558657,
-              35.2958903
-            ],
-            [
-              -120.6558659,
-              35.2958716
-            ],
-            [
-              -120.6559277,
-              35.2958719
-            ]
-          ]
-        ]
-      },
-      "id": "way/45636622"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638367",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 7",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6528989,
-              35.2977802
-            ],
-            [
-              -120.6530174,
-              35.2977452
-            ],
-            [
-              -120.6530537,
-              35.2977346
-            ],
-            [
-              -120.6530419,
-              35.2977078
-            ],
-            [
-              -120.6530708,
-              35.2976992
-            ],
-            [
-              -120.6530233,
-              35.2975917
-            ],
-            [
-              -120.652991,
-              35.2976012
-            ],
-            [
-              -120.6529769,
-              35.2975695
-            ],
-            [
-              -120.6528619,
-              35.2976034
-            ],
-            [
-              -120.652824,
-              35.2976145
-            ],
-            [
-              -120.6528378,
-              35.2976457
-            ],
-            [
-              -120.6528071,
-              35.2976548
-            ],
-            [
-              -120.6528556,
-              35.2977643
-            ],
-            [
-              -120.6528878,
-              35.2977548
-            ],
-            [
-              -120.6528989,
-              35.2977802
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638367"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638368",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 6",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6530286,
-              35.2977702
-            ],
-            [
-              -120.6529974,
-              35.2977794
-            ],
-            [
-              -120.6530554,
-              35.2979092
-            ],
-            [
-              -120.6530873,
-              35.2978998
-            ],
-            [
-              -120.6530988,
-              35.2979255
-            ],
-            [
-              -120.6532257,
-              35.2978877
-            ],
-            [
-              -120.6532133,
-              35.29786
-            ],
-            [
-              -120.6532418,
-              35.2978515
-            ],
-            [
-              -120.6531846,
-              35.2977234
-            ],
-            [
-              -120.6531554,
-              35.2977321
-            ],
-            [
-              -120.6531443,
-              35.2977074
-            ],
-            [
-              -120.6530537,
-              35.2977346
-            ],
-            [
-              -120.6530174,
-              35.2977452
-            ],
-            [
-              -120.6530286,
-              35.2977702
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638368"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638369",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 8",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6532114,
-              35.2975996
-            ],
-            [
-              -120.6531998,
-              35.2975734
-            ],
-            [
-              -120.6532198,
-              35.2975675
-            ],
-            [
-              -120.6531864,
-              35.2974918
-            ],
-            [
-              -120.6531954,
-              35.2974892
-            ],
-            [
-              -120.6531707,
-              35.2974333
-            ],
-            [
-              -120.6531394,
-              35.2974425
-            ],
-            [
-              -120.6531278,
-              35.2974162
-            ],
-            [
-              -120.6529987,
-              35.2974542
-            ],
-            [
-              -120.6530108,
-              35.2974816
-            ],
-            [
-              -120.6529808,
-              35.2974904
-            ],
-            [
-              -120.653038,
-              35.29762
-            ],
-            [
-              -120.6530708,
-              35.2976103
-            ],
-            [
-              -120.6530827,
-              35.2976374
-            ],
-            [
-              -120.6532114,
-              35.2975996
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638369"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638370",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 9",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6534667,
-              35.2976161
-            ],
-            [
-              -120.6534547,
-              35.2975895
-            ],
-            [
-              -120.6534898,
-              35.297579
-            ],
-            [
-              -120.6534428,
-              35.2974747
-            ],
-            [
-              -120.6534107,
-              35.2974843
-            ],
-            [
-              -120.6533992,
-              35.2974588
-            ],
-            [
-              -120.6532429,
-              35.2975057
-            ],
-            [
-              -120.6532529,
-              35.2975277
-            ],
-            [
-              -120.6532206,
-              35.2975374
-            ],
-            [
-              -120.6532686,
-              35.297644
-            ],
-            [
-              -120.6533,
-              35.2976346
-            ],
-            [
-              -120.6533125,
-              35.2976624
-            ],
-            [
-              -120.6534667,
-              35.2976161
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638370"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638377",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 0",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6539176,
-              35.2980731
-            ],
-            [
-              -120.6540735,
-              35.298026
-            ],
-            [
-              -120.6540618,
-              35.2980003
-            ],
-            [
-              -120.6540957,
-              35.2979901
-            ],
-            [
-              -120.6540474,
-              35.2978836
-            ],
-            [
-              -120.6540123,
-              35.2978942
-            ],
-            [
-              -120.6540008,
-              35.2978688
-            ],
-            [
-              -120.6538481,
-              35.2979149
-            ],
-            [
-              -120.6538606,
-              35.2979425
-            ],
-            [
-              -120.6538279,
-              35.2979524
-            ],
-            [
-              -120.6538758,
-              35.2980581
-            ],
-            [
-              -120.6539065,
-              35.2980488
-            ],
-            [
-              -120.6539176,
-              35.2980731
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638377"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638378",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 1",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6540338,
-              35.2981867
-            ],
-            [
-              -120.6539901,
-              35.2980858
-            ],
-            [
-              -120.6539546,
-              35.298096
-            ],
-            [
-              -120.6539421,
-              35.2980672
-            ],
-            [
-              -120.6537907,
-              35.2981109
-            ],
-            [
-              -120.6538021,
-              35.2981372
-            ],
-            [
-              -120.653771,
-              35.2981462
-            ],
-            [
-              -120.6538173,
-              35.2982531
-            ],
-            [
-              -120.6538482,
-              35.2982441
-            ],
-            [
-              -120.6538588,
-              35.2982685
-            ],
-            [
-              -120.6540089,
-              35.2982251
-            ],
-            [
-              -120.6539968,
-              35.2981973
-            ],
-            [
-              -120.6540338,
-              35.2981867
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638378"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638379",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 3",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6536186,
-              35.2983087
-            ],
-            [
-              -120.6535718,
-              35.2982026
-            ],
-            [
-              -120.6535412,
-              35.2982115
-            ],
-            [
-              -120.6535304,
-              35.2981869
-            ],
-            [
-              -120.6533763,
-              35.298232
-            ],
-            [
-              -120.6533876,
-              35.2982577
-            ],
-            [
-              -120.6533565,
-              35.2982668
-            ],
-            [
-              -120.6534038,
-              35.2983742
-            ],
-            [
-              -120.6534277,
-              35.2983672
-            ],
-            [
-              -120.6534382,
-              35.2983912
-            ],
-            [
-              -120.6535981,
-              35.2983443
-            ],
-            [
-              -120.6535866,
-              35.2983181
-            ],
-            [
-              -120.6536186,
-              35.2983087
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638379"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638380",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 2",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6538568,
-              35.2983501
-            ],
-            [
-              -120.6538026,
-              35.2982283
-            ],
-            [
-              -120.6537715,
-              35.2982375
-            ],
-            [
-              -120.6537571,
-              35.2982051
-            ],
-            [
-              -120.6536303,
-              35.2982427
-            ],
-            [
-              -120.6536448,
-              35.2982752
-            ],
-            [
-              -120.6536121,
-              35.2982848
-            ],
-            [
-              -120.653667,
-              35.2984082
-            ],
-            [
-              -120.6536979,
-              35.298399
-            ],
-            [
-              -120.6537091,
-              35.2984242
-            ],
-            [
-              -120.6538363,
-              35.2983866
-            ],
-            [
-              -120.6538244,
-              35.2983597
-            ],
-            [
-              -120.6538568,
-              35.2983501
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638380"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638381",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 5",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6534677,
-              35.2979368
-            ],
-            [
-              -120.6534557,
-              35.2979098
-            ],
-            [
-              -120.6534858,
-              35.2979009
-            ],
-            [
-              -120.6534281,
-              35.2977706
-            ],
-            [
-              -120.6533955,
-              35.2977802
-            ],
-            [
-              -120.6533849,
-              35.2977563
-            ],
-            [
-              -120.6532581,
-              35.2977937
-            ],
-            [
-              -120.65327,
-              35.2978206
-            ],
-            [
-              -120.6532401,
-              35.2978295
-            ],
-            [
-              -120.6532966,
-              35.2979569
-            ],
-            [
-              -120.6533271,
-              35.2979479
-            ],
-            [
-              -120.653339,
-              35.2979748
-            ],
-            [
-              -120.6534677,
-              35.2979368
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638381"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45638382",
-        "addr:city": "San Luis Obispo",
-        "addr:postcode": "93407",
-        "addr:street": "Grand Avenue",
-        "building": "dormitory",
-        "name": "Yosemite Hall: Tower 4",
-        "amenity": "dormitory"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6536261,
-              35.2981577
-            ],
-            [
-              -120.6536146,
-              35.2981314
-            ],
-            [
-              -120.6536455,
-              35.2981223
-            ],
-            [
-              -120.6535901,
-              35.2979961
-            ],
-            [
-              -120.653559,
-              35.2980052
-            ],
-            [
-              -120.6535469,
-              35.2979777
-            ],
-            [
-              -120.6534193,
-              35.298015
-            ],
-            [
-              -120.6534311,
-              35.2980418
-            ],
-            [
-              -120.6533995,
-              35.2980511
-            ],
-            [
-              -120.6534567,
-              35.2981811
-            ],
-            [
-              -120.653488,
-              35.2981719
-            ],
-            [
-              -120.6534982,
-              35.2981951
-            ],
-            [
-              -120.6536261,
-              35.2981577
-            ]
-          ]
-        ]
-      },
-      "id": "way/45638382"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45644098",
-        "access": "permit",
-        "amenity": "parking",
-        "building": "parking",
-        "building:levels": "4",
-        "fee": "no",
-        "name": "Grand Avenue Parking Structure",
-        "opening_hours": "24/7",
-        "parking": "multi-storey",
-        "ref": "130"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6580566,
-              35.2982899
-            ],
-            [
-              -120.6580211,
-              35.2982404
-            ],
-            [
-              -120.6576376,
-              35.2977056
-            ],
-            [
-              -120.6575864,
-              35.29773
-            ],
-            [
-              -120.6575574,
-              35.2976897
-            ],
-            [
-              -120.6567883,
-              35.2980571
-            ],
-            [
-              -120.6568191,
-              35.2981001
-            ],
-            [
-              -120.6567642,
-              35.2981263
-            ],
-            [
-              -120.656976,
-              35.2984224
-            ],
-            [
-              -120.6572123,
-              35.2987554
-            ],
-            [
-              -120.6572522,
-              35.2987362
-            ],
-            [
-              -120.6572837,
-              35.2987211
-            ],
-            [
-              -120.6577523,
-              35.2984959
-            ],
-            [
-              -120.657788,
-              35.2985456
-            ],
-            [
-              -120.6578575,
-              35.2985123
-            ],
-            [
-              -120.6578196,
-              35.2984595
-            ],
-            [
-              -120.6580343,
-              35.2983569
-            ],
-            [
-              -120.6580042,
-              35.298315
-            ],
-            [
-              -120.6580566,
-              35.2982899
-            ]
-          ]
-        ]
-      },
-      "id": "way/45644098"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/206420936",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6567754,
-              35.2962232
-            ],
-            [
-              -120.6567662,
-              35.2962451
-            ],
-            [
-              -120.6567556,
-              35.2962421
-            ],
-            [
-              -120.6567343,
-              35.2962929
-            ],
-            [
-              -120.6567434,
-              35.2962954
-            ],
-            [
-              -120.6567373,
-              35.2963097
-            ],
-            [
-              -120.6568047,
-              35.2963286
-            ],
-            [
-              -120.6568412,
-              35.2962416
-            ],
-            [
-              -120.6567754,
-              35.2962232
-            ]
-          ]
-        ]
-      },
-      "id": "way/206420936"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/206461412",
-        "addr:city": "San Luis Obispo",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6536235,
-              35.2958288
-            ],
-            [
-              -120.6536237,
-              35.2958009
-            ],
-            [
-              -120.6535881,
-              35.2958008
-            ],
-            [
-              -120.6535879,
-              35.2958286
-            ],
-            [
-              -120.6536235,
-              35.2958288
-            ]
-          ]
-        ]
-      },
-      "id": "way/206461412"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/206461446",
-        "addr:city": "San Luis Obispo",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6537703,
-              35.2957861
-            ],
-            [
-              -120.6537187,
-              35.295786
-            ],
-            [
-              -120.6537186,
-              35.295818
-            ],
-            [
-              -120.6537702,
-              35.2958181
-            ],
-            [
-              -120.6537703,
-              35.2957861
-            ]
-          ]
-        ]
-      },
-      "id": "way/206461446"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/206461458",
-        "building": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6529823,
-              35.2963094
-            ],
-            [
-              -120.6529523,
-              35.2963105
-            ],
-            [
-              -120.6529506,
-              35.2963273
-            ],
-            [
-              -120.6529511,
-              35.2963481
-            ],
-            [
-              -120.6529487,
-              35.2963667
-            ],
-            [
-              -120.6529836,
-              35.2963655
-            ],
-            [
-              -120.6529823,
-              35.2963094
-            ]
-          ]
-        ]
-      },
-      "id": "way/206461458"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938150",
-        "building": "residential",
-        "name": "172D t\u0161\u0268\u0142kukun\u0268t\u0161",
-        "name:obi": "t\u0161\u0268\u0142kukun\u0268t\u0161",
-        "operator": "California Polytechnic State University",
-        "ref": "172D",
-        "residential": "university",
-        "short_name": "tkk"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6536788,
-              35.2971519
-            ],
-            [
-              -120.6537427,
-              35.2971082
-            ],
-            [
-              -120.6540368,
-              35.297303
-            ],
-            [
-              -120.6540339,
-              35.297306
-            ],
-            [
-              -120.6540374,
-              35.2973083
-            ],
-            [
-              -120.6540748,
-              35.2972703
-            ],
-            [
-              -120.6540574,
-              35.2972589
-            ],
-            [
-              -120.6540695,
-              35.2972465
-            ],
-            [
-              -120.6540851,
-              35.2972568
-            ],
-            [
-              -120.6540879,
-              35.297254
-            ],
-            [
-              -120.6540833,
-              35.297251
-            ],
-            [
-              -120.654128,
-              35.2972057
-            ],
-            [
-              -120.6541326,
-              35.2972087
-            ],
-            [
-              -120.6541354,
-              35.2972058
-            ],
-            [
-              -120.6540944,
-              35.2971787
-            ],
-            [
-              -120.6540784,
-              35.2971947
-            ],
-            [
-              -120.6538462,
-              35.2970413
-            ],
-            [
-              -120.6538569,
-              35.2970339
-            ],
-            [
-              -120.6538529,
-              35.29703
-            ],
-            [
-              -120.6538869,
-              35.2970066
-            ],
-            [
-              -120.6538458,
-              35.2969665
-            ],
-            [
-              -120.6538505,
-              35.2969634
-            ],
-            [
-              -120.6538418,
-              35.2969549
-            ],
-            [
-              -120.6538371,
-              35.2969581
-            ],
-            [
-              -120.653812,
-              35.2969337
-            ],
-            [
-              -120.6538167,
-              35.2969304
-            ],
-            [
-              -120.6538081,
-              35.2969221
-            ],
-            [
-              -120.653793,
-              35.2969324
-            ],
-            [
-              -120.6537313,
-              35.2968722
-            ],
-            [
-              -120.653631,
-              35.2969412
-            ],
-            [
-              -120.6535188,
-              35.2968319
-            ],
-            [
-              -120.6535383,
-              35.2968184
-            ],
-            [
-              -120.6535046,
-              35.2967856
-            ],
-            [
-              -120.6535012,
-              35.2967879
-            ],
-            [
-              -120.6535046,
-              35.2967912
-            ],
-            [
-              -120.6534501,
-              35.2968287
-            ],
-            [
-              -120.6534467,
-              35.2968255
-            ],
-            [
-              -120.6534433,
-              35.2968279
-            ],
-            [
-              -120.6534538,
-              35.2968381
-            ],
-            [
-              -120.6534386,
-              35.2968487
-            ],
-            [
-              -120.653426,
-              35.2968365
-            ],
-            [
-              -120.6533841,
-              35.2968654
-            ],
-            [
-              -120.6536788,
-              35.2971519
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938150"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938153",
-        "building": "residential",
-        "name": "172E nipumu\u0294",
-        "name:obi": "nipumu\u0294",
-        "operator": "California Polytechnic State University",
-        "ref": "172E",
-        "residential": "university",
-        "short_name": "npm"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6539734,
-              35.2963604
-            ],
-            [
-              -120.6539824,
-              35.2964003
-            ],
-            [
-              -120.6539725,
-              35.2964018
-            ],
-            [
-              -120.6539733,
-              35.2964054
-            ],
-            [
-              -120.6539833,
-              35.2964044
-            ],
-            [
-              -120.654,
-              35.2964784
-            ],
-            [
-              -120.6540709,
-              35.2964677
-            ],
-            [
-              -120.6540734,
-              35.2964755
-            ],
-            [
-              -120.6540775,
-              35.2964749
-            ],
-            [
-              -120.6540722,
-              35.29645
-            ],
-            [
-              -120.6540905,
-              35.2964473
-            ],
-            [
-              -120.654094,
-              35.296463
-            ],
-            [
-              -120.6541072,
-              35.296461
-            ],
-            [
-              -120.6541061,
-              35.2964561
-            ],
-            [
-              -120.6541444,
-              35.2964503
-            ],
-            [
-              -120.6541455,
-              35.2964552
-            ],
-            [
-              -120.6541587,
-              35.2964532
-            ],
-            [
-              -120.6541576,
-              35.2964483
-            ],
-            [
-              -120.6542204,
-              35.2964388
-            ],
-            [
-              -120.6542123,
-              35.296403
-            ],
-            [
-              -120.6542183,
-              35.2964021
-            ],
-            [
-              -120.6542159,
-              35.2963908
-            ],
-            [
-              -120.6542525,
-              35.2963911
-            ],
-            [
-              -120.6542525,
-              35.296396
-            ],
-            [
-              -120.6545139,
-              35.296398
-            ],
-            [
-              -120.6545137,
-              35.2964142
-            ],
-            [
-              -120.6545664,
-              35.2964145
-            ],
-            [
-              -120.6545664,
-              35.2964109
-            ],
-            [
-              -120.6545605,
-              35.2964108
-            ],
-            [
-              -120.6545611,
-              35.2963525
-            ],
-            [
-              -120.6545664,
-              35.2962881
-            ],
-            [
-              -120.6541879,
-              35.2962852
-            ],
-            [
-              -120.6541724,
-              35.296218
-            ],
-            [
-              -120.6537231,
-              35.2962857
-            ],
-            [
-              -120.6537331,
-              35.2963299
-            ],
-            [
-              -120.6537525,
-              35.296327
-            ],
-            [
-              -120.653755,
-              35.296339
-            ],
-            [
-              -120.6537561,
-              35.296343
-            ],
-            [
-              -120.6537389,
-              35.2963458
-            ],
-            [
-              -120.6537398,
-              35.2963494
-            ],
-            [
-              -120.6537445,
-              35.2963488
-            ],
-            [
-              -120.6537583,
-              35.2964058
-            ],
-            [
-              -120.6537534,
-              35.2964066
-            ],
-            [
-              -120.6537542,
-              35.2964102
-            ],
-            [
-              -120.6538056,
-              35.2964024
-            ],
-            [
-              -120.653802,
-              35.2963863
-            ],
-            [
-              -120.6539734,
-              35.2963604
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938153"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938165",
-        "building": "residential",
-        "building:levels": "4",
-        "building:levels:underground": "0",
-        "building:use": "residential",
-        "max_level": "4",
-        "min_level": "1",
-        "name": "172A ts\u0268tkawayu",
-        "name:obi": "ts\u0268tkawayu",
-        "operator": "California Polytechnic State University",
-        "ref": "172A",
-        "residential": "university",
-        "roof:levels": "1",
-        "short_name": "tkw"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6555987,
-              35.2981374
-            ],
-            [
-              -120.6555818,
-              35.2980957
-            ],
-            [
-              -120.6555675,
-              35.2980992
-            ],
-            [
-              -120.6554786,
-              35.2978895
-            ],
-            [
-              -120.6554638,
-              35.2978928
-            ],
-            [
-              -120.655296,
-              35.2976557
-            ],
-            [
-              -120.6553074,
-              35.2976489
-            ],
-            [
-              -120.6552794,
-              35.2976106
-            ],
-            [
-              -120.6552169,
-              35.2976418
-            ],
-            [
-              -120.6552256,
-              35.2976558
-            ],
-            [
-              -120.6552124,
-              35.2976603
-            ],
-            [
-              -120.6551892,
-              35.2976278
-            ],
-            [
-              -120.6551089,
-              35.2976659
-            ],
-            [
-              -120.6551229,
-              35.2976879
-            ],
-            [
-              -120.6550609,
-              35.2977193
-            ],
-            [
-              -120.6551429,
-              35.2978404
-            ],
-            [
-              -120.6551362,
-              35.2978457
-            ],
-            [
-              -120.6551611,
-              35.2978823
-            ],
-            [
-              -120.655172,
-              35.2978796
-            ],
-            [
-              -120.6552147,
-              35.2979414
-            ],
-            [
-              -120.6552341,
-              35.2979344
-            ],
-            [
-              -120.6553092,
-              35.2981068
-            ],
-            [
-              -120.6552997,
-              35.2981091
-            ],
-            [
-              -120.6553191,
-              35.2981492
-            ],
-            [
-              -120.6553281,
-              35.2981474
-            ],
-            [
-              -120.6553577,
-              35.298218
-            ],
-            [
-              -120.6554147,
-              35.2981989
-            ],
-            [
-              -120.6554093,
-              35.2981816
-            ],
-            [
-              -120.6554223,
-              35.2981777
-            ],
-            [
-              -120.6554301,
-              35.2981937
-            ],
-            [
-              -120.6555987,
-              35.2981374
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938165"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938176",
-        "building": "residential",
-        "building:use": "residential",
-        "name": "172G ts\u0268tpxatu",
-        "name:obi": "ts\u0268tpxatu",
-        "operator": "California Polytechnic State University",
-        "ref": "172G",
-        "residential": "university",
-        "short_name": "tpx"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6553531,
-              35.2970733
-            ],
-            [
-              -120.6553687,
-              35.2970943
-            ],
-            [
-              -120.6553899,
-              35.2970873
-            ],
-            [
-              -120.6554411,
-              35.2970642
-            ],
-            [
-              -120.6554316,
-              35.2970407
-            ],
-            [
-              -120.6554542,
-              35.2970566
-            ],
-            [
-              -120.6555093,
-              35.2970295
-            ],
-            [
-              -120.6554413,
-              35.2969416
-            ],
-            [
-              -120.6554527,
-              35.2969301
-            ],
-            [
-              -120.6554065,
-              35.2968633
-            ],
-            [
-              -120.6553936,
-              35.2968691
-            ],
-            [
-              -120.6553185,
-              35.2967668
-            ],
-            [
-              -120.6553212,
-              35.2967553
-            ],
-            [
-              -120.6553157,
-              35.2967463
-            ],
-            [
-              -120.6553285,
-              35.2967363
-            ],
-            [
-              -120.6552602,
-              35.2966272
-            ],
-            [
-              -120.6551819,
-              35.2966643
-            ],
-            [
-              -120.6552306,
-              35.2967443
-            ],
-            [
-              -120.6552084,
-              35.2967266
-            ],
-            [
-              -120.6551985,
-              35.2967294
-            ],
-            [
-              -120.6550808,
-              35.2966117
-            ],
-            [
-              -120.6550902,
-              35.2966031
-            ],
-            [
-              -120.6550485,
-              35.29656
-            ],
-            [
-              -120.6550338,
-              35.2965694
-            ],
-            [
-              -120.6549526,
-              35.296494
-            ],
-            [
-              -120.6549334,
-              35.2965019
-            ],
-            [
-              -120.6549203,
-              35.2964873
-            ],
-            [
-              -120.6548246,
-              35.2965507
-            ],
-            [
-              -120.654835,
-              35.2965772
-            ],
-            [
-              -120.6548731,
-              35.2966189
-            ],
-            [
-              -120.654886,
-              35.2966074
-            ],
-            [
-              -120.6550546,
-              35.2967642
-            ],
-            [
-              -120.6550685,
-              35.2967817
-            ],
-            [
-              -120.6550381,
-              35.2968065
-            ],
-            [
-              -120.6550168,
-              35.2968051
-            ],
-            [
-              -120.6550061,
-              35.2968108
-            ],
-            [
-              -120.6551029,
-              35.2969112
-            ],
-            [
-              -120.6551241,
-              35.2969048
-            ],
-            [
-              -120.6551335,
-              35.2969162
-            ],
-            [
-              -120.6551266,
-              35.2969289
-            ],
-            [
-              -120.6551792,
-              35.2969952
-            ],
-            [
-              -120.655263,
-              35.2969502
-            ],
-            [
-              -120.6552743,
-              35.2969314
-            ],
-            [
-              -120.655284,
-              35.2969391
-            ],
-            [
-              -120.6553591,
-              35.2970443
-            ],
-            [
-              -120.6553398,
-              35.2970508
-            ],
-            [
-              -120.6553531,
-              35.2970733
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938176"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938183",
-        "building": "residential",
-        "name": "172C ti\u0142hini",
-        "name:obi": "ti\u0142hini",
-        "operator": "California Polytechnic State University",
-        "ref": "172C",
-        "residential": "university",
-        "short_name": "thn"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6546003,
-              35.2973426
-            ],
-            [
-              -120.6545963,
-              35.2973368
-            ],
-            [
-              -120.6546198,
-              35.2973251
-            ],
-            [
-              -120.654624,
-              35.297331
-            ],
-            [
-              -120.6546279,
-              35.2973292
-            ],
-            [
-              -120.6545905,
-              35.2972782
-            ],
-            [
-              -120.6546107,
-              35.2972679
-            ],
-            [
-              -120.6546085,
-              35.2972647
-            ],
-            [
-              -120.6546047,
-              35.2972667
-            ],
-            [
-              -120.6545185,
-              35.2971484
-            ],
-            [
-              -120.6545243,
-              35.2971455
-            ],
-            [
-              -120.654522,
-              35.2971424
-            ],
-            [
-              -120.6545162,
-              35.2971452
-            ],
-            [
-              -120.6544683,
-              35.297079
-            ],
-            [
-              -120.6544741,
-              35.2970763
-            ],
-            [
-              -120.6544718,
-              35.297073
-            ],
-            [
-              -120.6544403,
-              35.2970883
-            ],
-            [
-              -120.6543992,
-              35.2970319
-            ],
-            [
-              -120.6544202,
-              35.2970171
-            ],
-            [
-              -120.6544172,
-              35.2970143
-            ],
-            [
-              -120.6544134,
-              35.297017
-            ],
-            [
-              -120.654244,
-              35.2968554
-            ],
-            [
-              -120.6542389,
-              35.2968588
-            ],
-            [
-              -120.6541953,
-              35.2968171
-            ],
-            [
-              -120.6541588,
-              35.2968428
-            ],
-            [
-              -120.6541738,
-              35.2968571
-            ],
-            [
-              -120.6540904,
-              35.2969158
-            ],
-            [
-              -120.6541041,
-              35.2969289
-            ],
-            [
-              -120.6540891,
-              35.2969394
-            ],
-            [
-              -120.6540745,
-              35.296927
-            ],
-            [
-              -120.6540334,
-              35.2969559
-            ],
-            [
-              -120.6542344,
-              35.2971474
-            ],
-            [
-              -120.6542694,
-              35.2971236
-            ],
-            [
-              -120.6542966,
-              35.2971601
-            ],
-            [
-              -120.6542611,
-              35.2971778
-            ],
-            [
-              -120.6544224,
-              35.297401
-            ],
-            [
-              -120.6544695,
-              35.297378
-            ],
-            [
-              -120.6544548,
-              35.2973589
-            ],
-            [
-              -120.6544726,
-              35.2973503
-            ],
-            [
-              -120.6544865,
-              35.2973699
-            ],
-            [
-              -120.6545646,
-              35.297332
-            ],
-            [
-              -120.654551,
-              35.2973123
-            ],
-            [
-              -120.6545675,
-              35.2973043
-            ],
-            [
-              -120.6545969,
-              35.2973443
-            ],
-            [
-              -120.6546003,
-              35.2973426
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938183"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938188",
-        "amenity": "parking",
-        "building": "parking",
-        "name": "Parking Structure 131",
-        "operator": "California Polytechnic State University",
-        "parking": "multi-storey",
-        "ref": "131"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6557752,
-              35.297251
-            ],
-            [
-              -120.6555776,
-              35.2973524
-            ],
-            [
-              -120.6554335,
-              35.2974249
-            ],
-            [
-              -120.655463,
-              35.2974637
-            ],
-            [
-              -120.65548,
-              35.2974887
-            ],
-            [
-              -120.6559076,
-              35.2980846
-            ],
-            [
-              -120.6559314,
-              35.2981123
-            ],
-            [
-              -120.656097,
-              35.2980359
-            ],
-            [
-              -120.6562852,
-              35.2979409
-            ],
-            [
-              -120.6562266,
-              35.2978617
-            ],
-            [
-              -120.6557752,
-              35.297251
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938188"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938193",
-        "building": "residential",
-        "name": "172F ts\u0268tqaw\u0268",
-        "name:obi": "ts\u0268tqaw\u0268",
-        "operator": "California Polytechnic State University",
-        "ref": "172F",
-        "residential": "university",
-        "short_name": "tqw",
-        "website": "https://housing.calpoly.edu/building-172-f"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6548174,
-              35.2970399
-            ],
-            [
-              -120.6548468,
-              35.2970086
-            ],
-            [
-              -120.6548287,
-              35.2969971
-            ],
-            [
-              -120.6548956,
-              35.296926
-            ],
-            [
-              -120.6548793,
-              35.2969151
-            ],
-            [
-              -120.6548913,
-              35.2969025
-            ],
-            [
-              -120.654908,
-              35.2969127
-            ],
-            [
-              -120.6549414,
-              35.2968768
-            ],
-            [
-              -120.654697,
-              35.2967226
-            ],
-            [
-              -120.6546689,
-              35.2967529
-            ],
-            [
-              -120.6546331,
-              35.296721
-            ],
-            [
-              -120.6546636,
-              35.2966977
-            ],
-            [
-              -120.6544503,
-              35.2965062
-            ],
-            [
-              -120.6544095,
-              35.2965368
-            ],
-            [
-              -120.654428,
-              35.2965535
-            ],
-            [
-              -120.6544142,
-              35.2965639
-            ],
-            [
-              -120.6543952,
-              35.2965475
-            ],
-            [
-              -120.6543875,
-              35.2965533
-            ],
-            [
-              -120.6543844,
-              35.2965505
-            ],
-            [
-              -120.6543671,
-              35.2965636
-            ],
-            [
-              -120.6543701,
-              35.2965662
-            ],
-            [
-              -120.6543352,
-              35.2965875
-            ],
-            [
-              -120.6543381,
-              35.2965902
-            ],
-            [
-              -120.6543281,
-              35.2965977
-            ],
-            [
-              -120.6543468,
-              35.2966144
-            ],
-            [
-              -120.6543322,
-              35.2966252
-            ],
-            [
-              -120.6542936,
-              35.296591
-            ],
-            [
-              -120.6542906,
-              35.2965932
-            ],
-            [
-              -120.6542951,
-              35.2965973
-            ],
-            [
-              -120.6542747,
-              35.2966125
-            ],
-            [
-              -120.6542701,
-              35.2966086
-            ],
-            [
-              -120.6542669,
-              35.296611
-            ],
-            [
-              -120.6543162,
-              35.2966552
-            ],
-            [
-              -120.6542989,
-              35.2966681
-            ],
-            [
-              -120.6543019,
-              35.2966706
-            ],
-            [
-              -120.6543056,
-              35.2966679
-            ],
-            [
-              -120.6544189,
-              35.2967697
-            ],
-            [
-              -120.6544139,
-              35.2967734
-            ],
-            [
-              -120.654417,
-              35.2967761
-            ],
-            [
-              -120.6544218,
-              35.2967722
-            ],
-            [
-              -120.6544852,
-              35.2968293
-            ],
-            [
-              -120.6544803,
-              35.2968329
-            ],
-            [
-              -120.6544833,
-              35.2968355
-            ],
-            [
-              -120.6545106,
-              35.2968154
-            ],
-            [
-              -120.6545644,
-              35.2968629
-            ],
-            [
-              -120.6545476,
-              35.2968817
-            ],
-            [
-              -120.6545513,
-              35.2968839
-            ],
-            [
-              -120.6545542,
-              35.2968808
-            ],
-            [
-              -120.6547604,
-              35.2970107
-            ],
-            [
-              -120.6547645,
-              35.2970067
-            ],
-            [
-              -120.6548174,
-              35.2970399
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938193"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/626938199",
-        "building": "residential",
-        "name": "172B elewexe",
-        "name:obi": "elewexe",
-        "operator": "California Polytechnic State University",
-        "ref": "172B",
-        "residential": "university",
-        "short_name": "lwx"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6550663,
-              35.2980526
-            ],
-            [
-              -120.6550557,
-              35.2980418
-            ],
-            [
-              -120.6550652,
-              35.2980356
-            ],
-            [
-              -120.6550759,
-              35.2980441
-            ],
-            [
-              -120.6551314,
-              35.2980022
-            ],
-            [
-              -120.6550971,
-              35.2979661
-            ],
-            [
-              -120.6550847,
-              35.2979751
-            ],
-            [
-              -120.6548921,
-              35.2977868
-            ],
-            [
-              -120.6549486,
-              35.2977514
-            ],
-            [
-              -120.6548634,
-              35.2976664
-            ],
-            [
-              -120.6548448,
-              35.2976764
-            ],
-            [
-              -120.6548303,
-              35.2976563
-            ],
-            [
-              -120.6548383,
-              35.2976518
-            ],
-            [
-              -120.6548246,
-              35.2976314
-            ],
-            [
-              -120.6547913,
-              35.2975851
-            ],
-            [
-              -120.6547055,
-              35.2976271
-            ],
-            [
-              -120.6547114,
-              35.2976352
-            ],
-            [
-              -120.6546881,
-              35.2976448
-            ],
-            [
-              -120.6546025,
-              35.2975232
-            ],
-            [
-              -120.6546139,
-              35.2975167
-            ],
-            [
-              -120.6545897,
-              35.2974818
-            ],
-            [
-              -120.6544605,
-              35.2975448
-            ],
-            [
-              -120.6546507,
-              35.2978136
-            ],
-            [
-              -120.6546435,
-              35.2978174
-            ],
-            [
-              -120.6546781,
-              35.2978924
-            ],
-            [
-              -120.6547511,
-              35.2978584
-            ],
-            [
-              -120.6547374,
-              35.2978358
-            ],
-            [
-              -120.6547514,
-              35.2978248
-            ],
-            [
-              -120.6550219,
-              35.2980873
-            ],
-            [
-              -120.6550663,
-              35.2980526
-            ]
-          ]
-        ]
-      },
-      "id": "way/626938199"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/964811081",
-        "building": "roof",
-        "layer": "1"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6559357,
-              35.2983363
-            ],
-            [
-              -120.6558835,
-              35.2982616
-            ],
-            [
-              -120.6558337,
-              35.2982855
-            ],
-            [
-              -120.655887,
-              35.2983594
-            ],
-            [
-              -120.6559357,
-              35.2983363
-            ]
-          ]
-        ]
-      },
-      "id": "way/964811081"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/992526574",
-        "building": "university",
-        "name": "Scout Coffee",
-        "amenity": "academic"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6560126,
-              35.2985385
-            ],
-            [
-              -120.6560625,
-              35.2985138
-            ],
-            [
-              -120.6560469,
-              35.2984913
-            ],
-            [
-              -120.6561246,
-              35.2984523
-            ],
-            [
-              -120.6560165,
-              35.2982978
-            ],
-            [
-              -120.655887,
-              35.2983594
-            ],
-            [
-              -120.6559478,
-              35.2984468
-            ],
-            [
-              -120.6559318,
-              35.2984537
-            ],
-            [
-              -120.6559531,
-              35.2984829
-            ],
-            [
-              -120.655968,
-              35.298476
-            ],
-            [
-              -120.6560126,
-              35.2985385
-            ]
-          ]
-        ]
-      },
-      "id": "way/992526574"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/358790207",
-        "amenity": "school",
-        "ele": "111",
-        "gnis:feature_id": "247063",
-        "name": "San Luis Obispo Classical Academy",
-        "operator": "San Luis Obispo Classical Academy",
-        "phone": "+1-805-548-8700",
-        "website": "https://sloclassicalacademy.com/"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6540464,
-          35.2956413
-        ]
-      },
-      "id": "node/358790207"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/994359298",
-        "amenity": "parking_entrance"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.656976,
-          35.2984224
-        ]
-      },
-      "id": "node/994359298"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/3362313533",
-        "amenity": "telephone",
-        "covered": "no",
-        "description": "On campus calls only.",
-        "fee": "no",
-        "indoor": "no",
-        "operator": "Cal Poly",
-        "payment:free": "yes"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6529712,
-          35.2963054
-        ]
-      },
-      "id": "node/3362313533"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/3679355723",
-        "amenity": "school",
-        "name": "Charles E. Teach Elementary School",
-        "operator": "San Luis Coastal Unified School District",
-        "operator:short": "SLCUSD",
-        "operator:type": "public",
-        "operator:wikidata": "Q28456675",
-        "phone": "+1-805-596-4100",
-        "website": "https://te.slcusd.org/"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.655168,
-          35.2956196
-        ]
-      },
-      "id": "node/3679355723"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/8924808257",
-        "amenity": "bicycle_parking",
-        "bicycle_parking": "lockers"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6545665,
-          35.2984955
-        ]
-      },
-      "id": "node/8924808257"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/8925187262",
-        "amenity": "bicycle_parking"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6548587,
-          35.2964801
-        ]
-      },
-      "id": "node/8925187262"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/8925187283",
-        "amenity": "bicycle_parking"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6552901,
-          35.297149
-        ]
-      },
-      "id": "node/8925187283"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/8925227731",
-        "amenity": "bicycle_parking",
-        "bicycle_parking": "safe_loops",
-        "covered": "no"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6552296,
-          35.2981322
-        ]
-      },
-      "id": "node/8925227731"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/9661207946",
-        "amenity": "bench",
-        "backrest": "yes",
-        "lit": "yes"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6567051,
-          35.2991606
-        ]
-      },
-      "id": "node/9661207946"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/9661207947",
-        "amenity": "waste_basket"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6568755,
-          35.2993479
-        ]
-      },
-      "id": "node/9661207947"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/9661207952",
-        "amenity": "bicycle_parking",
-        "covered": "no",
-        "fee": "no",
-        "indoor": "no"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6563369,
-          35.2989971
-        ]
-      },
-      "id": "node/9661207952"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/9661207953",
-        "amenity": "bicycle_parking",
-        "capacity": "40",
-        "covered": "no",
-        "fee": "no",
-        "indoor": "no"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6552046,
-          35.2985651
-        ]
-      },
-      "id": "node/9661207953"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291658",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "1",
-        "addr:postcode": "93407",
-        "addr:state": "CA",
-        "addr:street": "Grand Avenue",
-        "alt_name": "Jamba Juice",
-        "amenity": "fast_food",
-        "branch": "Cal Poly Vista Grande",
-        "brand": "Jamba",
-        "brand:wikidata": "Q3088784",
-        "cuisine": "juice",
-        "name": "Jamba",
-        "opening_hours": "Mo-Fr 06:30-21:00; Sa-Su 08:00-20:00",
-        "phone": "+1 805-756-1955",
-        "takeaway": "yes",
-        "website": "https://locations.jamba.com/ca/san-luis-obispo/1-grand-ave"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6561414,
-          35.2992172
-        ]
-      },
-      "id": "node/10205291658"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291660",
-        "amenity": "restaurant",
-        "diet:allergen-free": "yes",
-        "name": "Balance Cafe"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6559103,
-          35.2994427
-        ]
-      },
-      "id": "node/10205291660"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291661",
-        "amenity": "restaurant",
-        "cuisine": "italian",
-        "name": "Hearth"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6558611,
-          35.2993533
-        ]
-      },
-      "id": "node/10205291661"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291662",
-        "amenity": "restaurant",
-        "cuisine": "breakfast",
-        "name": "Brunch"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6556963,
-          35.2993812
-        ]
-      },
-      "id": "node/10205291662"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291663",
-        "amenity": "restaurant",
-        "cuisine": "noodle",
-        "name": "Noodles"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6557627,
-          35.2994189
-        ]
-      },
-      "id": "node/10205291663"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291665",
-        "amenity": "restaurant",
-        "cuisine": "street_food;burger;mexican;american",
-        "name": "Streats"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6560701,
-          35.299359
-        ]
-      },
-      "id": "node/10205291665"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291666",
-        "amenity": "restaurant",
-        "name": "Mingle + Nosh"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6558139,
-          35.299432
-        ]
-      },
-      "id": "node/10205291666"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291688",
-        "amenity": "bbq",
-        "covered": "no"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6539205,
-          35.2992895
-        ]
-      },
-      "id": "node/10205291688"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291689",
-        "amenity": "bicycle_parking"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6546069,
-          35.2993055
-        ]
-      },
-      "id": "node/10205291689"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "node/10205291704",
-        "amenity": "post_depot",
-        "name": "172 H Pacheco Post Package Center"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.65532,
-          35.297369
-        ]
-      },
-      "id": "node/10205291704"
     }
   ]
 }
