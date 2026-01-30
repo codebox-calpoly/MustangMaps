@@ -85,6 +85,7 @@ const DEFAULT_BUILDING_COLOR = "#6B7280"; // Gray
 
 export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
+
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
       return undefined;
@@ -92,30 +93,52 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
     return ["in", ["get", "building"], ["literal", buildingTypes]] as const;
   }, [buildingTypes]);
 
+  // Create data-driven color expression
+  const fillColorExpression = useMemo(() => {
+    const matchExpression: any[] = [
+      "match",
+      ["coalesce",
+        ["get", "university-function"],
+        ["get", "building:use"],
+        ["get", "amenity"],
+        ["get", "building"],
+        ""
+      ],
+    ];
+
+    // Add all color mappings
+    Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
+      matchExpression.push(type, color);
+    });
+
+    // Add default color
+    matchExpression.push(DEFAULT_BUILDING_COLOR);
+
+    return matchExpression;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
-        // From: src/components/map/layers/BuildingLayer.tsx
-        // To:   geojson_files/buildings.geojson (project root)
         const asset = Asset.fromModule(
           require("../../../../geojson_files/buildings.geojson")
         );
 
-        // make sure it's available locally
         await asset.downloadAsync();
 
         const uri = asset.localUri ?? asset.uri;
         const text = await FileSystem.readAsStringAsync(uri);
         const parsed = JSON.parse(text);
 
-        // Validate it's a FeatureCollection (what ShapeSource expects)
         if (!parsed || typeof parsed !== "object" || parsed.type !== "FeatureCollection") {
           throw new Error("buildings.geojson is not a valid GeoJSON FeatureCollection");
         }
 
-        if (!cancelled) setBuildingData(parsed as FeatureCollection);
+        if (!cancelled) {
+          setBuildingData(parsed as FeatureCollection);
+        }
       } catch (e) {
         console.error("Failed to load buildings GeoJSON:", e);
       }
