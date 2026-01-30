@@ -180,8 +180,7 @@
         "ref": "13",
         "type": "multipolygon",
         "university-function": "academic school or college",
-        "wheelchair": "yes",
-        "amenity": "engineering_building"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -276,8 +275,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "100 Shasta Hall",
-        "ref": "100",
-        "amenity": "dormitory"
+        "ref": "100"
       },
       "geometry": {
         "type": "Polygon",
@@ -318,8 +316,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "101 Diablo Hall",
-        "ref": "101",
-        "amenity": "dormitory"
+        "ref": "101"
       },
       "geometry": {
         "type": "Polygon",
@@ -360,8 +357,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "102 Palomar Hall",
-        "ref": "102",
-        "amenity": "dormitory"
+        "ref": "102"
       },
       "geometry": {
         "type": "Polygon",
@@ -457,8 +453,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Farm Shop",
-        "ref": "09",
-        "amenity": "agriculture"
+        "ref": "09"
       },
       "geometry": {
         "type": "Polygon",
@@ -515,8 +510,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering IV",
-        "ref": "192",
-        "amenity": "engineering_building"
+        "ref": "192"
       },
       "geometry": {
         "type": "Polygon",
@@ -633,8 +627,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Bonderson Projects Center",
-        "ref": "197",
-        "amenity": "engineering_building"
+        "ref": "197"
       },
       "geometry": {
         "type": "Polygon",
@@ -707,8 +700,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Advanced Technologies Laboratory",
-        "ref": "07",
-        "amenity": "laboratory"
+        "ref": "07"
       },
       "geometry": {
         "type": "Polygon",
@@ -776,8 +768,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering South",
-        "ref": "40",
-        "amenity": "engineering_building"
+        "ref": "40"
       },
       "geometry": {
         "type": "Polygon",
@@ -946,8 +937,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Engineering East",
-        "ref": "20",
-        "amenity": "engineering_building"
+        "ref": "20"
       },
       "geometry": {
         "type": "Polygon",
@@ -1240,8 +1230,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering West Addition",
-        "ref": "21A",
-        "amenity": "engineering_building"
+        "ref": "21A"
       },
       "geometry": {
         "type": "Polygon",
@@ -1424,8 +1413,7 @@
         "name": "Engineering West: Architectural Engineering",
         "phone": "+1 805-756-1314",
         "university-function": "academic school or college",
-        "website": "https://arce.calpoly.edu/",
-        "amenity": "engineering_building"
+        "website": "https://arce.calpoly.edu/"
       },
       "geometry": {
         "type": "Polygon",
@@ -1502,8 +1490,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Walter F. Dexter Building",
-        "ref": "34",
-        "amenity": "architecture"
+        "ref": "34"
       },
       "geometry": {
         "type": "Polygon",
@@ -1625,8 +1612,7 @@
         "building:levels": "2",
         "name": "Davidson Music Center",
         "official_name": "H. P. Davidson Music Center",
-        "ref": "45",
-        "amenity": "performing_arts"
+        "ref": "45"
       },
       "geometry": {
         "type": "Polygon",
@@ -1706,8 +1692,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Robert E. Mott Physical Education",
-        "ref": "42",
-        "amenity": "recreation"
+        "ref": "42"
       },
       "geometry": {
         "type": "Polygon",
@@ -1824,8 +1809,7 @@
         "phone": "+1 805-756-1315",
         "university-function": "academic school or college",
         "website": "https://planning.calpoly.edu/",
-        "wheelchair": "yes",
-        "amenity": "engineering_building"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -2111,8 +2095,7 @@
         "@id": "way/45600386",
         "building": "yes",
         "name": "Public Safety Lab",
-        "ref": "04C",
-        "amenity": "police"
+        "ref": "04C"
       },
       "geometry": {
         "type": "Polygon",
@@ -2222,8 +2205,7 @@
         "building": "university",
         "building:levels": "2",
         "building:use": "education",
-        "name": "Mathematics and Science (38)",
-        "amenity": "science_building"
+        "name": "Mathematics and Science (38)"
       },
       "geometry": {
         "type": "Polygon",
@@ -2332,8 +2314,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Alan A. Erhart Agriculture",
-        "university-function": "academic school or college",
-        "amenity": "agriculture"
+        "university-function": "academic school or college"
       },
       "geometry": {
         "type": "Polygon",
@@ -2395,8 +2376,7 @@
         "building:levels": "3",
         "name": "105 Trinity Hall",
         "ref": "105",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -2498,8 +2478,7 @@
         "building:levels": "3",
         "name": "108 Sequoia Hall",
         "ref": "108",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -2620,8 +2599,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Dining Complex",
-        "ref": "19",
-        "amenity": "dining"
+        "ref": "19"
       },
       "geometry": {
         "type": "Polygon",
@@ -2890,8 +2868,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Transportation Services",
-        "ref": "71",
-        "amenity": "administrative"
+        "ref": "71"
       },
       "geometry": {
         "type": "Polygon",
@@ -2949,8 +2926,7 @@
         "building": "university",
         "description": "By Cal Poly Irrigation Training and Research",
         "name": "Bioresource and Agricultural Engineering",
-        "ref": "08A",
-        "amenity": "engineering_building"
+        "ref": "08A"
       },
       "geometry": {
         "type": "Polygon",
@@ -2990,8 +2966,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Facility Services/Receiving Warehouse",
-        "ref": "70",
-        "amenity": "administrative"
+        "ref": "70"
       },
       "geometry": {
         "type": "Polygon",
@@ -3079,8 +3054,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Housing Warehouse/Risk Management",
-        "ref": "80",
-        "amenity": "maintenance"
+        "ref": "80"
       },
       "geometry": {
         "type": "Polygon",
@@ -3128,8 +3102,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Corporation Administration",
-        "ref": "15",
-        "amenity": "administrative"
+        "ref": "15"
       },
       "geometry": {
         "type": "Polygon",
@@ -3398,8 +3371,7 @@
         "building:levels": "2",
         "name": "107 Muir Hall",
         "ref": "107",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -3509,8 +3481,7 @@
         "building:levels": "3",
         "name": "110 Tenaya Hall",
         "ref": "110",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -3612,8 +3583,7 @@
         "building:levels": "3",
         "name": "109 Fremont Hall",
         "ref": "109",
-        "smoking": "no",
-        "amenity": "dormitory"
+        "smoking": "no"
       },
       "geometry": {
         "type": "Polygon",
@@ -5530,8 +5500,7 @@
         "name": "106 Santa Lucia Hall",
         "ref": "106",
         "smoking": "no",
-        "university-function": "hall of residence",
-        "amenity": "dormitory"
+        "university-function": "hall of residence"
       },
       "geometry": {
         "type": "Polygon",
@@ -5741,8 +5710,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Agricultural Sciences",
-        "ref": "11",
-        "amenity": "science_building"
+        "ref": "11"
       },
       "geometry": {
         "type": "Polygon",
@@ -5887,8 +5855,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Science North",
-        "ref": "53",
-        "amenity": "science_building"
+        "ref": "53"
       },
       "geometry": {
         "type": "Polygon",
@@ -6107,8 +6074,7 @@
         "name": "Cal Poly Campus Market",
         "opening_hours": "Mo-Th 07:30-16:30; Fr 07:30-16:00",
         "ref": "24",
-        "shop": "convenience",
-        "amenity": "dining"
+        "shop": "convenience"
       },
       "geometry": {
         "type": "Polygon",
@@ -6237,8 +6203,7 @@
         "building": "university",
         "building:levels": "1",
         "name": "Science",
-        "ref": "52",
-        "amenity": "science_building"
+        "ref": "52"
       },
       "geometry": {
         "type": "Polygon",
@@ -6662,8 +6627,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Administration",
-        "ref": "01",
-        "amenity": "administrative"
+        "ref": "01"
       },
       "geometry": {
         "type": "Polygon",
@@ -6725,8 +6689,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Clyde P. Fisher Science",
-        "ref": "33",
-        "amenity": "science_building"
+        "ref": "33"
       },
       "geometry": {
         "type": "Polygon",
@@ -6839,8 +6802,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "103 Whitney Hall",
-        "ref": "103",
-        "amenity": "dormitory"
+        "ref": "103"
       },
       "geometry": {
         "type": "Polygon",
@@ -6885,8 +6847,7 @@
         "building": "dormitory",
         "building:levels": "2",
         "name": "104 Lassen Hall",
-        "ref": "104",
-        "amenity": "dormitory"
+        "ref": "104"
       },
       "geometry": {
         "type": "Polygon",
@@ -6927,8 +6888,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Architecture and Environmental Design",
-        "ref": "05",
-        "amenity": "architecture"
+        "ref": "05"
       },
       "geometry": {
         "type": "Polygon",
@@ -7841,8 +7801,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Brown Engineering",
-        "ref": "41A",
-        "amenity": "engineering_building"
+        "ref": "41A"
       },
       "geometry": {
         "type": "Polygon",
@@ -7947,8 +7906,7 @@
         "building": "university",
         "building:use": "office",
         "name": "Julian A. McPhee University Union (65)",
-        "office": "Cal Poly ASI",
-        "amenity": "community_centre"
+        "office": "Cal Poly ASI"
       },
       "geometry": {
         "type": "Polygon",
@@ -8201,8 +8159,7 @@
         "name": "Orfalea College Of Business Building",
         "phone": "+1-805-756-2705",
         "ref": "03",
-        "website": "https://www.cob.calpoly.edu/",
-        "amenity": "business"
+        "website": "https://www.cob.calpoly.edu/"
       },
       "geometry": {
         "type": "Polygon",
@@ -8559,8 +8516,7 @@
       "properties": {
         "@id": "way/205393261",
         "building": "yes",
-        "name": "04D- Aero Jet Engine Test Facility",
-        "amenity": "maintenance"
+        "name": "04D- Aero Jet Engine Test Facility"
       },
       "geometry": {
         "type": "Polygon",
@@ -8701,8 +8657,7 @@
       "properties": {
         "@id": "way/205393309",
         "building": "yes",
-        "name": "160F- Sport Complex Maintenance Building",
-        "amenity": "maintenance"
+        "name": "160F- Sport Complex Maintenance Building"
       },
       "geometry": {
         "type": "Polygon",
@@ -9190,8 +9145,7 @@
       "properties": {
         "@id": "way/205411407",
         "building": "yes",
-        "name": "61E- Spanos Stadium Concession",
-        "amenity": "performing_arts"
+        "name": "61E- Spanos Stadium Concession"
       },
       "geometry": {
         "type": "Polygon",
@@ -9981,8 +9935,7 @@
         "smoking": "no",
         "start_date": "1996",
         "website": "https://www.pacslo.org/",
-        "wheelchair": "yes",
-        "amenity": "performing_arts"
+        "wheelchair": "yes"
       },
       "geometry": {
         "type": "Polygon",
@@ -14792,8 +14745,7 @@
       "properties": {
         "@id": "way/992526574",
         "building": "university",
-        "name": "Scout Coffee",
-        "amenity": "cafe"
+        "name": "Scout Coffee"
       },
       "geometry": {
         "type": "Polygon",
