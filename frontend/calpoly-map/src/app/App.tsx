@@ -4,6 +4,7 @@ import { MapProvider } from '../context/MapContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
+import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import type { MapMode, BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
@@ -14,9 +15,9 @@ const BUILDING_OPTIONS: BuildingFilterOption[] = [
 ];
 
 const AMENITY_OPTIONS: AmenityFilterOption[] = [
-  { id: "restroom", label: "Restrooms" },
-  { id: "parking", label: "Parking" },
-  { id: "water", label: "Water" },
+  { id: "bathroom", label: "Bathrooms" },
+  { id: "water_fountain", label: "Water Fountains" },
+  { id: "printer", label: "Printers" },
 ];
 
 export default function App() {
@@ -44,6 +45,10 @@ export default function App() {
           >
             <BuildingLayer buildingTypes={buildingTypes} />
             <ClassZonesLayer />
+            {/* Only render amenities when in amenities mode or when filters are selected */}
+            {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
+              <AmenitiesLayer amenityTypes={amenityTypeIds} />
+            )}
           </MapContainer>
         </SafeAreaView>
       </MapProvider>
