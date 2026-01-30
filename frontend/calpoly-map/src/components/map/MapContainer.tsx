@@ -6,7 +6,6 @@ import {
   UserLocation,
   type MapViewRef,
   type CameraRef,
-  type OnPressEvent,
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
@@ -16,6 +15,7 @@ import {
   type BuildingFilterOption,
   type MapMode,
 } from "../features/map/MapFilters";
+import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 
 // Disable telemetry
 setAccessToken(null);
@@ -33,7 +33,7 @@ export function MapContainer({
   amenityOptions,
 }: {
   children?: React.ReactNode;
-  onMapPress?: (e: OnPressEvent) => void;
+  onMapPress?: (feature: Feature<Geometry, GeoJsonProperties>) => void;
   mapMode: MapMode;
   onMapModeChange: (mode: MapMode) => void;
   buildingFilterId: string;
@@ -98,7 +98,7 @@ export function MapContainer({
         logoEnabled={false}
         zoomEnabled
         scrollEnabled
-        onPress={onMapPress}
+        {...(onMapPress && { onPress: onMapPress })}
       >
         <UserLocation
         // Renders user's location as dot with arrow for facing direction
