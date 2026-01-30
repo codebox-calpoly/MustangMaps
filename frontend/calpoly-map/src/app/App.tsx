@@ -4,7 +4,6 @@ import { MapProvider } from '../context/MapContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
-import { PathsLayer } from '../components/map/layers/PathsLayer';
 import type { MapMode, BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
@@ -45,7 +44,6 @@ export default function App() {
           >
             <BuildingLayer buildingTypes={buildingTypes} />
             <ClassZonesLayer />
-            <PathsLayer />
           </MapContainer>
         </SafeAreaView>
       </MapProvider>
