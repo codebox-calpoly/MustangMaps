@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
-import type { Route } from "../types";
+import type { Route } from "../types/index";
 
 type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
