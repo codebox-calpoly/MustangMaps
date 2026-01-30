@@ -15,9 +15,59 @@ const BUILDING_TYPE_COLORS: Record<string, string> = {
   "education": "#3B82F6",     // Blue - Educational use
   "office": "#EF4444",        // Red - Office buildings
 
-  // Building types (from "building" property)
+  // Amenity types (from "amenity" property) - Most specific categorization
+  // Academic Buildings
+  academic: "#3B82F6",              // Blue - General academic
+  engineering_building: "#2563EB", // Darker blue - Engineering
+  science_building: "#3B82F6",      // Blue - Science
+  computer_science: "#6366F1",      // Indigo - Computer Science
+  architecture: "#3B82F6",          // Blue - Architecture
+  business: "#3B82F6",              // Blue - Business
+  mathematics: "#3B82F6",           // Blue - Math
+  library: "#06B6D4",               // Cyan - Libraries
+
+  // Residential Buildings
+  dormitory: "#10B981",             // Green - Dorms
+
+  // Arts & Recreation
+  performing_arts: "#8B5CF6",       // Purple - Performing arts
+  theatre: "#8B5CF6",               // Purple - Theatre
+  recreation: "#A855F7",            // Lighter purple - Recreation
+
+  // Dining & Food
+  dining: "#F59E0B",                // Orange - Dining halls
+  fast_food: "#F59E0B",             // Orange - Fast food
+  restaurant: "#F59E0B",            // Orange - Restaurants
+  cafe: "#FBBF24",                  // Yellow - Cafes
+
+  // Administrative & Services
+  administrative: "#EF4444",        // Red - Admin buildings
+  student_services: "#EF4444",      // Red - Student services
+  police: "#DC2626",                // Dark red - Police
+  post_depot: "#EF4444",            // Red - Post
+
+  // Agricultural
+  agriculture: "#22C55E",           // Bright green - Agriculture
+
+  // Utilities & Maintenance
+  maintenance: "#78716C",           // Stone - Maintenance
+  parking: "#6B7280",               // Gray - Parking
+  parking_entrance: "#6B7280",      // Gray - Parking entrance
+  bicycle_parking: "#78716C",       // Stone - Bike parking
+
+  // Health
+  health: "#14B8A6",                // Teal - Health services
+
+  // Miscellaneous
+  miscellaneous: "#94A3B8",         // Slate - Misc
+  community_centre: "#A855F7",      // Purple - Community
+  bench: "#D1D5DB",                 // Light gray - Benches
+  waste_basket: "#78716C",          // Stone - Waste
+  bbq: "#F59E0B",                   // Orange - BBQ
+  telephone: "#6B7280",             // Gray - Telephone
+
+  // Building types (from "building" property) - Fallback
   university: "#9CA3AF",      // Light gray - Generic university buildings
-  dormitory: "#10B981",       // Green - Housing/dorms
   residential: "#10B981",     // Green - Residential
   house: "#10B981",           // Green - Houses
   apartments: "#10B981",      // Green - Apartments
@@ -26,24 +76,8 @@ const BUILDING_TYPE_COLORS: Record<string, string> = {
   shed: "#78716C",            // Stone - Sheds
   roof: "#6B7280",            // Gray - Roof structures
   yes: "#D1D5DB",             // Light gray - Generic buildings
-
-  // Amenity types (from "amenity" property)
-  library: "#06B6D4",         // Cyan - Libraries
   college: "#3B82F6",         // Blue - College buildings
-  theatre: "#8B5CF6",         // Purple - Theatre/arts
-  parking: "#6B7280",         // Gray - Parking
-  bicycle_parking: "#78716C", // Stone - Bike parking
-  police: "#EF4444",          // Red - Police/security
-  fast_food: "#F59E0B",       // Orange - Dining/food
-  restaurant: "#F59E0B",      // Orange - Restaurants
-  cafe: "#F59E0B",            // Orange - Cafes
-
-  // Additional common types
   laboratory: "#EC4899",      // Pink - Labs/research
-  health: "#14B8A6",          // Teal - Health services
-  administrative: "#EF4444",  // Red - Admin buildings
-  recreation: "#8B5CF6",      // Purple - Recreation/sports
-  maintenance: "#78716C",     // Stone - Maintenance/utilities
 };
 
 // Default color for buildings without a defined type
