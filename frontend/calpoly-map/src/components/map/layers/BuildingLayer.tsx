@@ -7,83 +7,83 @@ import { FillLayer, LineLayer, ShapeSource } from "@maplibre/maplibre-react-nati
 
 // Color mappings for building types and amenities
 const BUILDING_TYPE_COLORS: Record<string, string> = {
-  // University function types
-  "academic school or college": "#3B82F6",
-  "hall of residence": "#10B981",
+  // University function types (most specific - from "university-function" property)
+  "academic school or college": "#3B82F6",  // Blue - Academic buildings
+  "hall of residence": "#10B981",           // Green - Residence halls
 
-  // Building use types
-  "education": "#3B82F6",
-  "office": "#EF4444",
+  // Building use types (from "building:use" property)
+  "education": "#3B82F6",     // Blue - Educational use
+  "office": "#EF4444",        // Red - Office buildings
 
-  // Amenity types - Academic
-  academic: "#3B82F6",
-  engineering_building: "#2563EB",
-  science_building: "#3B82F6",
-  computer_science: "#6366F1",
-  architecture: "#3B82F6",
-  business: "#3B82F6",
-  mathematics: "#3B82F6",
-  library: "#06B6D4",
+  // Amenity types (from "amenity" property) - Most specific categorization
+  // Academic Buildings
+  academic: "#3B82F6",              // Blue - General academic
+  engineering_building: "#2563EB", // Darker blue - Engineering
+  science_building: "#3B82F6",      // Blue - Science
+  computer_science: "#6366F1",      // Indigo - Computer Science
+  architecture: "#3B82F6",          // Blue - Architecture
+  business: "#3B82F6",              // Blue - Business
+  mathematics: "#3B82F6",           // Blue - Math
+  library: "#06B6D4",               // Cyan - Libraries
 
-  // Residential
-  dormitory: "#10B981",
+  // Residential Buildings
+  dormitory: "#10B981",             // Green - Dorms
 
   // Arts & Recreation
-  performing_arts: "#8B5CF6",
-  theatre: "#8B5CF6",
-  recreation: "#A855F7",
+  performing_arts: "#8B5CF6",       // Purple - Performing arts
+  theatre: "#8B5CF6",               // Purple - Theatre
+  recreation: "#A855F7",            // Lighter purple - Recreation
 
-  // Dining
-  dining: "#F59E0B",
-  fast_food: "#F59E0B",
-  restaurant: "#F59E0B",
-  cafe: "#FBBF24",
+  // Dining & Food
+  dining: "#F59E0B",                // Orange - Dining halls
+  fast_food: "#F59E0B",             // Orange - Fast food
+  restaurant: "#F59E0B",            // Orange - Restaurants
+  cafe: "#FBBF24",                  // Yellow - Cafes
 
-  // Administrative
-  administrative: "#EF4444",
-  student_services: "#EF4444",
-  police: "#DC2626",
-  post_depot: "#EF4444",
+  // Administrative & Services
+  administrative: "#EF4444",        // Red - Admin buildings
+  student_services: "#EF4444",      // Red - Student services
+  police: "#DC2626",                // Dark red - Police
+  post_depot: "#EF4444",            // Red - Post
 
   // Agricultural
-  agriculture: "#22C55E",
+  agriculture: "#22C55E",           // Bright green - Agriculture
 
-  // Utilities
-  maintenance: "#78716C",
-  parking: "#6B7280",
-  parking_entrance: "#6B7280",
-  bicycle_parking: "#78716C",
+  // Utilities & Maintenance
+  maintenance: "#78716C",           // Stone - Maintenance
+  parking: "#6B7280",               // Gray - Parking
+  parking_entrance: "#6B7280",      // Gray - Parking entrance
+  bicycle_parking: "#78716C",       // Stone - Bike parking
 
   // Health
-  health: "#14B8A6",
+  health: "#14B8A6",                // Teal - Health services
 
   // Miscellaneous
-  miscellaneous: "#94A3B8",
-  community_centre: "#A855F7",
+  miscellaneous: "#94A3B8",         // Slate - Misc
+  community_centre: "#A855F7",      // Purple - Community
+  bench: "#D1D5DB",                 // Light gray - Benches
+  waste_basket: "#78716C",          // Stone - Waste
+  bbq: "#F59E0B",                   // Orange - BBQ
+  telephone: "#6B7280",             // Gray - Telephone
 
-  // Building types fallback
-  university: "#9CA3AF",
-  residential: "#10B981",
-  house: "#10B981",
-  apartments: "#10B981",
-  school: "#3B82F6",
-  greenhouse: "#22C55E",
-  shed: "#78716C",
-  roof: "#6B7280",
-  yes: "#D1D5DB",
-  college: "#3B82F6",
-  laboratory: "#EC4899",
+  // Building types (from "building" property) - Fallback
+  university: "#9CA3AF",      // Light gray - Generic university buildings
+  residential: "#10B981",     // Green - Residential
+  house: "#10B981",           // Green - Houses
+  apartments: "#10B981",      // Green - Apartments
+  school: "#3B82F6",          // Blue - Schools
+  greenhouse: "#22C55E",      // Bright green - Greenhouses
+  shed: "#78716C",            // Stone - Sheds
+  roof: "#6B7280",            // Gray - Roof structures
+  yes: "#D1D5DB",             // Light gray - Generic buildings
+  college: "#3B82F6",         // Blue - College buildings
+  laboratory: "#EC4899",      // Pink - Labs/research
 };
 
-const DEFAULT_BUILDING_COLOR = "#6B7280";
+// Default color for buildings without a defined type
+const DEFAULT_BUILDING_COLOR = "#6B7280"; // Gray
 
-export function BuildingLayer({
-  buildingTypes,
-  onBuildingPress,
-}: {
-  buildingTypes?: string[];
-  onBuildingPress?: (feature: any) => void;
-}) {
+export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
@@ -126,25 +126,30 @@ export function BuildingLayer({
     };
   }, []);
 
-  // Create MapLibre match expression for data-driven styling
+  // Create a MapLibre match expression for data-driven styling
+  // Check properties in priority order: university-function > building:use > amenity > building
   const fillColorExpression = useMemo(() => {
     const matchExpression: any[] = [
       "match",
+      // Use coalesce to check properties from most specific to most generic
       [
         "coalesce",
-        ["get", "university-function"],
-        ["get", "building:use"],
-        ["get", "amenity"],
-        ["get", "building"],
+        ["get", "university-function"], // Most specific - university building function
+        ["get", "building:use"],        // Specific - building use
+        ["get", "amenity"],             // Specific - amenity type
+        ["get", "building"],            // Generic - building type
         "",
       ],
     ];
 
+    // Add color mappings for each building/amenity type
     Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
       matchExpression.push(type, color);
     });
 
+    // Add default color as fallback
     matchExpression.push(DEFAULT_BUILDING_COLOR);
+
     return matchExpression;
   }, []);
 
