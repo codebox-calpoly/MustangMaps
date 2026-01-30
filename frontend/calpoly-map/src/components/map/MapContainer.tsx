@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   MapView,
   Camera,
@@ -15,6 +15,7 @@ import {
   type BuildingFilterOption,
   type MapMode,
 } from "../features/map/MapFilters";
+import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 
 // Disable telemetry
@@ -31,6 +32,7 @@ export function MapContainer({
   onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
+  onBuildingPress,
 }: {
   children?: React.ReactNode;
   onMapPress?: (feature: Feature<Geometry, GeoJsonProperties>) => void;
@@ -42,9 +44,11 @@ export function MapContainer({
   onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
+  onBuildingPress?: (feature: any) => void;
 }) {
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -77,6 +81,32 @@ export function MapContainer({
     }
   }, []);
 
+  const handleBuildingPress = useCallback((feature: any) => {
+    // Handle building press from BuildingLayer
+    const properties = feature.properties;
+    if (properties && (properties.building || properties.amenity)) {
+      setSelectedBuilding(feature as Feature<Geometry, GeoJsonProperties>);
+    }
+  }, []);
+
+  const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
+    // MapView onPress for general map interactions
+    // Building selection is handled by handleBuildingPress callback
+    const map = mapRef.current;
+    if (!map) return;
+
+    // If clicking empty map area, clear building selection
+    const properties = feature.properties;
+    if (!properties || (!properties.building && !properties.amenity)) {
+      setSelectedBuilding(null);
+    }
+
+    // Call the parent's onMapPress if provided
+    if (onMapPress) {
+      onMapPress(feature);
+    }
+  }, [onMapPress]);
+
   return (
     <View style={styles.container}>
       <SearchPanel 
@@ -98,7 +128,7 @@ export function MapContainer({
         logoEnabled={false}
         zoomEnabled
         scrollEnabled
-        {...(onMapPress && { onPress: onMapPress })}
+        onPress={handleMapPress}
       >
         <UserLocation
         // Renders user's location as dot with arrow for facing direction
@@ -110,7 +140,13 @@ export function MapContainer({
           centerCoordinate={[-120.6596, 35.305]}
           zoomLevel={15}
         />
-        {children}
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            // Inject onBuildingPress into BuildingLayer
+            return React.cloneElement(child, { onBuildingPress: handleBuildingPress } as any);
+          }
+          return child;
+        })}
       </MapView>
       <View style={styles.zoomControls} pointerEvents="box-none">
         <Pressable
@@ -135,6 +171,11 @@ export function MapContainer({
           </View>
         </Pressable>
       </View>
+      <BuildingPopup
+        visible={selectedBuilding !== null}
+        building={selectedBuilding}
+        onClose={() => setSelectedBuilding(null)}
+      />
     </View>
   );
 }
