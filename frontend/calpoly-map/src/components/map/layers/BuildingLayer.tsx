@@ -62,7 +62,6 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const [renderKey, setRenderKey] = useState(0);
 
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
@@ -115,10 +114,7 @@ export function BuildingLayer({
         }
 
         if (!cancelled) {
-          console.log('BuildingLayer: Loaded', parsed.features.length, 'buildings');
           setBuildingData(parsed as FeatureCollection);
-          // Force re-render
-          setRenderKey(prev => prev + 1);
         }
       } catch (e) {
         console.error("Failed to load buildings GeoJSON:", e);
@@ -130,51 +126,38 @@ export function BuildingLayer({
     };
   }, []);
 
-  console.log('BuildingLayer render:', buildingData ? `${buildingData.features.length} buildings` : 'no data', 'key:', renderKey);
-
-  // ALWAYS render - never return null
-  const emptyData: FeatureCollection = {
-    type: "FeatureCollection",
-    features: []
-  };
+  if (!buildingData) return null;
 
   return (
-    <>
-      <ShapeSource
-        id="buildings-source"
-        shape={buildingData || emptyData}
-        onPress={(event) => {
-          if (!buildingData) return false;
-
-          // OnPressEvent has features array
-          if (event.features && event.features.length > 0) {
-            const feature = event.features[0];
-            console.log('Building tapped:', feature.properties?.name);
-
-            if (onBuildingPress) {
-              onBuildingPress(feature);
-            }
+    <ShapeSource
+      id="buildings-source"
+      shape={buildingData}
+      onPress={(event) => {
+        if (event.features && event.features.length > 0) {
+          const feature = event.features[0];
+          if (onBuildingPress) {
+            onBuildingPress(feature);
           }
-          return true;
+        }
+        return true;
+      }}
+    >
+      <FillLayer
+        id="buildings-fill"
+        filter={buildingFilter}
+        style={{
+          fillColor: fillColorExpression as any,
+          fillOpacity: 0.25,
         }}
-      >
-        <FillLayer
-          id="buildings-fill"
-          filter={buildingFilter}
-          style={{
-            fillColor: buildingData ? fillColorExpression as any : "#9CA3AF",
-            fillOpacity: 0.25,
-          }}
-        />
-        <LineLayer
-          id="buildings-outline"
-          filter={buildingFilter}
-          style={{
-            lineColor: "#111827",
-            lineWidth: 1,
-          }}
-        />
-      </ShapeSource>
-    </>
+      />
+      <LineLayer
+        id="buildings-outline"
+        filter={buildingFilter}
+        style={{
+          lineColor: "#111827",
+          lineWidth: 1,
+        }}
+      />
+    </ShapeSource>
   );
 }
