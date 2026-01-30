@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
-
-import { addGeoJSONLayer } from "../../../lib/map/loadGeoJSON";
+import { ShapeSource, CircleLayer, SymbolLayer } from "@maplibre/maplibre-react-native";
 
 export function ClassZonesLayer() {
   const [zoneData, setZoneData] = useState<FeatureCollection | null>(null);
@@ -42,21 +41,26 @@ export function ClassZonesLayer() {
 
   if (!zoneData) return null;
 
-  return addGeoJSONLayer({
-    id: "class-zones",
-    data: zoneData,
-    layerType: "circle",
-    paint: {
-      "circle-radius": 6,
-      "circle-color": "#2E86AB",
-      "circle-stroke-width": 1,
-      "circle-stroke-color": "#ffffff",
-    },
-    layout: {
-      "text-field": ["get", "label"],
-      "text-size": 12,
-      "text-offset": [0, 1.2],
-      "text-anchor": "top",
-    },
-  });
+  return (
+    <ShapeSource id="class-zones-source" shape={zoneData}>
+      <CircleLayer
+        id="class-zones-circle"
+        style={{
+          circleRadius: 6,
+          circleColor: "#2E86AB",
+          circleStrokeWidth: 1,
+          circleStrokeColor: "#ffffff",
+        }}
+      />
+      <SymbolLayer
+        id="class-zones-label"
+        style={{
+          textField: ["get", "label"],
+          textSize: 12,
+          textOffset: [0, 1.2],
+          textAnchor: "top",
+        }}
+      />
+    </ShapeSource>
+  );
 }
