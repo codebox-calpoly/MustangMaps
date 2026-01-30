@@ -90,9 +90,16 @@ export function MapContainer({
   }, []);
 
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
-    // This is for general map presses (not from ShapeSource)
+    // MapView onPress for general map interactions
+    // Building selection is handled by handleBuildingPress callback
     const map = mapRef.current;
     if (!map) return;
+
+    // If clicking empty map area, clear building selection
+    const properties = feature.properties;
+    if (!properties || (!properties.building && !properties.amenity)) {
+      setSelectedBuilding(null);
+    }
 
     // Call the parent's onMapPress if provided
     if (onMapPress) {

@@ -154,10 +154,18 @@ export function BuildingLayer({
     <ShapeSource
       id="buildings-source"
       shape={buildingData}
-      onPress={(feature) => {
-        // Call the callback directly (works on iOS)
-        if (onBuildingPress && feature) {
-          onBuildingPress(feature);
+      onPress={(event) => {
+        // OnPressEvent has features array, not a single feature
+        if (event.features && event.features.length > 0) {
+          const feature = event.features[0];
+          console.log('Building tapped:', feature.properties?.name);
+
+          // Call the callback directly (works on iOS)
+          if (onBuildingPress) {
+            onBuildingPress(feature);
+          } else {
+            console.warn('onBuildingPress callback not available');
+          }
         }
         return true;
       }}
