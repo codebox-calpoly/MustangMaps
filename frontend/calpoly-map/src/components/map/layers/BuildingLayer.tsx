@@ -3,88 +3,71 @@ import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
 
-import { FillLayer, LineLayer, ShapeSource } from "@maplibre/maplibre-react-native";
+import {
+  FillLayer,
+  LineLayer,
+  ShapeSource,
+} from "@maplibre/maplibre-react-native";
 
-// Color mappings for building types and amenities
+// Color mappings for different building/amenity types
 const BUILDING_TYPE_COLORS: Record<string, string> = {
-  // University function types (most specific - from "university-function" property)
-  "academic school or college": "#3B82F6",  // Blue - Academic buildings
-  "hall of residence": "#10B981",           // Green - Residence halls
+  // Academic buildings
+  "academic school or college": "#3B82F6",
+  education: "#3B82F6",
+  academic: "#3B82F6",
+  engineering_building: "#2563EB",
+  science_building: "#3B82F6",
+  laboratory: "#1D4ED8",
+  architecture: "#3B82F6",
+  business: "#8B5CF6",
 
-  // Building use types (from "building:use" property)
-  "education": "#3B82F6",     // Blue - Educational use
-  "office": "#EF4444",        // Red - Office buildings
+  // Residential buildings
+  "hall of residence": "#10B981",
+  dormitory: "#10B981",
+  residential: "#10B981",
 
-  // Amenity types (from "amenity" property) - Most specific categorization
-  // Academic Buildings
-  academic: "#3B82F6",              // Blue - General academic
-  engineering_building: "#2563EB", // Darker blue - Engineering
-  science_building: "#3B82F6",      // Blue - Science
-  computer_science: "#6366F1",      // Indigo - Computer Science
-  architecture: "#3B82F6",          // Blue - Architecture
-  business: "#3B82F6",              // Blue - Business
-  mathematics: "#3B82F6",           // Blue - Math
-  library: "#06B6D4",               // Cyan - Libraries
+  // Dining
+  dining: "#F59E0B",
+  cafe: "#FCD34D",
+  restaurant: "#F59E0B",
 
-  // Residential Buildings
-  dormitory: "#10B981",             // Green - Dorms
-
-  // Arts & Recreation
-  performing_arts: "#8B5CF6",       // Purple - Performing arts
-  theatre: "#8B5CF6",               // Purple - Theatre
-  recreation: "#A855F7",            // Lighter purple - Recreation
-
-  // Dining & Food
-  dining: "#F59E0B",                // Orange - Dining halls
-  fast_food: "#F59E0B",             // Orange - Fast food
-  restaurant: "#F59E0B",            // Orange - Restaurants
-  cafe: "#FBBF24",                  // Yellow - Cafes
+  // Recreation & Performing Arts
+  recreation: "#8B5CF6",
+  performing_arts: "#A855F7",
+  theatre: "#A855F7",
 
   // Administrative & Services
-  administrative: "#EF4444",        // Red - Admin buildings
-  student_services: "#EF4444",      // Red - Student services
-  police: "#DC2626",                // Dark red - Police
-  post_depot: "#EF4444",            // Red - Post
-
-  // Agricultural
-  agriculture: "#22C55E",           // Bright green - Agriculture
+  administrative: "#EF4444",
+  office: "#DC2626",
+  police: "#B91C1C",
 
   // Utilities & Maintenance
-  maintenance: "#78716C",           // Stone - Maintenance
-  parking: "#6B7280",               // Gray - Parking
-  parking_entrance: "#6B7280",      // Gray - Parking entrance
-  bicycle_parking: "#78716C",       // Stone - Bike parking
+  maintenance: "#6B7280",
+  warehouse: "#6B7280",
 
-  // Health
-  health: "#14B8A6",                // Teal - Health services
+  // Agriculture
+  agriculture: "#84CC16",
 
-  // Miscellaneous
-  miscellaneous: "#94A3B8",         // Slate - Misc
-  community_centre: "#A855F7",      // Purple - Community
-  bench: "#D1D5DB",                 // Light gray - Benches
-  waste_basket: "#78716C",          // Stone - Waste
-  bbq: "#F59E0B",                   // Orange - BBQ
-  telephone: "#6B7280",             // Gray - Telephone
+  // Community
+  community_centre: "#F97316",
+  library: "#06B6D4",
 
-  // Building types (from "building" property) - Fallback
-  university: "#9CA3AF",      // Light gray - Generic university buildings
-  residential: "#10B981",     // Green - Residential
-  house: "#10B981",           // Green - Houses
-  apartments: "#10B981",      // Green - Apartments
-  school: "#3B82F6",          // Blue - Schools
-  greenhouse: "#22C55E",      // Bright green - Greenhouses
-  shed: "#78716C",            // Stone - Sheds
-  roof: "#6B7280",            // Gray - Roof structures
-  yes: "#D1D5DB",             // Light gray - Generic buildings
-  college: "#3B82F6",         // Blue - College buildings
-  laboratory: "#EC4899",      // Pink - Labs/research
+  // University-specific functions
+  university: "#3B82F6",
 };
 
-// Default color for buildings without a defined type
-const DEFAULT_BUILDING_COLOR = "#6B7280"; // Gray
+const DEFAULT_BUILDING_COLOR = "#9CA3AF"; // Gray for unclassified buildings
 
-export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
-  const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
+export function BuildingLayer({
+  buildingTypes,
+  onBuildingPress,
+}: {
+  buildingTypes?: string[];
+  onBuildingPress?: (feature: any) => void;
+}) {
+  const [buildingData, setBuildingData] = useState<FeatureCollection | null>(
+    null,
+  );
 
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
@@ -97,12 +80,13 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
   const fillColorExpression = useMemo(() => {
     const matchExpression: any[] = [
       "match",
-      ["coalesce",
+      [
+        "coalesce",
         ["get", "university-function"],
         ["get", "building:use"],
         ["get", "amenity"],
         ["get", "building"],
-        ""
+        "",
       ],
     ];
 
@@ -123,7 +107,7 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
     (async () => {
       try {
         const asset = Asset.fromModule(
-          require("../../../../geojson_files/buildings.geojson")
+          require("../../../../geojson_files/buildings.geojson"),
         );
 
         await asset.downloadAsync();
@@ -132,8 +116,14 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
         const text = await FileSystem.readAsStringAsync(uri);
         const parsed = JSON.parse(text);
 
-        if (!parsed || typeof parsed !== "object" || parsed.type !== "FeatureCollection") {
-          throw new Error("buildings.geojson is not a valid GeoJSON FeatureCollection");
+        if (
+          !parsed ||
+          typeof parsed !== "object" ||
+          parsed.type !== "FeatureCollection"
+        ) {
+          throw new Error(
+            "buildings.geojson is not a valid GeoJSON FeatureCollection",
+          );
         }
 
         if (!cancelled) {
@@ -149,33 +139,6 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
     };
   }, []);
 
-  // Create a MapLibre match expression for data-driven styling
-  // Check properties in priority order: university-function > building:use > amenity > building
-  const fillColorExpression = useMemo(() => {
-    const matchExpression: any[] = [
-      "match",
-      // Use coalesce to check properties from most specific to most generic
-      [
-        "coalesce",
-        ["get", "university-function"], // Most specific - university building function
-        ["get", "building:use"],        // Specific - building use
-        ["get", "amenity"],             // Specific - amenity type
-        ["get", "building"],            // Generic - building type
-        "",
-      ],
-    ];
-
-    // Add color mappings for each building/amenity type
-    Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
-      matchExpression.push(type, color);
-    });
-
-    // Add default color as fallback
-    matchExpression.push(DEFAULT_BUILDING_COLOR);
-
-    return matchExpression;
-  }, []);
-
   if (!buildingData) return null;
 
   return (
@@ -183,16 +146,10 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
       id="buildings-source"
       shape={buildingData}
       onPress={(event) => {
-        // OnPressEvent has features array, not a single feature
         if (event.features && event.features.length > 0) {
           const feature = event.features[0];
-          console.log('Building tapped:', feature.properties?.name);
-
-          // Call the callback directly (works on iOS)
           if (onBuildingPress) {
             onBuildingPress(feature);
-          } else {
-            console.warn('onBuildingPress callback not available');
           }
         }
         return true;
