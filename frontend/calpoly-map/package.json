@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "tsx --test src/lib/routing/pathfinder.test.ts"
   },
   "dependencies": {
     "@maplibre/maplibre-react-native": "^10.4.2",
@@ -20,9 +21,11 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0"
+    
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2"
   },
   "private": true
