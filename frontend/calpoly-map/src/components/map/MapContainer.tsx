@@ -11,6 +11,7 @@ import {
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
 import useLocation from "../../hooks/useLocation";
+import UserLocationMarker from "./markers/UserLocationMarker";
 
 // Disable telemetry
 setAccessToken(null);
@@ -72,11 +73,11 @@ export function MapContainer({
         scrollEnabled
         onPress={onMapPress}
       >
-        <UserLocation
-        // Renders user's location as dot with arrow for facing direction
-          visible={true}
-          showsUserHeadingIndicator={true}
+
+        <UserLocationMarker 
+          // Renders user's location
         />
+
         <Camera
           ref={cameraRef}
           centerCoordinate={[-120.6596, 35.305]}
