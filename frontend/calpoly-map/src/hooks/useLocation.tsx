@@ -1,36 +1,50 @@
-import { StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 
-// Retrieves user's latitude and longitude
-const UseLocation = () => {
-  const [errorMsg, setErrorMsg] = useState<string>("");
-  const [longitude] = useState<number | null>(null);
-  const [latitude] = useState<number | null>(null);
-
-  const getUserLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-
-    // Returns error message if location not granted
-    if (status !== "granted") {
-      setErrorMsg("Permission to location was not granted");
-      return;
-    }
-
-    let { coords } = await Location.getCurrentPositionAsync();
-
-    if (coords) {
-      const { latitude, longitude } = coords;
-      console.log("lat and long is", latitude, longitude);
-    }
-  };
+const useLocation = () => {
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    getUserLocation();
-  }, [])
+    let subscription: Location.LocationSubscription | null = null;
+
+    const startTracking = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        setErrorMsg("Permission to location was not granted");
+        return;
+      }
+
+      // Initial position
+      const location = await Location.getCurrentPositionAsync({});
+      setLatitude(location.coords.latitude);
+      setLongitude(location.coords.longitude);
+
+      // Live updates
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (location) => {
+          setLatitude(location.coords.latitude);
+          setLongitude(location.coords.longitude);
+          console.log("watch:", location.coords.latitude, location.coords.longitude);
+        }
+      );
+    };
+
+    startTracking();
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
 
   return { latitude, longitude, errorMsg };
 };
 
-export default UseLocation;
-const styles = StyleSheet.create({});
+export default useLocation;
