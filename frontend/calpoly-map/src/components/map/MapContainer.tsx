@@ -1,9 +1,8 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   MapView,
   Camera,
   setAccessToken,
-  UserLocation,
   type MapViewRef,
   type CameraRef,
   type OnPressEvent,
@@ -28,13 +27,26 @@ export function MapContainer({
 
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
+  const didInitialCenterZoom = useRef(false);
+
+  // Only does initial center and zoom once
+  useEffect(() => {
+    if (didInitialCenterZoom.current) return;
+    if (!cameraRef.current) return;
+
+    didInitialCenterZoom.current = true;
+
+    cameraRef.current?.setCamera({
+      centerCoordinate: [-120.6596, 35.305],
+      zoomLevel: 15,
+      animationDuration: 600,
+    });
+  });
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
     const camera = cameraRef.current;
-    if (!map || !camera) {
-      return;
-    }
+    if (!map || !camera) return;
 
     try {
       const zoom = await map.getZoom();
@@ -46,24 +58,21 @@ export function MapContainer({
   }, []);
 
   const handleCameraMove = useCallback(async (loc: number[]) => {
-    const map = mapRef.current;
     const camera = cameraRef.current;
-    if (!map || !camera) {
-      return;
-    }
+    if (!camera) return;
 
     try {
       camera.flyTo(loc, 200);
-      camera.zoomTo(17, 150)
+      camera.zoomTo(17, 150);
     } catch {
-      // Ignore transient zoom errors to keep taps safe.
+      // Ignore transient camera errors.
     }
   }, []);
 
   return (
     <View style={styles.container}>
-      <SearchPanel 
-        cameraMove={handleCameraMove}/>
+      <SearchPanel cameraMove={handleCameraMove} />
+
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -74,17 +83,16 @@ export function MapContainer({
         onPress={onMapPress}
       >
 
-        <UserLocationMarker 
-          // Renders user's location
+        {/* Renders user's location */}
+        <UserLocationMarker />
+
+        <Camera 
+        ref={cameraRef}  
         />
 
-        <Camera
-          ref={cameraRef}
-          centerCoordinate={[-120.6596, 35.305]}
-          zoomLevel={15}
-        />
         {children}
       </MapView>
+
       <View style={styles.zoomControls} pointerEvents="box-none">
         <Pressable
           accessibilityRole="button"
@@ -97,6 +105,7 @@ export function MapContainer({
             <View style={styles.zoomIconBarVertical} />
           </View>
         </Pressable>
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Zoom out"
@@ -113,12 +122,8 @@ export function MapContainer({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+  map: { flex: 1 },
   zoomControls: {
     position: "absolute",
     right: 16,
