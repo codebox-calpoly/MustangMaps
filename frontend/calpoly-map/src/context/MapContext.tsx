@@ -16,9 +16,11 @@ interface MapContextValue {
   searchQuery: string;
   userLocation: Coordinates | null;
   activeRoute: Route | null;
+  routeDestination: SelectedBuilding | null;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   setRoute: (route: Route | null) => void;
+  setRouteDestination: (building: SelectedBuilding | null) => void;
   setSearchQuery: (query: string) => void;
   setUserLocation: (location: Coordinates | null) => void;
 }
@@ -31,6 +33,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
+  const [routeDestination, setRouteDestination] =
+    useState<SelectedBuilding | null>(null);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
@@ -50,9 +54,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       searchQuery,
       userLocation,
       activeRoute,
+      routeDestination,
       selectBuilding,
       clearSelection,
       setRoute,
+      setRouteDestination,
       setSearchQuery,
       setUserLocation,
     }),
@@ -61,9 +67,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       searchQuery,
       userLocation,
       activeRoute,
+      routeDestination,
       selectBuilding,
       clearSelection,
       setRoute,
+      setRouteDestination,
     ],
   );
 

@@ -17,6 +17,7 @@ import {
 } from "../features/map/MapFilters";
 import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
+import { useMapContext } from "../../context/MapContext";
 
 // Disable telemetry
 setAccessToken(null);
@@ -49,6 +50,7 @@ export function MapContainer({
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
+  const { setRouteDestination } = useMapContext();
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -88,6 +90,11 @@ export function MapContainer({
       setSelectedBuilding(feature as Feature<Geometry, GeoJsonProperties>);
     }
   }, []);
+
+  const handleNavigate = useCallback((feature: Feature<Geometry, GeoJsonProperties>) => {
+    setRouteDestination(feature);
+    onMapModeChange("routes");
+  }, [onMapModeChange, setRouteDestination]);
 
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
     // MapView onPress for general map interactions
@@ -175,6 +182,7 @@ export function MapContainer({
         visible={selectedBuilding !== null}
         building={selectedBuilding}
         onClose={() => setSelectedBuilding(null)}
+        onNavigate={handleNavigate}
       />
     </View>
   );

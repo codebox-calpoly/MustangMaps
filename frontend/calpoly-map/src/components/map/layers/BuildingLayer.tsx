@@ -83,7 +83,13 @@ const BUILDING_TYPE_COLORS: Record<string, string> = {
 // Default color for buildings without a defined type
 const DEFAULT_BUILDING_COLOR = "#6B7280"; // Gray
 
-export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
+export function BuildingLayer({
+  buildingTypes,
+  onBuildingPress,
+}: {
+  buildingTypes?: string[];
+  onBuildingPress?: (feature: any) => void;
+}) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
 
   const buildingFilter = useMemo(() => {
@@ -92,30 +98,6 @@ export function BuildingLayer({ buildingTypes }: { buildingTypes?: string[] }) {
     }
     return ["in", ["get", "building"], ["literal", buildingTypes]] as const;
   }, [buildingTypes]);
-
-  // Create data-driven color expression
-  const fillColorExpression = useMemo(() => {
-    const matchExpression: any[] = [
-      "match",
-      ["coalesce",
-        ["get", "university-function"],
-        ["get", "building:use"],
-        ["get", "amenity"],
-        ["get", "building"],
-        ""
-      ],
-    ];
-
-    // Add all color mappings
-    Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
-      matchExpression.push(type, color);
-    });
-
-    // Add default color
-    matchExpression.push(DEFAULT_BUILDING_COLOR);
-
-    return matchExpression;
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

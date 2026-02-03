@@ -6,9 +6,10 @@ interface BuildingPopupProps {
   visible: boolean;
   building: Feature<Geometry, GeoJsonProperties> | null;
   onClose: () => void;
+  onNavigate: (building: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
-export function BuildingPopup({ visible, building, onClose }: BuildingPopupProps) {
+export function BuildingPopup({ visible, building, onClose, onNavigate }: BuildingPopupProps) {
   if (!building || !visible) return null;
 
   const props = building.properties || {};
@@ -77,6 +78,22 @@ export function BuildingPopup({ visible, building, onClose }: BuildingPopupProps
               </View>
             )}
           </ScrollView>
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Directions to ${name}`}
+              onPress={() => {
+                onNavigate(building);
+                onClose();
+              }}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.primaryButtonPressed,
+              ]}
+            >
+              <Text style={styles.primaryButtonText}>Directions</Text>
+            </Pressable>
+          </View>
         </Pressable>
       </Pressable>
     </Modal>
@@ -148,6 +165,10 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
+  actions: {
+    padding: 16,
+    paddingTop: 0,
+  },
   row: {
     marginBottom: 12,
   },
@@ -161,5 +182,19 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     color: "#111827",
+  },
+  primaryButton: {
+    backgroundColor: "#3B82F6",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  primaryButtonPressed: {
+    backgroundColor: "#2563EB",
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
