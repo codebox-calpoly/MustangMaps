@@ -41,6 +41,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
   const [routeDestination, setRouteDestination] =
     useState<SelectedBuilding | null>(null);
+  const [routeStart, setRouteStart] = useState<Coordinates | null>(null);
+  const [routeEnd, setRouteEnd] = useState<Coordinates | null>(null);
+  const [activePath, setActivePath] = useState<PathfinderResult | null>(null);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);

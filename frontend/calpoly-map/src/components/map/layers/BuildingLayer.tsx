@@ -47,6 +47,7 @@ const BUILDING_TYPE_COLORS: Record<string, string> = {
 
   // Agriculture
   agriculture: "#84CC16",
+}
 
 export function BuildingLayer({
   buildingTypes,
@@ -120,7 +121,8 @@ export function BuildingLayer({
         id="buildings-fill"
         filter={buildingFilter}
         style={{
-          fillColor: fillColorExpression as any,
+          // fillColor: fillColorExpression as any,
+          fillColor: "green",
           fillOpacity: 0.25,
         }}
       />
