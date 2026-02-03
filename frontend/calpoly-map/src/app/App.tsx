@@ -3,6 +3,7 @@ import {StyleSheet} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
+import { LocationProvider } from "../components/contexts/UserLocationContext";
 
 export default function App() {
   const [selected, setSelected] = useState<SelectedBuilding | null>(null);
@@ -24,13 +25,15 @@ export default function App() {
   const ref = selected?.properties?.ref;
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <MapContainer>
-          <BuildingLayer />
-        </MapContainer> 
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <LocationProvider>
+      <SafeAreaProvider>
+        <SafeAreaView style={{ flex: 1 }}>
+          <MapContainer>
+            <BuildingLayer />
+          </MapContainer> 
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </LocationProvider>
   );
 }
 
