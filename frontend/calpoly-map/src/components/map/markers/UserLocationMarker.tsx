@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { PointAnnotation} from "@maplibre/maplibre-react-native";
-import useLocation from "../../../hooks/useLocation";
+import { useUserLocation } from "../../contexts/UserLocationContext";
 
 export default function UserLocationMarker() {
-  const { latitude, longitude, errorMsg } = useLocation();
+  const { latitude, longitude, errorMsg } = useUserLocation();
 
   if (latitude == null || longitude == null) {
     console.log("UserLocationMarker:", errorMsg);

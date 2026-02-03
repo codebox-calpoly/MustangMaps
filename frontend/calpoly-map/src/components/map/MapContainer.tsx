@@ -9,7 +9,7 @@ import {
 } from "@maplibre/maplibre-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
-import useLocation from "../../hooks/useLocation";
+import { useUserLocation } from "../contexts/UserLocationContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 
 // Disable telemetry
@@ -23,7 +23,7 @@ export function MapContainer({
   onMapPress?: (e: OnPressEvent) => void;
 }) {
   // Loads user's current lat and long
-  const { latitude, longitude } = useLocation();
+  const { latitude, longitude } = useUserLocation();
 
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
