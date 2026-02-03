@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
+import type { PathfinderResult } from "../lib/routing/pathfinder";
 
 type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
@@ -23,6 +24,11 @@ interface MapContextValue {
   setRouteDestination: (building: SelectedBuilding | null) => void;
   setSearchQuery: (query: string) => void;
   setUserLocation: (location: Coordinates | null) => void;
+  setRouteStart: (location: Coordinates | null) => void;
+  setRouteEnd: (location: Coordinates | null) => void;
+  setActivePath: (route: PathfinderResult | null) => void;
+  setRouteError: (message: string | null) => void;
+  clearRoute: () => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -48,6 +54,13 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setActiveRoute(route);
   }, []);
 
+  const clearRoute = useCallback(() => {
+    setRouteStart(null);
+    setRouteEnd(null);
+    setActivePath(null);
+    setRouteError(null);
+  }, []);
+
   const value = useMemo(
     () => ({
       selectedBuilding,
@@ -61,6 +74,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteDestination,
       setSearchQuery,
       setUserLocation,
+      setRouteStart,
+      setRouteEnd,
+      setActivePath,
+      setRouteError,
+      clearRoute,
     }),
     [
       selectedBuilding,

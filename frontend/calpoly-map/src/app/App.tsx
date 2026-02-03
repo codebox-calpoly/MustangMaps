@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { MapProvider } from '../context/MapContext';
+import { MapProvider, useMapContext } from '../context/MapContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
+import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
 import type { MapMode, BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
+import { usePathGraph } from '../hooks/usePathGraph';
+import { findPath } from '../lib/routing/pathfinder';
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All", types: null },
@@ -33,7 +36,7 @@ export default function App() {
     <SafeAreaProvider>
       <MapProvider>
         <SafeAreaView style={{ flex: 1 }}>
-          <MapContainer
+          <MapScreen
             mapMode={mapMode}
             onMapModeChange={setMapMode}
             buildingFilterId={buildingFilterId}
@@ -42,16 +45,84 @@ export default function App() {
             onAmenityTypesChange={setAmenityTypeIds}
             buildingOptions={BUILDING_OPTIONS}
             amenityOptions={AMENITY_OPTIONS}
-          >
-            <BuildingLayer buildingTypes={buildingTypes} />
-            <ClassZonesLayer />
-            {/* Only render amenities when in amenities mode or when filters are selected */}
-            {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
-              <AmenitiesLayer amenityTypes={amenityTypeIds} />
-            )}
-          </MapContainer>
+            buildingTypes={buildingTypes}
+          />
         </SafeAreaView>
       </MapProvider>
     </SafeAreaProvider>
+  );
+}
+
+function MapScreen({
+  mapMode,
+  onMapModeChange,
+  buildingFilterId,
+  onBuildingFilterChange,
+  amenityTypeIds,
+  onAmenityTypesChange,
+  buildingOptions,
+  amenityOptions,
+  buildingTypes,
+}: {
+  mapMode: MapMode;
+  onMapModeChange: (mode: MapMode) => void;
+  buildingFilterId: string;
+  onBuildingFilterChange: (id: string) => void;
+  amenityTypeIds: string[];
+  onAmenityTypesChange: (ids: string[]) => void;
+  buildingOptions: BuildingFilterOption[];
+  amenityOptions: AmenityFilterOption[];
+  buildingTypes?: string[];
+}) {
+  const { routeStart, routeEnd, setActivePath, setRouteError } = useMapContext();
+  const { graph, error } = usePathGraph();
+
+  useEffect(() => {
+    if (error) {
+      setRouteError("Failed to load paths data");
+    }
+  }, [error, setRouteError]);
+
+  useEffect(() => {
+    if (!routeStart || !routeEnd || !graph) {
+      setActivePath(null);
+      if (routeStart && routeEnd && !graph) {
+        setRouteError("Loading paths data...");
+      } else {
+        setRouteError(null);
+      }
+      return;
+    }
+
+    const result = findPath(graph, routeStart, routeEnd);
+    if (!result) {
+      setActivePath(null);
+      setRouteError("No path found between those points");
+      return;
+    }
+
+    setRouteError(null);
+    setActivePath(result);
+  }, [graph, routeStart, routeEnd, setActivePath, setRouteError]);
+
+  return (
+    <MapContainer
+      mapMode={mapMode}
+      onMapModeChange={onMapModeChange}
+      buildingFilterId={buildingFilterId}
+      onBuildingFilterChange={onBuildingFilterChange}
+      amenityTypeIds={amenityTypeIds}
+      onAmenityTypesChange={onAmenityTypesChange}
+      buildingOptions={buildingOptions}
+      amenityOptions={amenityOptions}
+    >
+      <BuildingLayer buildingTypes={buildingTypes} />
+      <ClassZonesLayer />
+      {/* Only render amenities when in amenities mode or when filters are selected */}
+      {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
+        <AmenitiesLayer amenityTypes={amenityTypeIds} />
+      )}
+      <RouteLineLayer />
+    </MapContainer>
   );
 }
