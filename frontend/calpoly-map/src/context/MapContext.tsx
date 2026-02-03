@@ -17,13 +17,11 @@ interface MapContextValue {
   searchQuery: string;
   userLocation: Coordinates | null;
   activeRoute: Route | null;
-  routeStart: Coordinates | null;
-  routeEnd: Coordinates | null;
-  activePath: PathfinderResult | null;
-  routeError: string | null;
+  routeDestination: SelectedBuilding | null;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   setRoute: (route: Route | null) => void;
+  setRouteDestination: (building: SelectedBuilding | null) => void;
   setSearchQuery: (query: string) => void;
   setUserLocation: (location: Coordinates | null) => void;
   setRouteStart: (location: Coordinates | null) => void;
@@ -41,10 +39,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
-  const [routeStart, setRouteStart] = useState<Coordinates | null>(null);
-  const [routeEnd, setRouteEnd] = useState<Coordinates | null>(null);
-  const [activePath, setActivePath] = useState<PathfinderResult | null>(null);
-  const [routeError, setRouteError] = useState<string | null>(null);
+  const [routeDestination, setRouteDestination] =
+    useState<SelectedBuilding | null>(null);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
@@ -71,13 +67,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       searchQuery,
       userLocation,
       activeRoute,
-      routeStart,
-      routeEnd,
-      activePath,
-      routeError,
+      routeDestination,
       selectBuilding,
       clearSelection,
       setRoute,
+      setRouteDestination,
       setSearchQuery,
       setUserLocation,
       setRouteStart,
@@ -91,18 +85,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       searchQuery,
       userLocation,
       activeRoute,
-      routeStart,
-      routeEnd,
-      activePath,
-      routeError,
+      routeDestination,
       selectBuilding,
       clearSelection,
       setRoute,
-      setRouteStart,
-      setRouteEnd,
-      setActivePath,
-      setRouteError,
-      clearRoute,
+      setRouteDestination,
     ],
   );
 

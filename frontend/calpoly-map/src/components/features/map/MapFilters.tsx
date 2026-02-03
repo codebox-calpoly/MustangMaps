@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useMapContext } from "../../../context/MapContext";
 
 export type MapMode = "buildings" | "amenities" | "routes";
 
@@ -36,6 +37,11 @@ export function MapFilters({
   amenityOptions,
 }: Props) {
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
+  const { searchQuery } = useMapContext();
+
+  if (searchQuery.trim().length > 0) {
+    return null;
+  }
 
   return (
     <View style={styles.container} pointerEvents="box-none">

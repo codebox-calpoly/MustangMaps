@@ -48,16 +48,6 @@ const BUILDING_TYPE_COLORS: Record<string, string> = {
   // Agriculture
   agriculture: "#84CC16",
 
-  // Community
-  community_centre: "#F97316",
-  library: "#06B6D4",
-
-  // University-specific functions
-  university: "#3B82F6",
-};
-
-const DEFAULT_BUILDING_COLOR = "#9CA3AF"; // Gray for unclassified buildings
-
 export function BuildingLayer({
   buildingTypes,
   onBuildingPress,
@@ -65,9 +55,7 @@ export function BuildingLayer({
   buildingTypes?: string[];
   onBuildingPress?: (feature: any) => void;
 }) {
-  const [buildingData, setBuildingData] = useState<FeatureCollection | null>(
-    null,
-  );
+  const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
 
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
@@ -75,31 +63,6 @@ export function BuildingLayer({
     }
     return ["in", ["get", "building"], ["literal", buildingTypes]] as const;
   }, [buildingTypes]);
-
-  // Create data-driven color expression
-  const fillColorExpression = useMemo(() => {
-    const matchExpression: any[] = [
-      "match",
-      [
-        "coalesce",
-        ["get", "university-function"],
-        ["get", "building:use"],
-        ["get", "amenity"],
-        ["get", "building"],
-        "",
-      ],
-    ];
-
-    // Add all color mappings
-    Object.entries(BUILDING_TYPE_COLORS).forEach(([type, color]) => {
-      matchExpression.push(type, color);
-    });
-
-    // Add default color
-    matchExpression.push(DEFAULT_BUILDING_COLOR);
-
-    return matchExpression;
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -148,9 +111,7 @@ export function BuildingLayer({
       onPress={(event) => {
         if (event.features && event.features.length > 0) {
           const feature = event.features[0];
-          if (onBuildingPress) {
-            onBuildingPress(feature);
-          }
+          console.log('Building tapped:', feature.properties?.name);
         }
         return true;
       }}
