@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
-import { PointAnnotation} from "@maplibre/maplibre-react-native";
+import React from "react";
+import type { Feature, Point } from "geojson";
+import { CircleLayer, ShapeSource } from "@maplibre/maplibre-react-native";
 import { useUserLocation } from "../../contexts/UserLocationContext";
 
 export default function UserLocationMarker() {
@@ -11,30 +11,27 @@ export default function UserLocationMarker() {
     return null;
   }
 
-  const coord: [number, number] = [longitude, latitude];
+  const shape: Feature<Point> = {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Point",
+      coordinates: [longitude, latitude],
+    },
+  };
 
   return (
-    <PointAnnotation id={"user-marker"} coordinate={coord}>
-      <View style={styles.markerOuter}>
-        <View style={styles.markerInner} />
-      </View>
-    </PointAnnotation>
+    <ShapeSource id="user-marker" shape={shape}>
+      <CircleLayer
+        id="user-marker-circle"
+        style={{
+          circleRadius: 7,
+          circleColor: "#007AFF",
+          circleOpacity: 1,
+          circleStrokeWidth: 5,
+          circleStrokeColor: "rgba(0,0,0,0.18)",
+        }}
+      />
+    </ShapeSource>
   );
 }
-
-const styles = StyleSheet.create({
-  markerOuter: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: "rgba(0,0,0,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markerInner: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#007AFF",
-  },
-});
