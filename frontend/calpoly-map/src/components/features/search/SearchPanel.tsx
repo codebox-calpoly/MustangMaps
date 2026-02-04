@@ -35,6 +35,7 @@ export function SearchPanel({ cameraMove }: Props) {
     setRouteStart,
     setRouteEnd,
     setRouteRequested,
+    setRouteStartIsCurrentLocation,
     clearRoute,
   } = useMapContext();
 
@@ -101,8 +102,16 @@ export function SearchPanel({ cameraMove }: Props) {
     if (routingActive && userLocation && !routeStart && startValue.length === 0) {
       setRouteStart(userLocation);
       setStartValue("Current location");
+      setRouteStartIsCurrentLocation(true);
     }
-  }, [routingActive, userLocation, routeStart, setRouteStart, startValue]);
+  }, [
+    routingActive,
+    userLocation,
+    routeStart,
+    setRouteStart,
+    startValue,
+    setRouteStartIsCurrentLocation,
+  ]);
 
   useEffect(() => {
     if (!routingActive) {
@@ -137,6 +146,7 @@ export function SearchPanel({ cameraMove }: Props) {
               setSearchQuery(text);
               setFocused(Boolean(text));
               setRouteRequested(false);
+              setRouteStartIsCurrentLocation(false);
             }}
           />
           <TextInput
@@ -228,6 +238,7 @@ export function SearchPanel({ cameraMove }: Props) {
                     if (name) {
                       setStartValue(name);
                     }
+                    setRouteStartIsCurrentLocation(false);
                   } else {
                     setRouteEnd(coord);
                     if (name) {

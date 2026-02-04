@@ -26,6 +26,7 @@ interface MapContextValue {
   routeError: string | null;
   routingActive: boolean;
   routeRequested: boolean;
+  routeStartIsCurrentLocation: boolean;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   setRoute: (route: Route | null) => void;
@@ -38,6 +39,7 @@ interface MapContextValue {
   setRouteError: (message: string | null) => void;
   setRoutingActive: (active: boolean) => void;
   setRouteRequested: (requested: boolean) => void;
+  setRouteStartIsCurrentLocation: (value: boolean) => void;
   clearRoute: () => void;
 }
 
@@ -57,6 +59,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeError, setRouteError] = useState<string | null>(null);
   const [routingActive, setRoutingActive] = useState(false);
   const [routeRequested, setRouteRequested] = useState(false);
+  const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
+    useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +103,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setActivePath(null);
     setRouteError(null);
     setRouteRequested(false);
+    setRouteStartIsCurrentLocation(false);
   }, []);
 
   const value = useMemo(
@@ -114,6 +119,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeError,
       routingActive,
       routeRequested,
+      routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
       setRoute,
@@ -126,6 +132,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteError,
       setRoutingActive,
       setRouteRequested,
+      setRouteStartIsCurrentLocation,
       clearRoute,
     }),
     [
@@ -140,6 +147,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeError,
       routingActive,
       routeRequested,
+      routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
       setRoute,
@@ -150,6 +158,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteError,
       setRoutingActive,
       setRouteRequested,
+      setRouteStartIsCurrentLocation,
       clearRoute,
     ],
   );

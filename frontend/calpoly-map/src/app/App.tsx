@@ -79,6 +79,7 @@ function MapScreen({
     routeEnd,
     routingActive,
     routeRequested,
+    routeStartIsCurrentLocation,
     setActivePath,
     setRouteError,
   } = useMapContext();
@@ -107,9 +108,18 @@ function MapScreen({
         snapRadiusMeters: 150,
       });
     }
+    if (!result && routeStartIsCurrentLocation) {
+      result = findPath(graph, routeStart, routeEnd, {
+        snapRadiusMeters: 300,
+      });
+    }
     if (!result) {
       setActivePath(null);
-      setRouteError("No path found between those points");
+      setRouteError(
+        routeStartIsCurrentLocation
+          ? "Current location isn't on the path network. Choose a start point."
+          : "No path found between those points",
+      );
       return;
     }
 
