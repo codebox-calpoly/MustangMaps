@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
-export type MapMode = "buildings" | "amenities" | "routes";
+export type MapMode = "buildings" | "amenities" | "routing";
 
 export type BuildingFilterOption = {
   id: string;
@@ -37,24 +37,25 @@ export function MapFilters({
   amenityOptions,
 }: Props) {
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { searchQuery } = useMapContext();
-
-  if (searchQuery.trim().length > 0) {
-    return null;
-  }
+  const { setRoutingActive, clearRoute } = useMapContext();
 
   return (
     <View style={styles.container} pointerEvents="box-none">
       <View style={styles.panel}>
         <View style={styles.row}>
-          {(["buildings", "amenities", "routes"] as MapMode[]).map((mode) => (
+          {(["buildings", "amenities", "routing"] as MapMode[]).map((mode) => (
             <Pressable
               key={mode}
-              onPress={() => onMapModeChange(mode)}
-              style={[
-                styles.chip,
-                mapMode === mode && styles.chipActive,
-              ]}
+              onPress={() => {
+                onMapModeChange(mode);
+                if (mode === "routing") {
+                  setRoutingActive(true);
+                } else {
+                  setRoutingActive(false);
+                  clearRoute();
+                }
+              }}
+              style={[styles.chip, mapMode === mode && styles.chipActive]}
             >
               <Text
                 style={[
@@ -111,10 +112,7 @@ export function MapFilters({
                   style={[styles.chip, isActive && styles.chipActive]}
                 >
                   <Text
-                    style={[
-                      styles.chipText,
-                      isActive && styles.chipTextActive,
-                    ]}
+                    style={[styles.chipText, isActive && styles.chipTextActive]}
                   >
                     {option.label}
                   </Text>
@@ -131,12 +129,14 @@ export function MapFilters({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    left: 12,
-    right: 12,
-    top: 124,
+    left: 0,
+    right: 0,
+    top: 0,
     zIndex: 2,
   },
   panel: {
+    marginHorizontal: 12,
+    marginTop: 6,
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 12,

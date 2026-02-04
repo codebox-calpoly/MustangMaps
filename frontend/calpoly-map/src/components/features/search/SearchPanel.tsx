@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -19,23 +19,28 @@ interface Props {
 
 export function SearchPanel({ cameraMove }: Props) {
   const [focused, setFocused] = useState(false);
-  const [selectionMode, setSelectionMode] = useState<"start" | "end">("end");
+  const [activeField, setActiveField] = useState<"start" | "end">("end");
+  const [startValue, setStartValue] = useState("");
+  const [endValue, setEndValue] = useState("");
   const {
     searchQuery,
     setSearchQuery,
+    userLocation,
     routeStart,
     routeEnd,
     activePath,
     routeError,
+    routingActive,
+    routeRequested,
     setRouteStart,
     setRouteEnd,
+    setRouteRequested,
     clearRoute,
   } = useMapContext();
 
   const handleSearch = useCallback(
     (input: string) => {
       setSearchQuery(input);
-      // show results if user is searching for a building
       if (input) {
         setFocused(true);
       } else {
@@ -92,60 +97,102 @@ export function SearchPanel({ cameraMove }: Props) {
     return null;
   }, []);
 
+  useEffect(() => {
+    if (routingActive && userLocation && !routeStart && startValue.length === 0) {
+      setRouteStart(userLocation);
+      setStartValue("Current location");
+    }
+  }, [routingActive, userLocation, routeStart, setRouteStart, startValue]);
+
+  useEffect(() => {
+    if (!routingActive) {
+      setStartValue("");
+      setEndValue("");
+      setActiveField("end");
+      setFocused(false);
+      setSearchQuery("");
+      setRouteRequested(false);
+    }
+  }, [routingActive, setSearchQuery, setRouteRequested]);
+
   return (
     <SafeAreaView style={styles.searchContainer}>
-      <TextInput
-        style={styles.input}
-        placeholder="Type Destination Here..."
-        clearButtonMode="always"
-        autoCapitalize="none"
-        autoCorrect={false}
-        onChangeText={handleSearch}
-        value={searchQuery}
-      />
-      <View style={styles.modeRow}>
-        <Pressable
-          onPress={() => {
-            setSelectionMode("start");
-            setSearchQuery("");
-          }}
-          style={[
-            styles.modeChip,
-            selectionMode === "start" && styles.modeChipActive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.modeChipText,
-              selectionMode === "start" && styles.modeChipTextActive,
-            ]}
-          >
-            Start
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => {
-            setSelectionMode("end");
-            setSearchQuery("");
-          }}
-          style={[
-            styles.modeChip,
-            selectionMode === "end" && styles.modeChipActive,
-          ]}
-        >
-          <Text
-            style={[
-              styles.modeChipText,
-              selectionMode === "end" && styles.modeChipTextActive,
-            ]}
-          >
-            End
-          </Text>
-        </Pressable>
-        <Pressable onPress={clearRoute} style={styles.clearChip}>
-          <Text style={styles.clearChipText}>Clear</Text>
-        </Pressable>
-      </View>
+      {routingActive ? (
+        <View style={styles.routeInputs}>
+          <TextInput
+            style={styles.input}
+            placeholder="Starting point"
+            value={startValue}
+            clearButtonMode="always"
+            onFocus={() => {
+              setActiveField("start");
+              if (startValue) {
+                setSearchQuery(startValue);
+                setFocused(true);
+              }
+            }}
+            onChangeText={(text) => {
+              setStartValue(text);
+              setActiveField("start");
+              setSearchQuery(text);
+              setFocused(Boolean(text));
+              setRouteRequested(false);
+            }}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Destination"
+            clearButtonMode="always"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onFocus={() => {
+              setActiveField("end");
+              if (endValue) {
+                setSearchQuery(endValue);
+                setFocused(true);
+              }
+            }}
+            onChangeText={(text) => {
+              setEndValue(text);
+              setActiveField("end");
+              setSearchQuery(text);
+              setFocused(Boolean(text));
+              setRouteRequested(false);
+            }}
+            value={endValue}
+          />
+          <View style={styles.routeActions}>
+            <Pressable
+              onPress={() => {
+                if (routeStart && routeEnd) {
+                  setRouteRequested(true);
+                }
+              }}
+              style={[
+                styles.routeButton,
+                !(routeStart && routeEnd) && styles.routeButtonDisabled,
+              ]}
+            >
+              <Text style={styles.routeButtonText}>
+                {routeRequested ? "Route set" : "Route"}
+              </Text>
+            </Pressable>
+            <Pressable onPress={clearRoute} style={styles.clearChip}>
+              <Text style={styles.clearChipText}>Clear</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : (
+        <TextInput
+          style={styles.input}
+          placeholder="Type Destination Here..."
+          clearButtonMode="always"
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={handleSearch}
+          value={searchQuery}
+        />
+      )}
       <View style={styles.statusRow}>
         <Text style={styles.statusText}>
           Start: {routeStart ? "set" : "not set"}
@@ -175,17 +222,19 @@ export function SearchPanel({ cameraMove }: Props) {
                 }
                 const coord = middle(ring) as [number, number];
                 const name = item.properties?.name ?? "";
-                if (selectionMode === "start") {
-                  setRouteStart(coord);
-                  if (name) {
-                    setSearchQuery(`Start: ${name}`);
+                if (routingActive) {
+                  if (activeField === "start") {
+                    setRouteStart(coord);
+                    if (name) {
+                      setStartValue(name);
+                    }
+                  } else {
+                    setRouteEnd(coord);
+                    if (name) {
+                      setEndValue(name);
+                    }
                   }
-                  setSelectionMode("end");
-                } else {
-                  setRouteEnd(coord);
-                  if (name) {
-                    setSearchQuery(`End: ${name}`);
-                  }
+                  setRouteRequested(false);
                 }
                 cameraMove(coord);
                 setFocused(false);
@@ -223,6 +272,7 @@ export function SearchPanel({ cameraMove }: Props) {
 const styles = StyleSheet.create({
   searchContainer: {
     marginHorizontal: 10,
+    marginTop: 120,
   },
   input: {
     paddingHorizontal: 20,
@@ -231,34 +281,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
   },
-  modeRow: {
+  routeInputs: {
+    gap: 8,
+  },
+  routeActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 8,
+    gap: 10,
   },
-  modeChip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#F3F4F6",
-  },
-  modeChipActive: {
+  routeButton: {
+    borderRadius: 10,
     backgroundColor: "#111827",
-    borderColor: "#111827",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
-  modeChipText: {
-    color: "#111827",
-    fontSize: 12,
+  routeButtonDisabled: {
+    backgroundColor: "#9CA3AF",
+  },
+  routeButtonText: {
+    color: "#F9FAFB",
+    fontSize: 14,
     fontWeight: "600",
   },
-  modeChipTextActive: {
-    color: "#F9FAFB",
-  },
   clearChip: {
-    marginLeft: "auto",
     borderRadius: 999,
     borderWidth: 1,
     borderColor: "#FCA5A5",
