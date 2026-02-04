@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MapProvider, useMapContext } from '../context/MapContext';
+import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
@@ -35,19 +36,21 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MapProvider>
-        <SafeAreaView style={{ flex: 1 }}>
-          <MapScreen
-            mapMode={mapMode}
-            onMapModeChange={setMapMode}
-            buildingFilterId={buildingFilterId}
-            onBuildingFilterChange={setBuildingFilterId}
-            amenityTypeIds={amenityTypeIds}
-            onAmenityTypesChange={setAmenityTypeIds}
-            buildingOptions={BUILDING_OPTIONS}
-            amenityOptions={AMENITY_OPTIONS}
-            buildingTypes={buildingTypes}
-          />
-        </SafeAreaView>
+        <SavedPlacesProvider>
+          <SafeAreaView style={{ flex: 1 }}>
+            <MapScreen
+              mapMode={mapMode}
+              onMapModeChange={setMapMode}
+              buildingFilterId={buildingFilterId}
+              onBuildingFilterChange={setBuildingFilterId}
+              amenityTypeIds={amenityTypeIds}
+              onAmenityTypesChange={setAmenityTypeIds}
+              buildingOptions={BUILDING_OPTIONS}
+              amenityOptions={AMENITY_OPTIONS}
+              buildingTypes={buildingTypes}
+            />
+          </SafeAreaView>
+        </SavedPlacesProvider>
       </MapProvider>
     </SafeAreaProvider>
   );

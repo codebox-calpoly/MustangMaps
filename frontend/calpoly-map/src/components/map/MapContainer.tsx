@@ -49,39 +49,77 @@ export function MapContainer({
 }) {
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
+  const lastCameraStopRef = useRef<string | null>(null);
+  const cameraBusyRef = useRef(false);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const { setRouteDestination } = useMapContext();
+
+  const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
+    return Array.isArray(coord) &&
+      coord.length === 2 &&
+      coord.every((value) => Number.isFinite(value));
+  }, []);
+
+  const clampCoordinate = useCallback((coord: [number, number]): [number, number] => {
+    const [lng, lat] = coord;
+    const safeLng = Math.max(-180, Math.min(180, lng));
+    const safeLat = Math.max(-85, Math.min(85, lat));
+    return [safeLng, safeLat];
+  }, []);
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
     const camera = cameraRef.current;
-    if (!map || !camera) {
+    if (!mapReady || !map || !camera) {
       return;
     }
 
     try {
       const zoom = await map.getZoom();
       const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
-      camera.zoomTo(nextZoom, 150);
+      camera.setCamera({
+        zoomLevel: nextZoom,
+        animationDuration: 150,
+      });
     } catch {
       // Ignore transient zoom errors to keep taps safe.
     }
-  }, []);
+  }, [mapReady]);
 
   const handleCameraMove = useCallback(async (loc: number[]) => {
     const map = mapRef.current;
     const camera = cameraRef.current;
-    if (!map || !camera) {
+    if (!mapReady || !map || !camera) {
+      return;
+    }
+    if (!isValidCoordinate(loc)) {
       return;
     }
 
     try {
-      camera.flyTo(loc, 200);
-      camera.zoomTo(17, 150)
+      const safeLoc = clampCoordinate(loc as [number, number]);
+      const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
+      if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
+        return;
+      }
+      cameraBusyRef.current = true;
+      lastCameraStopRef.current = stopKey;
+      requestAnimationFrame(() => {
+        camera.setCamera({
+          centerCoordinate: safeLoc,
+          zoomLevel: 17,
+          animationDuration: 250,
+        });
+        setTimeout(() => {
+          cameraBusyRef.current = false;
+        }, 300);
+      });
     } catch {
       // Ignore transient zoom errors to keep taps safe.
+      cameraBusyRef.current = false;
     }
-  }, []);
+  }, [clampCoordinate, isValidCoordinate, mapReady]);
 
   const handleBuildingPress = useCallback((feature: any) => {
     // Handle building press from BuildingLayer
@@ -136,6 +174,7 @@ export function MapContainer({
         zoomEnabled
         scrollEnabled
         onPress={handleMapPress}
+        onDidFinishLoadingMap={() => setMapReady(true)}
       >
         <UserLocation
         // Renders user's location as dot with arrow for facing direction
@@ -144,8 +183,10 @@ export function MapContainer({
         />
         <Camera
           ref={cameraRef}
-          centerCoordinate={[-120.6596, 35.305]}
-          zoomLevel={15}
+          defaultSettings={{
+            centerCoordinate: [-120.6596, 35.305],
+            zoomLevel: 15,
+          }}
         />
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
