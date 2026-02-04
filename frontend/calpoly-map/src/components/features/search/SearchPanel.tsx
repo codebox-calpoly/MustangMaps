@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  FlatList,
   Pressable,
+  SectionList,
   StyleSheet,
   Text,
   TextInput,
@@ -9,6 +9,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useMapContext } from "../../../context/MapContext";
+import {
+  useSavedPlaces,
+  type SavedPlace,
+} from "../../../context/SavedPlacesContext";
 import type { Geometry } from "geojson";
 
 import geoData from "./test.json";
@@ -16,6 +20,8 @@ import geoData from "./test.json";
 interface Props {
   cameraMove: (coordinates: number[]) => void;
 }
+
+type SectionKind = "favorite" | "history" | "result";
 
 export function SearchPanel({ cameraMove }: Props) {
   const [focused, setFocused] = useState(false);
@@ -38,6 +44,21 @@ export function SearchPanel({ cameraMove }: Props) {
     setRouteStartIsCurrentLocation,
     clearRoute,
   } = useMapContext();
+  const {
+    history,
+    favorites,
+    addToHistory,
+    removeFromHistory,
+    clearHistory,
+    toggleFavorite,
+    isFavorite,
+  } = useSavedPlaces();
+
+  const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
+    return Array.isArray(coord) &&
+      coord.length === 2 &&
+      coord.every((value) => Number.isFinite(value));
+  }, []);
 
   const handleSearch = useCallback(
     (input: string) => {
@@ -72,6 +93,11 @@ export function SearchPanel({ cameraMove }: Props) {
     });
   }, [data, searchQuery]);
 
+  const buildPlaceId = useCallback((name: string, coord: number[]) => {
+    const [lng, lat] = coord;
+    return `${name}:${lng.toFixed(6)}:${lat.toFixed(6)}`;
+  }, []);
+
   // averages the middle of a building based off all its constituent coordinates
   const middle = useCallback((coordinates: number[][]) => {
     let result: number[] = [0.0, 0.0];
@@ -88,18 +114,114 @@ export function SearchPanel({ cameraMove }: Props) {
     return result;
   }, []);
 
-  const getRingCoordinates = useCallback((geometry: Geometry): number[][] | null => {
-    if (geometry.type === "Polygon") {
-      return geometry.coordinates[0] ?? null;
+  const getRingCoordinates = useCallback(
+    (geometry: Geometry): number[][] | null => {
+      if (geometry.type === "Polygon") {
+        return geometry.coordinates[0] ?? null;
+      }
+      if (geometry.type === "MultiPolygon") {
+        return geometry.coordinates[0]?.[0] ?? null;
+      }
+      return null;
+    },
+    [],
+  );
+
+  const placeFromFeature = useCallback(
+    (feature: any): SavedPlace | null => {
+      const ring = getRingCoordinates(feature.geometry as Geometry);
+      if (!ring || ring.length === 0) {
+        return null;
+      }
+      const coord = middle(ring) as [number, number];
+      const name = feature.properties?.name ?? "Unknown";
+      return {
+        id: buildPlaceId(name, coord),
+        name,
+        coordinate: coord,
+        updatedAt: Date.now(),
+      };
+    },
+    [buildPlaceId, getRingCoordinates, middle],
+  );
+
+  const handleSelectPlace = useCallback(
+    (place: SavedPlace) => {
+      if (!isValidCoordinate(place.coordinate)) {
+        return;
+      }
+      if (routingActive) {
+        if (activeField === "start") {
+          setRouteStart(place.coordinate);
+          setStartValue(place.name);
+          setRouteStartIsCurrentLocation(false);
+        } else {
+          setRouteEnd(place.coordinate);
+          setEndValue(place.name);
+        }
+        setRouteRequested(false);
+      } else {
+        setSearchQuery(place.name);
+      }
+      addToHistory(place);
+      cameraMove(place.coordinate);
+      setFocused(false);
+    },
+    [
+      activeField,
+      addToHistory,
+      cameraMove,
+      isValidCoordinate,
+      routingActive,
+      setEndValue,
+      setRouteEnd,
+      setRouteRequested,
+      setRouteStart,
+      setRouteStartIsCurrentLocation,
+      setSearchQuery,
+      setStartValue,
+    ],
+  );
+
+  const resultsAsPlaces = useMemo(() => {
+    return filteredData
+      .map(placeFromFeature)
+      .filter((place): place is SavedPlace => Boolean(place));
+  }, [filteredData, placeFromFeature]);
+
+  const sections = useMemo(() => {
+    const list: Array<{
+      title: string;
+      data: SavedPlace[];
+      kind: SectionKind;
+    }> = [];
+    if (favorites.length > 0) {
+      list.push({
+        title: "Favorites",
+        data: favorites,
+        kind: "favorite" as const,
+      });
     }
-    if (geometry.type === "MultiPolygon") {
-      return geometry.coordinates[0]?.[0] ?? null;
+    if (history.length > 0) {
+      list.push({ title: "History", data: history, kind: "history" as const });
     }
-    return null;
-  }, []);
+    if (focused) {
+      list.push({
+        title: "Results",
+        data: resultsAsPlaces,
+        kind: "result" as const,
+      });
+    }
+    return list;
+  }, [favorites, history, focused, resultsAsPlaces]);
 
   useEffect(() => {
-    if (routingActive && userLocation && !routeStart && startValue.length === 0) {
+    if (
+      routingActive &&
+      userLocation &&
+      !routeStart &&
+      startValue.length === 0
+    ) {
       setRouteStart(userLocation);
       setStartValue("Current location");
       setRouteStartIsCurrentLocation(true);
@@ -217,39 +339,23 @@ export function SearchPanel({ cameraMove }: Props) {
         )}
         {routeError && <Text style={styles.errorText}>{routeError}</Text>}
       </View>
-      {focused && (
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item, index) => {
-            return item.id ?? item.properties?.name ?? String(index);
-          }}
-          renderItem={({ item }) => (
+      {sections.length > 0 && (
+        <SectionList
+          sections={sections}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          renderSectionHeader={({ section }) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              {section.kind === "history" && (
+                <Pressable onPress={clearHistory} style={styles.sectionAction}>
+                  <Text style={styles.sectionActionText}>Clear</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+          renderItem={({ item, section }) => (
             <Pressable
-              onPress={() => {
-                const ring = getRingCoordinates(item.geometry as Geometry);
-                if (!ring || ring.length === 0) {
-                  return;
-                }
-                const coord = middle(ring) as [number, number];
-                const name = item.properties?.name ?? "";
-                if (routingActive) {
-                  if (activeField === "start") {
-                    setRouteStart(coord);
-                    if (name) {
-                      setStartValue(name);
-                    }
-                    setRouteStartIsCurrentLocation(false);
-                  } else {
-                    setRouteEnd(coord);
-                    if (name) {
-                      setEndValue(name);
-                    }
-                  }
-                  setRouteRequested(false);
-                }
-                cameraMove(coord);
-                setFocused(false);
-              }}
+              onPress={() => handleSelectPlace(item)}
               style={({ pressed }) => [
                 {
                   backgroundColor: pressed ? "#D2E6FF" : "white",
@@ -258,22 +364,37 @@ export function SearchPanel({ cameraMove }: Props) {
               ]}
             >
               {/* TODO: insert logo based on type of building */}
-              <Text style={{ fontSize: 50 }}>
-                {(item.properties?.building ??
-                  item.properties?.amenity ??
-                  item.properties?.name ??
-                  "?")
-                  .charAt(0)
-                  .toUpperCase()}
+              <Text style={styles.itemIcon}>
+                {item.name.charAt(0).toUpperCase()}
               </Text>
-              <View>
-                <Text style={styles.buildingName}>
-                  {item.properties.name ? item.properties.name : "none"}
+              <View style={styles.itemMeta}>
+                <Text style={styles.buildingName}>{item.name}</Text>
+                <Text style={styles.subscript}>
+                  {item.coordinate[1].toFixed(5)},{" "}
+                  {item.coordinate[0].toFixed(5)}
                 </Text>
-                <Text style={styles.subscript}>{item.id}</Text>
+              </View>
+              <View style={styles.itemActions}>
+                <Pressable
+                  onPress={() => toggleFavorite(item)}
+                  style={styles.actionChip}
+                >
+                  <Text style={styles.actionChipText}>
+                    {isFavorite(item.id) ? "Unfav" : "Fav"}
+                  </Text>
+                </Pressable>
+                {section.kind === "history" && (
+                  <Pressable
+                    onPress={() => removeFromHistory(item.id)}
+                    style={[styles.actionChip, styles.removeChip]}
+                  >
+                    <Text style={styles.actionChipText}>Remove</Text>
+                  </Pressable>
+                )}
               </View>
             </Pressable>
           )}
+          stickySectionHeadersEnabled={false}
         />
       )}
     </SafeAreaView>
@@ -346,12 +467,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginLeft: 10,
     marginTop: 10,
+    paddingVertical: 6,
+    paddingRight: 10,
+    borderRadius: 8,
   },
   button: {},
   icon: {
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  itemIcon: {
+    fontSize: 34,
+    width: 44,
+    textAlign: "center",
+  },
+  itemMeta: {
+    flex: 1,
   },
   buildingName: {
     fontSize: 17,
@@ -362,5 +494,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 10,
     color: "grey",
+  },
+  itemActions: {
+    flexDirection: "row",
+    gap: 6,
+  },
+  actionChip: {
+    borderRadius: 12,
+    backgroundColor: "#111827",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  removeChip: {
+    backgroundColor: "#B91C1C",
+  },
+  actionChipText: {
+    color: "#F9FAFB",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  sectionHeader: {
+    marginTop: 12,
+    marginLeft: 10,
+    marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  sectionAction: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  sectionActionText: {
+    color: "#1D4ED8",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
