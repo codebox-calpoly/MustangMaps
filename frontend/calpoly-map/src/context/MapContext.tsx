@@ -18,6 +18,10 @@ interface MapContextValue {
   userLocation: Coordinates | null;
   activeRoute: Route | null;
   routeDestination: SelectedBuilding | null;
+  routeStart: Coordinates | null;
+  routeEnd: Coordinates | null;
+  activePath: PathfinderResult | null;
+  routeError: string | null;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   setRoute: (route: Route | null) => void;
@@ -73,6 +77,10 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       userLocation,
       activeRoute,
       routeDestination,
+      routeStart,
+      routeEnd,
+      activePath,
+      routeError,
       selectBuilding,
       clearSelection,
       setRoute,
@@ -91,10 +99,19 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       userLocation,
       activeRoute,
       routeDestination,
+      routeStart,
+      routeEnd,
+      activePath,
+      routeError,
       selectBuilding,
       clearSelection,
       setRoute,
       setRouteDestination,
+      setRouteStart,
+      setRouteEnd,
+      setActivePath,
+      setRouteError,
+      clearRoute,
     ],
   );
 

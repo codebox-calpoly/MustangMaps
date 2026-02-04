@@ -105,7 +105,10 @@ export function SearchPanel({ cameraMove }: Props) {
       />
       <View style={styles.modeRow}>
         <Pressable
-          onPress={() => setSelectionMode("start")}
+          onPress={() => {
+            setSelectionMode("start");
+            setSearchQuery("");
+          }}
           style={[
             styles.modeChip,
             selectionMode === "start" && styles.modeChipActive,
@@ -121,7 +124,10 @@ export function SearchPanel({ cameraMove }: Props) {
           </Text>
         </Pressable>
         <Pressable
-          onPress={() => setSelectionMode("end")}
+          onPress={() => {
+            setSelectionMode("end");
+            setSearchQuery("");
+          }}
           style={[
             styles.modeChip,
             selectionMode === "end" && styles.modeChipActive,
@@ -168,10 +174,18 @@ export function SearchPanel({ cameraMove }: Props) {
                   return;
                 }
                 const coord = middle(ring) as [number, number];
+                const name = item.properties?.name ?? "";
                 if (selectionMode === "start") {
                   setRouteStart(coord);
+                  if (name) {
+                    setSearchQuery(`Start: ${name}`);
+                  }
+                  setSelectionMode("end");
                 } else {
                   setRouteEnd(coord);
+                  if (name) {
+                    setSearchQuery(`End: ${name}`);
+                  }
                 }
                 cameraMove(coord);
                 setFocused(false);
