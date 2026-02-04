@@ -21,6 +21,9 @@ interface MapContextValue {
   selectedBuilding: SelectedBuilding | null;
   searchQuery: string;
   userLocation: Coordinates | null;
+  mapDataLoading: Record<string, boolean>;
+  mapDataErrors: Record<string, string | null>;
+  mapDataRetryToken: number;
   activeRoute: Route | null;
   routeDestination: SelectedBuilding | null;
   routeStart: Coordinates | null;
@@ -46,6 +49,11 @@ interface MapContextValue {
   setAmenityTypeIds: (ids: string[]) => void;
   setRouteRequested: (requested: boolean) => void;
   setRouteStartIsCurrentLocation: (value: boolean) => void;
+  setMapDataStatus: (
+    key: string,
+    status: { loading?: boolean; error?: string | null },
+  ) => void;
+  retryMapData: () => void;
   clearRoute: () => void;
 }
 
@@ -61,6 +69,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     useState<SelectedBuilding | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [mapDataLoading, setMapDataLoading] = useState<Record<string, boolean>>({});
+  const [mapDataErrors, setMapDataErrors] = useState<Record<string, string | null>>({});
+  const [mapDataRetryToken, setMapDataRetryToken] = useState(0);
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
   const [routeDestination, setRouteDestination] =
     useState<SelectedBuilding | null>(null);
@@ -108,6 +119,22 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setActiveRoute(route);
   }, []);
 
+  const setMapDataStatus = useCallback(
+    (key: string, status: { loading?: boolean; error?: string | null }) => {
+      if (status.loading !== undefined) {
+        setMapDataLoading((prev) => ({ ...prev, [key]: status.loading }));
+      }
+      if (status.error !== undefined) {
+        setMapDataErrors((prev) => ({ ...prev, [key]: status.error }));
+      }
+    },
+    [],
+  );
+
+  const retryMapData = useCallback(() => {
+    setMapDataRetryToken((prev) => prev + 1);
+  }, []);
+
   const clearRoute = useCallback(() => {
     setRouteStart(null);
     setRouteEnd(null);
@@ -125,6 +152,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       selectedBuilding,
       searchQuery,
       userLocation,
+      mapDataLoading,
+      mapDataErrors,
+      mapDataRetryToken,
       activeRoute,
       routeDestination,
       routeStart,
@@ -150,6 +180,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
+      setMapDataStatus,
+      retryMapData,
       clearRoute,
     }),
     [
@@ -159,6 +191,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       selectedBuilding,
       searchQuery,
       userLocation,
+      mapDataLoading,
+      mapDataErrors,
+      mapDataRetryToken,
       activeRoute,
       routeDestination,
       routeStart,
@@ -182,6 +217,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
+      setMapDataStatus,
+      retryMapData,
       clearRoute,
     ],
   );

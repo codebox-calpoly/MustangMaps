@@ -3,15 +3,18 @@ import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
 import { LineLayer, ShapeSource } from "@maplibre/maplibre-react-native";
+import { useMapContext } from "../../../context/MapContext";
 
 export function RoutesLayer() {
   const [pathData, setPathData] = useState<FeatureCollection | null>(null);
+  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
+        setMapDataStatus("routes", { loading: true, error: null });
         const asset = Asset.fromModule(
           require("../../../../geojson_files/paths.geojson")
         );
@@ -26,16 +29,26 @@ export function RoutesLayer() {
           throw new Error("paths.geojson is not a valid GeoJSON FeatureCollection");
         }
 
-        if (!cancelled) setPathData(parsed as FeatureCollection);
+        if (!cancelled) {
+          setPathData(parsed as FeatureCollection);
+          setMapDataStatus("routes", { loading: false });
+        }
       } catch (e) {
         console.error("Failed to load paths GeoJSON:", e);
+        if (!cancelled) {
+          setPathData(null);
+          setMapDataStatus("routes", {
+            loading: false,
+            error: "Failed to load routes data.",
+          });
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setMapDataStatus, mapDataRetryToken]);
 
   if (!pathData) return null;
 

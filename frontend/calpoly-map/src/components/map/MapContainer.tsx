@@ -7,7 +7,7 @@ import {
   type MapViewRef,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
-import { Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -48,6 +48,9 @@ export function MapContainer({
     setBuildingFilterId,
     amenityTypeIds,
     setAmenityTypeIds,
+    mapDataLoading,
+    mapDataErrors,
+    retryMapData,
   } = useMapContext();
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
@@ -62,6 +65,9 @@ export function MapContainer({
     const safeLat = Math.max(-85, Math.min(85, lat));
     return [safeLng, safeLat];
   }, []);
+  const hasLoading = Object.values(mapDataLoading).some(Boolean);
+  const errorMessage =
+    Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -191,6 +197,32 @@ export function MapContainer({
           return child;
         })}
       </MapView>
+      {(hasLoading || errorMessage) && (
+        <View style={styles.statusOverlay} pointerEvents="auto">
+          {errorMessage ? (
+            <View style={styles.statusCard}>
+              <Text style={styles.statusTitle}>Map data failed to load</Text>
+              <Text style={styles.statusMessage}>{errorMessage}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Retry loading map data"
+                onPress={retryMapData}
+                style={({ pressed }) => [
+                  styles.retryButton,
+                  pressed && styles.retryButtonPressed,
+                ]}
+              >
+                <Text style={styles.retryButtonText}>Retry</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.loadingCard}>
+              <ActivityIndicator size="large" color="#111827" />
+              <Text style={styles.loadingText}>Loading map data...</Text>
+            </View>
+          )}
+        </View>
+      )}
       <View style={styles.zoomControls} pointerEvents="box-none">
         <Pressable
           accessibilityRole="button"
@@ -230,6 +262,73 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  statusOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+  },
+  statusCard: {
+    width: "100%",
+    maxWidth: 360,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  statusTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 6,
+  },
+  statusMessage: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginBottom: 12,
+  },
+  retryButton: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#111827",
+  },
+  retryButtonPressed: {
+    backgroundColor: "#1F2937",
+  },
+  retryButtonText: {
+    color: "#F9FAFB",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  loadingCard: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    gap: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  loadingText: {
+    fontSize: 13,
+    color: "#374151",
+    fontWeight: "600",
   },
   zoomControls: {
     position: "absolute",

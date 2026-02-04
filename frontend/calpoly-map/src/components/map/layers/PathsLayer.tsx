@@ -4,15 +4,18 @@ import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
 
 import { addGeoJSONLayer } from "../../../lib/map/loadGeoJSON";
+import { useMapContext } from "../../../context/MapContext";
 
 export function PathsLayer() {
   const [pathData, setPathData] = useState<FeatureCollection | null>(null);
+  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
+        setMapDataStatus("paths", { loading: true, error: null });
         // From: src/components/map/layers/PathsLayer.tsx
         // To:   geojson_files/paths.geojson
         const asset = Asset.fromModule(
@@ -31,16 +34,26 @@ export function PathsLayer() {
           throw new Error("paths.geojson is not a valid GeoJSON FeatureCollection");
         }
 
-        if (!cancelled) setPathData(parsed as FeatureCollection);
+        if (!cancelled) {
+          setPathData(parsed as FeatureCollection);
+          setMapDataStatus("paths", { loading: false });
+        }
       } catch (e) {
         console.error("Failed to load paths GeoJSON:", e);
+        if (!cancelled) {
+          setPathData(null);
+          setMapDataStatus("paths", {
+            loading: false,
+            error: "Failed to load paths data.",
+          });
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setMapDataStatus, mapDataRetryToken]);
 
   if (!pathData) return null;
 

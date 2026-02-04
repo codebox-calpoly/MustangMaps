@@ -8,6 +8,7 @@ import {
   LineLayer,
   ShapeSource,
 } from "@maplibre/maplibre-react-native";
+import { useMapContext } from "../../../context/MapContext";
 
 // Color mappings for different building/amenity types
 const BUILDING_TYPE_COLORS: Record<string, string> = {
@@ -57,6 +58,7 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
+  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
   const buildingFilter = useMemo(() => {
     if (!buildingTypes || buildingTypes.length === 0) {
@@ -70,6 +72,7 @@ export function BuildingLayer({
 
     (async () => {
       try {
+        setMapDataStatus("buildings", { loading: true, error: null });
         const asset = Asset.fromModule(
           require("../../../../geojson_files/buildings.geojson"),
         );
@@ -92,16 +95,24 @@ export function BuildingLayer({
 
         if (!cancelled) {
           setBuildingData(parsed as FeatureCollection);
+          setMapDataStatus("buildings", { loading: false });
         }
       } catch (e) {
         console.error("Failed to load buildings GeoJSON:", e);
+        if (!cancelled) {
+          setBuildingData(null);
+          setMapDataStatus("buildings", {
+            loading: false,
+            error: "Failed to load buildings data.",
+          });
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setMapDataStatus, mapDataRetryToken]);
 
   if (!buildingData) return null;
 

@@ -4,16 +4,19 @@ import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
 import { buildPathGraphFromGeoJSON } from "../lib/routing/buildPathGraph";
 import type { PathGraph } from "../lib/routing/pathfinder";
+import { useMapContext } from "../context/MapContext";
 
 export function usePathGraph() {
   const [graph, setGraph] = useState<PathGraph | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
+        setMapDataStatus("path-graph", { loading: true, error: null });
         const asset = Asset.fromModule(
           require("../../geojson_files/paths.geojson"),
         );
@@ -30,11 +33,17 @@ export function usePathGraph() {
         const graphResult = buildPathGraphFromGeoJSON(parsed as FeatureCollection);
         if (!cancelled) {
           setGraph(graphResult);
+          setMapDataStatus("path-graph", { loading: false });
         }
       } catch (e) {
         console.error("Failed to load path graph:", e);
         if (!cancelled) {
           setError("Failed to load path graph");
+          setGraph(null);
+          setMapDataStatus("path-graph", {
+            loading: false,
+            error: "Failed to load path graph.",
+          });
         }
       }
     })();
@@ -42,7 +51,7 @@ export function usePathGraph() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setMapDataStatus, mapDataRetryToken]);
 
   return { graph, error };
 }
