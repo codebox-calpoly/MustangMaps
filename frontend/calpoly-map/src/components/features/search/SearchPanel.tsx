@@ -34,7 +34,7 @@ export function SearchPanel({ cameraMove }: Props) {
     userLocation,
     routeStart,
     routeEnd,
-    activePath,
+    activeRoute,
     routeError,
     routingActive,
     routeRequested,
@@ -332,9 +332,9 @@ export function SearchPanel({ cameraMove }: Props) {
         <Text style={styles.statusText}>
           End: {routeEnd ? "set" : "not set"}
         </Text>
-        {activePath && (
+        {activeRoute && (
           <Text style={styles.statusText}>
-            Distance: {Math.round(activePath.distance)}m
+            Distance: {Math.round(activeRoute.totalDistance)}m
           </Text>
         )}
         {routeError && <Text style={styles.errorText}>{routeError}</Text>}

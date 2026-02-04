@@ -139,6 +139,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteStart(null);
     setRouteEnd(null);
     setActivePath(null);
+    setActiveRoute(null);
     setRouteError(null);
     setRouteRequested(false);
     setRouteStartIsCurrentLocation(false);
