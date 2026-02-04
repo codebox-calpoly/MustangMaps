@@ -4,7 +4,9 @@ import React, {
   useContext,
   useMemo,
   useState,
+  useEffect,
 } from "react";
+import * as Location from "expo-location";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
 import type { PathfinderResult } from "../lib/routing/pathfinder";
@@ -18,6 +20,13 @@ interface MapContextValue {
   userLocation: Coordinates | null;
   activeRoute: Route | null;
   routeDestination: SelectedBuilding | null;
+  routeStart: Coordinates | null;
+  routeEnd: Coordinates | null;
+  activePath: PathfinderResult | null;
+  routeError: string | null;
+  routingActive: boolean;
+  routeRequested: boolean;
+  routeStartIsCurrentLocation: boolean;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   setRoute: (route: Route | null) => void;
@@ -28,6 +37,9 @@ interface MapContextValue {
   setRouteEnd: (location: Coordinates | null) => void;
   setActivePath: (route: PathfinderResult | null) => void;
   setRouteError: (message: string | null) => void;
+  setRoutingActive: (active: boolean) => void;
+  setRouteRequested: (requested: boolean) => void;
+  setRouteStartIsCurrentLocation: (value: boolean) => void;
   clearRoute: () => void;
 }
 
@@ -45,7 +57,33 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeEnd, setRouteEnd] = useState<Coordinates | null>(null);
   const [activePath, setActivePath] = useState<PathfinderResult | null>(null);
   const [routeError, setRouteError] = useState<string | null>(null);
-  
+  const [routingActive, setRoutingActive] = useState(false);
+  const [routeRequested, setRouteRequested] = useState(false);
+  const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
+    useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          return;
+        }
+        const { coords } = await Location.getCurrentPositionAsync({});
+        if (!cancelled && coords) {
+          setUserLocation([coords.longitude, coords.latitude]);
+        }
+      } catch {
+        // ignore location errors; routing will still work with manual points
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
@@ -64,6 +102,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteEnd(null);
     setActivePath(null);
     setRouteError(null);
+    setRouteRequested(false);
+    setRouteStartIsCurrentLocation(false);
   }, []);
 
   const value = useMemo(
@@ -73,6 +113,13 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       userLocation,
       activeRoute,
       routeDestination,
+      routeStart,
+      routeEnd,
+      activePath,
+      routeError,
+      routingActive,
+      routeRequested,
+      routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
       setRoute,
@@ -83,6 +130,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteEnd,
       setActivePath,
       setRouteError,
+      setRoutingActive,
+      setRouteRequested,
+      setRouteStartIsCurrentLocation,
       clearRoute,
     }),
     [
@@ -91,10 +141,25 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       userLocation,
       activeRoute,
       routeDestination,
+      routeStart,
+      routeEnd,
+      activePath,
+      routeError,
+      routingActive,
+      routeRequested,
+      routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
       setRoute,
       setRouteDestination,
+      setRouteStart,
+      setRouteEnd,
+      setActivePath,
+      setRouteError,
+      setRoutingActive,
+      setRouteRequested,
+      setRouteStartIsCurrentLocation,
+      clearRoute,
     ],
   );
 

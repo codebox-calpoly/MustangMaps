@@ -74,7 +74,15 @@ function MapScreen({
   amenityOptions: AmenityFilterOption[];
   buildingTypes?: string[];
 }) {
-  const { routeStart, routeEnd, setActivePath, setRouteError } = useMapContext();
+  const {
+    routeStart,
+    routeEnd,
+    routingActive,
+    routeRequested,
+    routeStartIsCurrentLocation,
+    setActivePath,
+    setRouteError,
+  } = useMapContext();
   const { graph, error } = usePathGraph();
 
   useEffect(() => {
@@ -84,9 +92,9 @@ function MapScreen({
   }, [error, setRouteError]);
 
   useEffect(() => {
-    if (!routeStart || !routeEnd || !graph) {
+    if (!routingActive || !routeRequested || !routeStart || !routeEnd || !graph) {
       setActivePath(null);
-      if (routeStart && routeEnd && !graph) {
+      if (routingActive && routeRequested && routeStart && routeEnd && !graph) {
         setRouteError("Loading paths data...");
       } else {
         setRouteError(null);
@@ -94,16 +102,38 @@ function MapScreen({
       return;
     }
 
-    const result = findPath(graph, routeStart, routeEnd);
+    let result = findPath(graph, routeStart, routeEnd);
+    if (!result) {
+      result = findPath(graph, routeStart, routeEnd, {
+        snapRadiusMeters: 150,
+      });
+    }
+    if (!result && routeStartIsCurrentLocation) {
+      result = findPath(graph, routeStart, routeEnd, {
+        snapRadiusMeters: 300,
+      });
+    }
     if (!result) {
       setActivePath(null);
-      setRouteError("No path found between those points");
+      setRouteError(
+        routeStartIsCurrentLocation
+          ? "Current location isn't on the path network. Choose a start point."
+          : "No path found between those points",
+      );
       return;
     }
 
     setRouteError(null);
     setActivePath(result);
-  }, [graph, routeStart, routeEnd, setActivePath, setRouteError]);
+  }, [
+    graph,
+    routeStart,
+    routeEnd,
+    routingActive,
+    routeRequested,
+    setActivePath,
+    setRouteError,
+  ]);
 
   return (
     <MapContainer

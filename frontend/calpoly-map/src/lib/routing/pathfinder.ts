@@ -39,6 +39,11 @@ export interface PathGraph {
 }
 
 const DEFAULT_SNAP_RADIUS_METERS = 50;
+const MAX_SNAP_RADIUS_METERS = 200;
+
+export interface FindPathOptions {
+  snapRadiusMeters?: number;
+}
 
 class MinHeap<T> {
   private data: T[] = [];
@@ -229,17 +234,22 @@ export function findPath(
   graph: PathGraph,
   startCoord: [number, number],
   endCoord: [number, number],
+  options?: FindPathOptions,
 ): PathfinderResult | null {
+  const snapRadius = Math.min(
+    options?.snapRadiusMeters ?? DEFAULT_SNAP_RADIUS_METERS,
+    MAX_SNAP_RADIUS_METERS,
+  );
   const adjacency = buildAdjacency(graph);
   const startNodeId = findNearestNodeId(
     graph,
     startCoord,
-    DEFAULT_SNAP_RADIUS_METERS,
+    snapRadius,
   );
   const endNodeId = findNearestNodeId(
     graph,
     endCoord,
-    DEFAULT_SNAP_RADIUS_METERS,
+    snapRadius,
   );
 
   if (!startNodeId || !endNodeId) {
