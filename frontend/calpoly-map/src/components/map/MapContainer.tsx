@@ -39,7 +39,7 @@ export function MapContainer({
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
-<<<<<<< 37-implement-filter-state-management
+  const [mapReady, setMapReady] = useState(false);
   const {
     setRouteDestination,
     mapMode,
@@ -49,10 +49,6 @@ export function MapContainer({
     amenityTypeIds,
     setAmenityTypeIds,
   } = useMapContext();
-=======
-  const [mapReady, setMapReady] = useState(false);
-  const { setRouteDestination } = useMapContext();
->>>>>>> main
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&

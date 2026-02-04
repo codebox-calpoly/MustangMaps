@@ -28,30 +28,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <MapProvider>
-<<<<<<< 37-implement-filter-state-management
-        <SafeAreaView style={{ flex: 1 }}>
-          <MapScreen
-            buildingOptions={BUILDING_OPTIONS}
-            amenityOptions={AMENITY_OPTIONS}
-          />
-        </SafeAreaView>
-=======
         <SavedPlacesProvider>
           <SafeAreaView style={{ flex: 1 }}>
             <MapScreen
-              mapMode={mapMode}
-              onMapModeChange={setMapMode}
-              buildingFilterId={buildingFilterId}
-              onBuildingFilterChange={setBuildingFilterId}
-              amenityTypeIds={amenityTypeIds}
-              onAmenityTypesChange={setAmenityTypeIds}
               buildingOptions={BUILDING_OPTIONS}
               amenityOptions={AMENITY_OPTIONS}
-              buildingTypes={buildingTypes}
             />
           </SafeAreaView>
         </SavedPlacesProvider>
->>>>>>> main
       </MapProvider>
     </SafeAreaProvider>
   );
