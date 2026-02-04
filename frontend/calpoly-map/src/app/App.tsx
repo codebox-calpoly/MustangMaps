@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
@@ -7,7 +7,7 @@ import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
-import type { MapMode, BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
+import type { BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
 
@@ -25,17 +25,17 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
 ];
 
 export default function App() {
-  const [mapMode, setMapMode] = useState<MapMode>("buildings");
-  const [buildingFilterId, setBuildingFilterId] = useState("all");
-  const [amenityTypeIds, setAmenityTypeIds] = useState<string[]>([]);
-
-  // Get the building types for the selected filter
-  const selectedBuildingOption = BUILDING_OPTIONS.find(opt => opt.id === buildingFilterId);
-  const buildingTypes = selectedBuildingOption?.types ?? undefined;
-
   return (
     <SafeAreaProvider>
       <MapProvider>
+<<<<<<< 37-implement-filter-state-management
+        <SafeAreaView style={{ flex: 1 }}>
+          <MapScreen
+            buildingOptions={BUILDING_OPTIONS}
+            amenityOptions={AMENITY_OPTIONS}
+          />
+        </SafeAreaView>
+=======
         <SavedPlacesProvider>
           <SafeAreaView style={{ flex: 1 }}>
             <MapScreen
@@ -51,33 +51,23 @@ export default function App() {
             />
           </SafeAreaView>
         </SavedPlacesProvider>
+>>>>>>> main
       </MapProvider>
     </SafeAreaProvider>
   );
 }
 
 function MapScreen({
-  mapMode,
-  onMapModeChange,
-  buildingFilterId,
-  onBuildingFilterChange,
-  amenityTypeIds,
-  onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
-  buildingTypes,
 }: {
-  mapMode: MapMode;
-  onMapModeChange: (mode: MapMode) => void;
-  buildingFilterId: string;
-  onBuildingFilterChange: (id: string) => void;
-  amenityTypeIds: string[];
-  onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
-  buildingTypes?: string[];
 }) {
   const {
+    mapMode,
+    buildingFilterId,
+    amenityTypeIds,
     routeStart,
     routeEnd,
     routingActive,
@@ -87,6 +77,10 @@ function MapScreen({
     setRouteError,
   } = useMapContext();
   const { graph, error } = usePathGraph();
+
+  // get building types from filter
+  const selectedBuildingOption = BUILDING_OPTIONS.find(opt => opt.id === buildingFilterId);
+  const buildingTypes = selectedBuildingOption?.types ?? undefined;
 
   useEffect(() => {
     if (error) {
@@ -140,12 +134,6 @@ function MapScreen({
 
   return (
     <MapContainer
-      mapMode={mapMode}
-      onMapModeChange={onMapModeChange}
-      buildingFilterId={buildingFilterId}
-      onBuildingFilterChange={onBuildingFilterChange}
-      amenityTypeIds={amenityTypeIds}
-      onAmenityTypesChange={onAmenityTypesChange}
       buildingOptions={buildingOptions}
       amenityOptions={amenityOptions}
     >

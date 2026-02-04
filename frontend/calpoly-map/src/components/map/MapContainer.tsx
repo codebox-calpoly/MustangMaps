@@ -13,7 +13,6 @@ import {
   MapFilters,
   type AmenityFilterOption,
   type BuildingFilterOption,
-  type MapMode,
 } from "../features/map/MapFilters";
 import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
@@ -25,24 +24,12 @@ setAccessToken(null);
 export function MapContainer({
   children,
   onMapPress,
-  mapMode,
-  onMapModeChange,
-  buildingFilterId,
-  onBuildingFilterChange,
-  amenityTypeIds,
-  onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
   onBuildingPress,
 }: {
   children?: React.ReactNode;
   onMapPress?: (feature: Feature<Geometry, GeoJsonProperties>) => void;
-  mapMode: MapMode;
-  onMapModeChange: (mode: MapMode) => void;
-  buildingFilterId: string;
-  onBuildingFilterChange: (id: string) => void;
-  amenityTypeIds: string[];
-  onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
   onBuildingPress?: (feature: any) => void;
@@ -52,8 +39,20 @@ export function MapContainer({
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
+<<<<<<< 37-implement-filter-state-management
+  const {
+    setRouteDestination,
+    mapMode,
+    setMapMode,
+    buildingFilterId,
+    setBuildingFilterId,
+    amenityTypeIds,
+    setAmenityTypeIds,
+  } = useMapContext();
+=======
   const [mapReady, setMapReady] = useState(false);
   const { setRouteDestination } = useMapContext();
+>>>>>>> main
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
@@ -131,8 +130,8 @@ export function MapContainer({
 
   const handleNavigate = useCallback((feature: Feature<Geometry, GeoJsonProperties>) => {
     setRouteDestination(feature);
-    onMapModeChange("routes");
-  }, [onMapModeChange, setRouteDestination]);
+    setMapMode("routing");
+  }, [setMapMode, setRouteDestination]);
 
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
     // MapView onPress for general map interactions
@@ -158,11 +157,11 @@ export function MapContainer({
         cameraMove={handleCameraMove}/>
       <MapFilters
         mapMode={mapMode}
-        onMapModeChange={onMapModeChange}
+        onMapModeChange={setMapMode}
         buildingFilterId={buildingFilterId}
-        onBuildingFilterChange={onBuildingFilterChange}
+        onBuildingFilterChange={setBuildingFilterId}
         amenityTypeIds={amenityTypeIds}
-        onAmenityTypesChange={onAmenityTypesChange}
+        onAmenityTypesChange={setAmenityTypeIds}
         buildingOptions={buildingOptions}
         amenityOptions={amenityOptions}
       />
