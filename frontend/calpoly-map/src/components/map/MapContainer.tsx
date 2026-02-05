@@ -136,18 +136,14 @@ export function MapContainer({
   }, [setMapMode, setRouteDestination]);
 
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
-    // MapView onPress for general map interactions
-    // Building selection is handled by handleBuildingPress callback
     const map = mapRef.current;
     if (!map) return;
 
-    // If clicking empty map area, clear building selection
     const properties = feature.properties;
     if (!properties || (!properties.building && !properties.amenity)) {
       setSelectedBuilding(null);
     }
 
-    // Call the parent's onMapPress if provided
     if (onMapPress) {
       onMapPress(feature);
     }
@@ -155,8 +151,7 @@ export function MapContainer({
 
   return (
     <View style={styles.container}>
-      <SearchPanel 
-        cameraMove={handleCameraMove}/>
+      <SearchPanel cameraMove={handleCameraMove}/>
       <MapFilters
         mapMode={mapMode}
         onMapModeChange={setMapMode}
@@ -178,7 +173,6 @@ export function MapContainer({
         onDidFinishLoadingMap={() => setMapReady(true)}
       >
         <UserLocation
-        // Renders user's location as dot with arrow for facing direction
           visible={true}
           showsUserHeadingIndicator={true}
         />
@@ -191,12 +185,12 @@ export function MapContainer({
         />
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            // Inject onBuildingPress into BuildingLayer
             return React.cloneElement(child, { onBuildingPress: handleBuildingPress } as any);
           }
           return child;
         })}
       </MapView>
+
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
           {errorMessage ? (
@@ -223,6 +217,7 @@ export function MapContainer({
           )}
         </View>
       )}
+
       <View style={styles.zoomControls} pointerEvents="box-none">
         <Pressable
           accessibilityRole="button"
@@ -246,6 +241,7 @@ export function MapContainer({
           </View>
         </Pressable>
       </View>
+
       <BuildingPopup
         visible={selectedBuilding !== null}
         building={selectedBuilding}
@@ -368,3 +364,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
 });
+
