@@ -16,6 +16,7 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 interface MapContextValue {
   mapMode: "buildings" | "amenities" | "routing";
+  mapStyle: "light" | "dark";
   buildingFilterId: string;
   amenityTypeIds: string[];
   selectedBuilding: SelectedBuilding | null;
@@ -45,6 +46,7 @@ interface MapContextValue {
   setRouteError: (message: string | null) => void;
   setRoutingActive: (active: boolean) => void;
   setMapMode: (mode: "buildings" | "amenities" | "routing") => void;
+  setMapStyle: (style: "light" | "dark") => void;
   setBuildingFilterId: (id: string) => void;
   setAmenityTypeIds: (ids: string[]) => void;
   setRouteRequested: (requested: boolean) => void;
@@ -63,6 +65,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   // filter state shared across the app
   const [mapMode, setMapMode] =
     useState<"buildings" | "amenities" | "routing">("buildings");
+  const [mapStyle, setMapStyle] = useState<"light" | "dark">("light");
   const [buildingFilterId, setBuildingFilterId] = useState("all");
   const [amenityTypeIds, setAmenityTypeIds] = useState<string[]>([]);
   const [selectedBuilding, setSelectedBuilding] =
@@ -147,6 +150,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       mapMode,
+      mapStyle,
       buildingFilterId,
       amenityTypeIds,
       selectedBuilding,
@@ -176,6 +180,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteError,
       setRoutingActive,
       setMapMode,
+      setMapStyle,
       setBuildingFilterId,
       setAmenityTypeIds,
       setRouteRequested,
@@ -186,6 +191,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       mapMode,
+      mapStyle,
       buildingFilterId,
       amenityTypeIds,
       selectedBuilding,
@@ -213,6 +219,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteError,
       setRoutingActive,
       setMapMode,
+      setMapStyle,
       setBuildingFilterId,
       setAmenityTypeIds,
       setRouteRequested,

@@ -37,11 +37,34 @@ export function MapFilters({
   amenityOptions,
 }: Props) {
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute } = useMapContext();
+  const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
+  const nextMapStyle = mapStyle === "light" ? "dark" : "light";
 
   return (
     <View style={styles.container} pointerEvents="box-none">
       <View style={styles.panel}>
+        <View style={styles.rowSpaceBetween}>
+          <Text style={styles.panelTitle}>Map Style</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Switch to ${nextMapStyle} mode`}
+            onPress={() => setMapStyle(nextMapStyle)}
+            style={({ pressed }) => [
+              styles.styleToggle,
+              mapStyle === "dark" && styles.styleToggleActive,
+              pressed && styles.styleTogglePressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.styleToggleText,
+                mapStyle === "dark" && styles.styleToggleTextActive,
+              ]}
+            >
+              {mapStyle === "dark" ? "Dark" : "Light"}
+            </Text>
+          </Pressable>
+        </View>
         <View style={styles.row}>
           {(["buildings", "amenities", "routing"] as MapMode[]).map((mode) => (
             <Pressable
@@ -153,6 +176,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
+  rowSpaceBetween: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   rowWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -176,6 +204,36 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   chipTextActive: {
+    color: "#F9FAFB",
+  },
+  panelTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#111827",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  styleToggle: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    backgroundColor: "#F9FAFB",
+  },
+  styleToggleActive: {
+    backgroundColor: "#111827",
+    borderColor: "#111827",
+  },
+  styleTogglePressed: {
+    opacity: 0.85,
+  },
+  styleToggleText: {
+    color: "#111827",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  styleToggleTextActive: {
     color: "#F9FAFB",
   },
 });
