@@ -45,6 +45,7 @@ export function MapContainer({
     setRouteDestination,
     mapMode,
     setMapMode,
+    mapStyle,
     buildingFilterId,
     setBuildingFilterId,
     amenityTypeIds,
@@ -53,6 +54,10 @@ export function MapContainer({
     mapDataErrors,
     retryMapData,
   } = useMapContext();
+  const mapStyleUrl =
+    mapStyle === "dark"
+      ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+      : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
@@ -166,7 +171,7 @@ export function MapContainer({
       <MapView
         ref={mapRef}
         style={styles.map}
-        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        mapStyle={mapStyleUrl}
         logoEnabled={false}
         zoomEnabled
         scrollEnabled
