@@ -7,7 +7,8 @@ import { useMapContext } from "../../../context/MapContext";
 
 export function ClassZonesLayer() {
   const [zoneData, setZoneData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle } = useMapContext();
+  const isDark = mapStyle === "dark";
 
   useEffect(() => {
     let cancelled = false;
@@ -72,6 +73,9 @@ export function ClassZonesLayer() {
           textSize: 12,
           textOffset: [0, 1.2],
           textAnchor: "top",
+          textColor: isDark ? "#F9FAFB" : "#111827",
+          textHaloColor: isDark ? "#0B1120" : "#FFFFFF",
+          textHaloWidth: 1,
         }}
       />
     </ShapeSource>
