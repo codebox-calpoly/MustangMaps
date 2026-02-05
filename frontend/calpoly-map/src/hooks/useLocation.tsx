@@ -1,46 +1,66 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Location from "expo-location";
 
 const useLocation = () => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const subRef = useRef<Location.LocationSubscription | null>(null);
 
   useEffect(() => {
-    let subscription: Location.LocationSubscription | null = null;
+    let isMounted = true;
 
     const startTracking = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        setErrorMsg("Permission to location was not granted");
-        return;
-      }
-
-      // Initial position
-      const location = await Location.getCurrentPositionAsync({});
-      setLatitude(location.coords.latitude);
-      setLongitude(location.coords.longitude);
-
-      // Live updates
-      subscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 1000,
-          distanceInterval: 1,
-        },
-        (location) => {
-          setLatitude(location.coords.latitude);
-          setLongitude(location.coords.longitude);
-          console.log("watch:", location.coords.latitude, location.coords.longitude);
+      try {
+        // 1) Make sure device services are enabled
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+        if (!servicesEnabled) {
+          if (isMounted) setErrorMsg("Location services are disabled on this device");
+          return;
         }
-      );
+
+        // 2) Ask permission
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          if (isMounted) setErrorMsg("Permission to location was not granted");
+          return;
+        }
+
+        // 3) Initial position (consider adding a timeout)
+        const current = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+
+        if (isMounted) {
+          setLatitude(current.coords.latitude);
+          setLongitude(current.coords.longitude);
+        }
+
+        // 4) Live updates
+        subRef.current = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            timeInterval: 1000,
+            distanceInterval: 1,
+          },
+          (loc) => {
+            if (!isMounted) return;
+            setLatitude(loc.coords.latitude);
+            setLongitude(loc.coords.longitude);
+          }
+        );
+      } catch (e: any) {
+        if (isMounted) setErrorMsg(e?.message ?? String(e));
+      }
     };
 
     startTracking();
 
     return () => {
-      subscription?.remove();
+      isMounted = false;
+      subRef.current?.remove();
+      subRef.current = null;
     };
   }, []);
 
