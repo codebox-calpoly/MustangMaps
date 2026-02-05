@@ -4,6 +4,7 @@ import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
+import { LocationProvider } from "../components/contexts/UserLocationContext";
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
@@ -26,18 +27,20 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <MapProvider>
-        <SavedPlacesProvider>
-          <SafeAreaView style={{ flex: 1 }}>
-            <MapScreen
-              buildingOptions={BUILDING_OPTIONS}
-              amenityOptions={AMENITY_OPTIONS}
-            />
-          </SafeAreaView>
-        </SavedPlacesProvider>
-      </MapProvider>
-    </SafeAreaProvider>
+    <LocationProvider>
+      <SafeAreaProvider>
+        <MapProvider>
+          <SavedPlacesProvider>
+            <SafeAreaView style={{ flex: 1 }}>
+              <MapScreen
+                buildingOptions={BUILDING_OPTIONS}
+                amenityOptions={AMENITY_OPTIONS}
+              />
+            </SafeAreaView>
+          </SavedPlacesProvider>
+        </MapProvider>
+      </SafeAreaProvider>
+     </LocationProvider>
   );
 }
 

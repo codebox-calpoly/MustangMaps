@@ -17,9 +17,10 @@ import {
 import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 import { useMapContext } from "../../context/MapContext";
+import UserLocationMarker from "./markers/UserLocationMarker";
 
-// Disable telemetry
-setAccessToken(null);
+  // Disable telemetry
+  setAccessToken(null);
 
 export function MapContainer({
   children,
@@ -236,10 +237,45 @@ export function MapContainer({
           onPress={() => handleZoom(-1)}
           style={styles.zoomButton}
         >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-          </View>
-        </Pressable>
+
+          {/* Renders user's location */}
+          <UserLocationMarker />
+
+          <Camera 
+          ref={cameraRef}
+          defaultSettings={{
+            centerCoordinate: [-120.6596, 35.305],
+            zoomLevel: 15,
+      }}
+          />
+
+          {children}
+        </MapView>
+
+        <View style={styles.zoomControls} pointerEvents="box-none">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Zoom in"
+            onPress={() => handleZoom(1)}
+            style={styles.zoomButton}
+          >
+            <View style={styles.zoomIcon}>
+              <View style={styles.zoomIconBarHorizontal} />
+              <View style={styles.zoomIconBarVertical} />
+            </View>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Zoom out"
+            onPress={() => handleZoom(-1)}
+            style={styles.zoomButton}
+          >
+            <View style={styles.zoomIcon}>
+              <View style={styles.zoomIconBarHorizontal} />
+            </View>
+          </Pressable>
+        </View>
       </View>
 
       <BuildingPopup
