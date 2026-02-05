@@ -64,9 +64,6 @@
           zoomEnabled
           scrollEnabled
           onPress={onMapPress}
-          onDidFinishLoadingMap={
-            cameraInitial
-          }
         >
 
           {/* Renders user's location */}
