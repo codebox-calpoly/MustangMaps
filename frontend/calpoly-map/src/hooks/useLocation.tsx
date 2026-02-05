@@ -1,70 +1,36 @@
-import { useEffect, useRef, useState } from "react";
+import { StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 
-const useLocation = () => {
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
+// Retrieves user's latitude and longitude
+const UseLocation = () => {
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [longitude] = useState<number | null>(null);
+  const [latitude] = useState<number | null>(null);
 
-  const subRef = useRef<Location.LocationSubscription | null>(null);
+  const getUserLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+
+    // Returns error message if location not granted
+    if (status !== "granted") {
+      setErrorMsg("Permission to location was not granted");
+      return;
+    }
+
+    let { coords } = await Location.getCurrentPositionAsync();
+
+    if (coords) {
+      const { latitude, longitude } = coords;
+      console.log("lat and long is", latitude, longitude);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-
-    const startTracking = async () => {
-      try {
-        // 1) Make sure device services are enabled
-        const servicesEnabled = await Location.hasServicesEnabledAsync();
-        if (!servicesEnabled) {
-          if (isMounted) setErrorMsg("Location services are disabled on this device");
-          return;
-        }
-
-        // 2) Ask permission
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          if (isMounted) setErrorMsg("Permission to location was not granted");
-          return;
-        }
-
-        // 3) Initial position (consider adding a timeout)
-        const current = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
-
-        if (isMounted) {
-          setLatitude(current.coords.latitude);
-          setLongitude(current.coords.longitude);
-        }
-
-        // 4) Live updates
-        subRef.current = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.High,
-            timeInterval: 1000,
-            distanceInterval: 1,
-          },
-          (loc) => {
-            if (!isMounted) return;
-            setLatitude(loc.coords.latitude);
-            setLongitude(loc.coords.longitude);
-          }
-        );
-      } catch (e: any) {
-        if (isMounted) setErrorMsg(e?.message ?? String(e));
-      }
-    };
-
-    startTracking();
-
-    return () => {
-      isMounted = false;
-      subRef.current?.remove();
-      subRef.current = null;
-    };
-  }, []);
+    getUserLocation();
+  }, [])
 
   return { latitude, longitude, errorMsg };
 };
 
-export default useLocation;
+export default UseLocation;
+const styles = StyleSheet.create({});
