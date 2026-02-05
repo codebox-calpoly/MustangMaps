@@ -14,6 +14,7 @@ import {
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
 import type { Geometry } from "geojson";
+import { useUserLocation } from "../../../context/UserLocationContext";
 
 import geoData from "./test.json";
 
@@ -53,6 +54,14 @@ export function SearchPanel({ cameraMove }: Props) {
     toggleFavorite,
     isFavorite,
   } = useSavedPlaces();
+
+  const { latitude, longitude } = useUserLocation();
+  const { setUserLocation } = useMapContext();
+
+  useEffect(() => {
+    if (latitude == null || longitude == null) return;
+    setUserLocation([longitude, latitude]);
+  }, [latitude, longitude, setUserLocation]);
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&

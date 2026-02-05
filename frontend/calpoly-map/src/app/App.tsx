@@ -10,6 +10,7 @@ import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
 import type { BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
+import { LocationProvider } from "../context/UserLocationContext";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All", types: null },
@@ -27,6 +28,7 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
 export default function App() {
   return (
     <SafeAreaProvider>
+      <LocationProvider>
       <MapProvider>
         <SavedPlacesProvider>
           <SafeAreaView style={{ flex: 1 }}>
@@ -37,6 +39,7 @@ export default function App() {
           </SafeAreaView>
         </SavedPlacesProvider>
       </MapProvider>
+      </LocationProvider>
     </SafeAreaProvider>
   );
 }

@@ -17,6 +17,7 @@ import {
 import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 import { useMapContext } from "../../context/MapContext";
+import UserLocationMarker from "./markers/UserLocationMarker";
 
 // Disable telemetry
 setAccessToken(null);
@@ -172,10 +173,8 @@ export function MapContainer({
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => setMapReady(true)}
       >
-        <UserLocation
-          visible={true}
-          showsUserHeadingIndicator={true}
-        />
+        
+        <UserLocationMarker />
         <Camera
           ref={cameraRef}
           defaultSettings={{
