@@ -157,20 +157,9 @@ export function MapContainer({
 
   return (
     <View style={styles.container}>
-      <SearchPanel cameraMove={handleCameraMove}/>
-      <MapFilters
-        mapMode={mapMode}
-        onMapModeChange={setMapMode}
-        buildingFilterId={buildingFilterId}
-        onBuildingFilterChange={setBuildingFilterId}
-        amenityTypeIds={amenityTypeIds}
-        onAmenityTypesChange={setAmenityTypeIds}
-        buildingOptions={buildingOptions}
-        amenityOptions={amenityOptions}
-      />
       <MapView
         ref={mapRef}
-        style={styles.map}
+        style={StyleSheet.absoluteFill}
         mapStyle={mapStyleUrl}
         logoEnabled={false}
         zoomEnabled
@@ -194,6 +183,17 @@ export function MapContainer({
           return child;
         })}
       </MapView>
+      <SearchPanel cameraMove={handleCameraMove} />
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingFilterId={buildingFilterId}
+        onBuildingFilterChange={setBuildingFilterId}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -368,4 +368,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
 });
-
