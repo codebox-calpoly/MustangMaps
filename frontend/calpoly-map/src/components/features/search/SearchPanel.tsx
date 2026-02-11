@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import {
   Pressable,
   SectionList,
@@ -7,13 +13,14 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import type { Geometry } from "geojson";
+
 import { useMapContext } from "../../../context/MapContext";
 import {
   useSavedPlaces,
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
-import type { Geometry } from "geojson";
 import { useUserLocation } from "../../../context/UserLocationContext";
 
 import geoData from "./test.json";
@@ -25,10 +32,19 @@ interface Props {
 type SectionKind = "favorite" | "history" | "result";
 
 export function SearchPanel({ cameraMove }: Props) {
+  // Bottom sheet controls
+  const sheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["25%", "35%", "55%", "75%"], []);
+
+  const openSheet = useCallback(() => {
+    sheetRef.current?.snapToIndex(1);
+  }, []);
+
   const [focused, setFocused] = useState(false);
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
   const [endValue, setEndValue] = useState("");
+
   const {
     searchQuery,
     setSearchQuery,
@@ -44,7 +60,9 @@ export function SearchPanel({ cameraMove }: Props) {
     setRouteRequested,
     setRouteStartIsCurrentLocation,
     clearRoute,
+    setUserLocation,
   } = useMapContext();
+
   const {
     history,
     favorites,
@@ -56,7 +74,6 @@ export function SearchPanel({ cameraMove }: Props) {
   } = useSavedPlaces();
 
   const { latitude, longitude } = useUserLocation();
-  const { setUserLocation } = useMapContext();
 
   useEffect(() => {
     if (latitude == null || longitude == null) return;
@@ -65,7 +82,7 @@ export function SearchPanel({ cameraMove }: Props) {
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
-      coord.length === 2 &&
+        coord.length === 2 &&
       coord.every((value) => Number.isFinite(value));
   }, []);
 
@@ -144,6 +161,7 @@ export function SearchPanel({ cameraMove }: Props) {
       }
       const coord = middle(ring) as [number, number];
       const name = feature.properties?.name ?? "Unknown";
+
       return {
         id: buildPlaceId(name, coord),
         name,
@@ -172,9 +190,13 @@ export function SearchPanel({ cameraMove }: Props) {
       } else {
         setSearchQuery(place.name);
       }
+
       addToHistory(place);
       cameraMove(place.coordinate);
+
+      // UX: hide results and collapse sheet a bit
       setFocused(false);
+      sheetRef.current?.snapToIndex(0);
     },
     [
       activeField,
@@ -204,6 +226,7 @@ export function SearchPanel({ cameraMove }: Props) {
       data: SavedPlace[];
       kind: SectionKind;
     }> = [];
+
     if (favorites.length > 0) {
       list.push({
         title: "Favorites",
@@ -256,165 +279,209 @@ export function SearchPanel({ cameraMove }: Props) {
   }, [routingActive, setSearchQuery, setRouteRequested]);
 
   return (
-    <SafeAreaView style={styles.searchContainer}>
-      {routingActive ? (
-        <View style={styles.routeInputs}>
-          <TextInput
-            style={styles.input}
-            placeholder="Starting point"
-            value={startValue}
-            clearButtonMode="always"
-            onFocus={() => {
-              setActiveField("start");
-              if (startValue) {
-                setSearchQuery(startValue);
-                setFocused(true);
-              }
-            }}
-            onChangeText={(text) => {
-              setStartValue(text);
-              setActiveField("start");
-              setSearchQuery(text);
-              setFocused(Boolean(text));
-              setRouteRequested(false);
-              setRouteStartIsCurrentLocation(false);
-            }}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Destination"
-            clearButtonMode="always"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onFocus={() => {
-              setActiveField("end");
-              if (endValue) {
-                setSearchQuery(endValue);
-                setFocused(true);
-              }
-            }}
-            onChangeText={(text) => {
-              setEndValue(text);
-              setActiveField("end");
-              setSearchQuery(text);
-              setFocused(Boolean(text));
-              setRouteRequested(false);
-            }}
-            value={endValue}
-          />
-          <View style={styles.routeActions}>
-            <Pressable
-              onPress={() => {
+    <View style={{ flex: 1 }}>
+      <BottomSheet
+        ref={sheetRef}
+        index={1}
+        snapPoints={snapPoints}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
+      >
+        <BottomSheetView style={styles.sheetContent}>
+          {routingActive ? (
+            <View style={styles.routeInputs}>
+              <TextInput
+                style={styles.input}
+                placeholder="Starting point"
+                value={startValue}
+                clearButtonMode="always"
+                onFocus={() => {
+                  openSheet();
+                  setActiveField("start");
+                  if (startValue) {
+                    setSearchQuery(startValue);
+                    setFocused(true);
+                  }
+                }}
+                onChangeText={(text) => {
+                  setStartValue(text);
+                  setActiveField("start");
+                  setSearchQuery(text);
+                  setFocused(Boolean(text));
+                  setRouteRequested(false);
+                  setRouteStartIsCurrentLocation(false);
+                }}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Destination"
+                clearButtonMode="always"
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={endValue}
+                onFocus={() => {
+                  openSheet();
+                  setActiveField("end");
+                  if (endValue) {
+                    setSearchQuery(endValue);
+                    setFocused(true);
+                  }
+                }}
+                onChangeText={(text) => {
+                  setEndValue(text);
+                  setActiveField("end");
+                  setSearchQuery(text);
+                  setFocused(Boolean(text));
+                  setRouteRequested(false);
+                }}
+              />
+
+              <View style={styles.routeActions}>
+                <Pressable
+                  onPress={() => {
                 if (routeStart && routeEnd) {
                   setRouteRequested(true);
                 }
-              }}
-              style={[
-                styles.routeButton,
-                !(routeStart && routeEnd) && styles.routeButtonDisabled,
-              ]}
-            >
-              <Text style={styles.routeButtonText}>
-                {routeRequested ? "Route set" : "Route"}
-              </Text>
-            </Pressable>
-            <Pressable onPress={clearRoute} style={styles.clearChip}>
-              <Text style={styles.clearChipText}>Clear</Text>
-            </Pressable>
-          </View>
-        </View>
-      ) : (
-        <TextInput
-          style={styles.input}
-          placeholder="Type Destination Here..."
-          clearButtonMode="always"
-          autoCapitalize="none"
-          autoCorrect={false}
-          onChangeText={handleSearch}
-          value={searchQuery}
-        />
-      )}
-      <View style={styles.statusRow}>
-        <Text style={styles.statusText}>
-          Start: {routeStart ? "set" : "not set"}
-        </Text>
-        <Text style={styles.statusText}>
-          End: {routeEnd ? "set" : "not set"}
-        </Text>
-        {activePath && (
-          <Text style={styles.statusText}>
-            Distance: {Math.round(activePath.distance)}m
-          </Text>
-        )}
-        {routeError && <Text style={styles.errorText}>{routeError}</Text>}
-      </View>
-      {sections.length > 0 && (
-        <SectionList
-          sections={sections}
-          keyExtractor={(item, index) => `${item.id}-${index}`}
-          renderSectionHeader={({ section }) => (
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
-              {section.kind === "history" && (
-                <Pressable onPress={clearHistory} style={styles.sectionAction}>
-                  <Text style={styles.sectionActionText}>Clear</Text>
-                </Pressable>
-              )}
-            </View>
-          )}
-          renderItem={({ item, section }) => (
-            <Pressable
-              onPress={() => handleSelectPlace(item)}
-              style={({ pressed }) => [
-                {
-                  backgroundColor: pressed ? "#D2E6FF" : "white",
-                },
-                styles.itemContainer,
-              ]}
-            >
-              {/* TODO: insert logo based on type of building */}
-              <Text style={styles.itemIcon}>
-                {item.name.charAt(0).toUpperCase()}
-              </Text>
-              <View style={styles.itemMeta}>
-                <Text style={styles.buildingName}>{item.name}</Text>
-                <Text style={styles.subscript}>
-                  {item.coordinate[1].toFixed(5)},{" "}
-                  {item.coordinate[0].toFixed(5)}
-                </Text>
-              </View>
-              <View style={styles.itemActions}>
-                <Pressable
-                  onPress={() => toggleFavorite(item)}
-                  style={styles.actionChip}
+                  }}
+                  style={[
+                    styles.routeButton,
+                    !(routeStart && routeEnd) && styles.routeButtonDisabled,
+                  ]}
                 >
-                  <Text style={styles.actionChipText}>
-                    {isFavorite(item.id) ? "Unfav" : "Fav"}
+                  <Text style={styles.routeButtonText}>
+                    {routeRequested ? "Route set" : "Route"}
                   </Text>
                 </Pressable>
-                {section.kind === "history" && (
-                  <Pressable
-                    onPress={() => removeFromHistory(item.id)}
-                    style={[styles.actionChip, styles.removeChip]}
-                  >
-                    <Text style={styles.actionChipText}>Remove</Text>
-                  </Pressable>
-                )}
+
+                <Pressable onPress={clearRoute} style={styles.clearChip}>
+                  <Text style={styles.clearChipText}>Clear</Text>
+                </Pressable>
               </View>
-            </Pressable>
+            </View>
+          ) : (
+            <TextInput
+              style={styles.input}
+              placeholder="Type Destination Here..."
+              clearButtonMode="always"
+              autoCapitalize="none"
+              autoCorrect={false}
+              onChangeText={handleSearch}
+              value={searchQuery}
+              onFocus={() => {
+                openSheet();
+                setFocused(Boolean(searchQuery));
+              }}
+            />
           )}
-          stickySectionHeadersEnabled={false}
-        />
-      )}
-    </SafeAreaView>
+
+          <View style={styles.statusRow}>
+            <Text style={styles.statusText}>
+              Start: {routeStart ? "set" : "not set"}
+            </Text>
+            <Text style={styles.statusText}>
+              End: {routeEnd ? "set" : "not set"}
+            </Text>
+            {activePath && (
+              <Text style={styles.statusText}>
+                Distance: {Math.round(activePath.distance)}m
+              </Text>
+            )}
+            {routeError && <Text style={styles.errorText}>{routeError}</Text>}
+          </View>
+
+          {sections.length > 0 && (
+            <SectionList
+              sections={sections}
+              keyExtractor={(item, index) => `${item.id}-${index}`}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 24 }}
+              renderSectionHeader={({ section }) => (
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>{section.title}</Text>
+                  {section.kind === "history" && (
+                    <Pressable
+                      onPress={clearHistory}
+                      style={styles.sectionAction}
+                    >
+                      <Text style={styles.sectionActionText}>Clear</Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
+              renderItem={({ item, section }) => (
+                <Pressable
+                  onPress={() => handleSelectPlace(item)}
+                  style={({ pressed }) => [
+                    { backgroundColor: pressed ? "#D2E6FF" : "white" },
+                    styles.itemContainer,
+                  ]}
+                >
+              {/* TODO: insert logo based on type of building */}
+                  <Text style={styles.itemIcon}>
+                    {item.name.charAt(0).toUpperCase()}
+                  </Text>
+
+                  <View style={styles.itemMeta}>
+                    <Text style={styles.buildingName}>{item.name}</Text>
+                    <Text style={styles.subscript}>
+                      {item.coordinate[1].toFixed(5)},{" "}
+                      {item.coordinate[0].toFixed(5)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.itemActions}>
+                    <Pressable
+                      onPress={() => toggleFavorite(item)}
+                      style={styles.actionChip}
+                    >
+                      <Text style={styles.actionChipText}>
+                        {isFavorite(item.id) ? "Unfav" : "Fav"}
+                      </Text>
+                    </Pressable>
+
+                    {section.kind === "history" && (
+                      <Pressable
+                        onPress={() => removeFromHistory(item.id)}
+                        style={[styles.actionChip, styles.removeChip]}
+                      >
+                        <Text style={styles.actionChipText}>Remove</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </Pressable>
+              )}
+              stickySectionHeadersEnabled={false}
+            />
+          )}
+        </BottomSheetView>
+      </BottomSheet>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  searchContainer: {
-    marginHorizontal: 10,
-    marginTop: 120,
+  sheetContent: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingTop: 8,
   },
+
+  floatingOpenButton: {
+    position: "absolute",
+    right: 16,
+    bottom: 24,
+    backgroundColor: "#111827",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    zIndex: 50,
+  },
+  floatingOpenButtonText: {
+    color: "white",
+    fontWeight: "700",
+  },
+
   input: {
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -432,7 +499,7 @@ const styles = StyleSheet.create({
   },
   routeButton: {
     borderRadius: 10,
-    backgroundColor: "#111827",
+    backgroundColor: "#1f7242ff",
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
