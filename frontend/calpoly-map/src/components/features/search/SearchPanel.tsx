@@ -27,11 +27,12 @@ import geoData from "./test.json";
 
 interface Props {
   cameraMove: (coordinates: number[]) => void;
+  cameraFitRoute: (start: number[], end: number[]) => void;
 }
 
 type SectionKind = "favorite" | "history" | "result";
 
-export function SearchPanel({ cameraMove }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -52,6 +53,7 @@ export function SearchPanel({ cameraMove }: Props) {
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
   const [endValue, setEndValue] = useState("");
+  const lastFittedRouteRef = useRef<string | null>(null);
 
   const {
     searchQuery,
@@ -426,6 +428,26 @@ export function SearchPanel({ cameraMove }: Props) {
     }
     sheetRef.current?.snapToIndex(2);
   }, [summaryVisible, routingSearchSheetOpen]);
+
+  // Fit the camera to both route endpoints when a valid route is ready.
+  useEffect(() => {
+    if (!summaryVisible || !isValidCoordinate(routeStart) || !isValidCoordinate(routeEnd)) {
+      return;
+    }
+
+    const routeKey = `${routeStart[0].toFixed(6)}:${routeStart[1].toFixed(6)}:${routeEnd[0].toFixed(6)}:${routeEnd[1].toFixed(6)}`;
+    if (lastFittedRouteRef.current === routeKey) {
+      return;
+    }
+    lastFittedRouteRef.current = routeKey;
+    cameraFitRoute(routeStart, routeEnd);
+  }, [cameraFitRoute, isValidCoordinate, routeEnd, routeStart, summaryVisible]);
+
+  useEffect(() => {
+    if (!routingActive) {
+      lastFittedRouteRef.current = null;
+    }
+  }, [routingActive]);
 
   return (
     <View style={{ flex: 1 }}>

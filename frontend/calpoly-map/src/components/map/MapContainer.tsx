@@ -7,7 +7,7 @@ import {
   type MapViewRef,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -128,6 +128,35 @@ export function MapContainer({
     }
   }, [clampCoordinate, isValidCoordinate, mapReady]);
 
+  const handleCameraFitRoute = useCallback((start: number[], end: number[]) => {
+    const map = mapRef.current;
+    const camera = cameraRef.current;
+    if (!mapReady || !map || !camera) {
+      return;
+    }
+    if (!isValidCoordinate(start) || !isValidCoordinate(end)) {
+      return;
+    }
+
+    const safeStart = clampCoordinate(start as [number, number]);
+    const safeEnd = clampCoordinate(end as [number, number]);
+
+    const ne: [number, number] = [
+      Math.max(safeStart[0], safeEnd[0]),
+      Math.max(safeStart[1], safeEnd[1]),
+    ];
+    const sw: [number, number] = [
+      Math.min(safeStart[0], safeEnd[0]),
+      Math.min(safeStart[1], safeEnd[1]),
+    ];
+
+    // Keep route endpoints in the visible map area between top controls and directions sheet.
+    const windowHeight = Dimensions.get("window").height;
+    const topPadding = Math.round(windowHeight * 0.18);
+    const bottomPadding = Math.round(windowHeight * 0.58);
+    camera.fitBounds(ne, sw, [topPadding, 56, bottomPadding, 56], 350);
+  }, [clampCoordinate, isValidCoordinate, mapReady]);
+
   const handleBuildingPress = useCallback((feature: any) => {
     // Handle building press from BuildingLayer
     const properties = feature.properties;
@@ -183,7 +212,10 @@ export function MapContainer({
           return child;
         })}
       </MapView>
-      <SearchPanel cameraMove={handleCameraMove} />
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+      />
       <MapFilters
         mapMode={mapMode}
         onMapModeChange={setMapMode}
