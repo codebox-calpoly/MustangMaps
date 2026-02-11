@@ -119,6 +119,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
 
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
+        // Auto-focus routing searchbar when sheet opens
         setTimeout(() => {
           routingSearchInputRef.current?.focus();
         }, 60);

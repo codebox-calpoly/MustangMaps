@@ -128,6 +128,7 @@ export function MapContainer({
     }
   }, [clampCoordinate, isValidCoordinate, mapReady]);
 
+  // Keep both route start/end points visible when a route is active
   const handleCameraFitRoute = useCallback((start: number[], end: number[]) => {
     const map = mapRef.current;
     const camera = cameraRef.current;
@@ -150,7 +151,6 @@ export function MapContainer({
       Math.min(safeStart[1], safeEnd[1]),
     ];
 
-    // Keep route endpoints in the visible map area between top controls and directions sheet.
     const windowHeight = Dimensions.get("window").height;
     const topPadding = Math.round(windowHeight * 0.18);
     const bottomPadding = Math.round(windowHeight * 0.58);
