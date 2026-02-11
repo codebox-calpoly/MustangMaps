@@ -60,7 +60,6 @@ export function SearchPanel({ cameraMove }: Props) {
     activePath,
     routeError,
     routingActive,
-    routeRequested,
     setRouteStart,
     setRouteEnd,
     setRouteRequested,
@@ -135,15 +134,24 @@ export function SearchPanel({ cameraMove }: Props) {
     (text: string) => {
       if (activeField === "start") {
         setStartValue(text);
+        setRouteStart(null);
         setRouteStartIsCurrentLocation(false);
       } else {
         setEndValue(text);
+        setRouteEnd(null);
       }
       setSearchQuery(text);
       setFocused(Boolean(text));
       setRouteRequested(false);
     },
-    [activeField, setRouteRequested, setRouteStartIsCurrentLocation, setSearchQuery],
+    [
+      activeField,
+      setRouteEnd,
+      setRouteRequested,
+      setRouteStart,
+      setRouteStartIsCurrentLocation,
+      setSearchQuery,
+    ],
   );
 
   const data = geoData.features;
@@ -219,17 +227,30 @@ export function SearchPanel({ cameraMove }: Props) {
     },
     [buildPlaceId, getRingCoordinates, middle],
   );
+  // If user location is valid, create a "My location" place to show in results
+  const myLocationPlace = useMemo<SavedPlace | null>(() => {
+    if (!isValidCoordinate(userLocation)) {
+      return null;
+    }
+    return {
+      id: "my-location",
+      name: "My location",
+      coordinate: userLocation,
+      updatedAt: Date.now(),
+    };
+  }, [isValidCoordinate, userLocation]);
 
   const handleSelectPlace = useCallback(
     (place: SavedPlace) => {
       if (!isValidCoordinate(place.coordinate)) {
         return;
       }
+      const isMyLocation = place.id === "my-location";
       if (routingActive) {
         if (activeField === "start") {
           setRouteStart(place.coordinate);
           setStartValue(place.name);
-          setRouteStartIsCurrentLocation(false);
+          setRouteStartIsCurrentLocation(isMyLocation);
         } else {
           setRouteEnd(place.coordinate);
           setEndValue(place.name);
@@ -268,10 +289,21 @@ export function SearchPanel({ cameraMove }: Props) {
   );
 
   const resultsAsPlaces = useMemo(() => {
-    return filteredData
+    const baseResults = filteredData
       .map(placeFromFeature)
       .filter((place): place is SavedPlace => Boolean(place));
-  }, [filteredData, placeFromFeature]);
+    if (!myLocationPlace) {
+      return baseResults;
+    }
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (normalizedQuery.length === 0) {
+      return baseResults;
+    }
+    if ("my location".includes(normalizedQuery)) {
+      return [myLocationPlace, ...baseResults];
+    }
+    return baseResults;
+  }, [filteredData, myLocationPlace, placeFromFeature, searchQuery]);
 
   const sections = useMemo(() => {
     const list: Array<{
@@ -332,6 +364,14 @@ export function SearchPanel({ cameraMove }: Props) {
     }
   }, [routingActive, setSearchQuery, setRouteRequested]);
 
+  // Trigger route calculation when both start and end are set and routing is active
+  useEffect(() => {
+    if (!routingActive) {
+      return;
+    }
+    setRouteRequested(Boolean(routeStart && routeEnd));
+  }, [routeEnd, routeStart, routingActive, setRouteRequested]);
+
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet
@@ -356,6 +396,7 @@ export function SearchPanel({ cameraMove }: Props) {
                 onChangeText={(text) => {
                   setStartValue(text);
                   setActiveField("start");
+                  setRouteStart(null);
                   setRouteRequested(false);
                   setRouteStartIsCurrentLocation(false);
                 }}
@@ -375,28 +416,12 @@ export function SearchPanel({ cameraMove }: Props) {
                 onChangeText={(text) => {
                   setEndValue(text);
                   setActiveField("end");
+                  setRouteEnd(null);
                   setRouteRequested(false);
                 }}
               />
 
               <View style={styles.routeActions}>
-                <Pressable
-                  onPress={() => {
-                    if (routeStart && routeEnd) {
-                      setRouteRequested(true);
-                      closeRoutingSearchSheet();
-                    }
-                  }}
-                  style={[
-                    styles.routeButton,
-                    !(routeStart && routeEnd) && styles.routeButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.routeButtonText}>
-                    {routeRequested ? "Route set" : "Route"}
-                  </Text>
-                </Pressable>
-
                 <Pressable
                   onPress={() => {
                     clearRoute();
@@ -705,20 +730,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-  },
-  routeButton: {
-    borderRadius: 10,
-    backgroundColor: "#1f7242ff",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  routeButtonDisabled: {
-    backgroundColor: "#9CA3AF",
-  },
-  routeButtonText: {
-    color: "#F9FAFB",
-    fontSize: 14,
-    fontWeight: "600",
   },
   clearChip: {
     borderRadius: 999,
