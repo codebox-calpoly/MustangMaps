@@ -553,6 +553,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
                 style={styles.goButton}
                 onPress={() => {
                   // replace with your "start navigation" logic if needed
+                  console.log("Starting navigation...");
                   setRouteRequested(true);
                 }}
               >
@@ -684,6 +685,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
               value={activeField === "start" ? startValue : endValue}
               onChangeText={handleRoutingSearchChange}
               autoFocus={routingSearchSheetOpen}
+              selectTextOnFocus
             />
 
             {sections.length > 0 && (
