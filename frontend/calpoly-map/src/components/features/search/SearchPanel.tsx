@@ -501,6 +501,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
                 <Pressable
                   onPress={() => {
                     clearRoute();
+                    setStartValue("");
+                    setEndValue("");
+                    setSearchQuery("");
+                    setActiveField("end");
                     closeRoutingSearchSheet();
                   }}
                   style={styles.clearChip}
