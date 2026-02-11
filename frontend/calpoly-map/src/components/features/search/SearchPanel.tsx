@@ -47,6 +47,7 @@ export function SearchPanel({ cameraMove }: Props) {
 
   const [focused, setFocused] = useState(false);
   const [routingSearchSheetOpen, setRoutingSearchSheetOpen] = useState(false);
+  const [hasAutoFilledStart, setHasAutoFilledStart] = useState(false);
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
   const [endValue, setEndValue] = useState("");
@@ -335,6 +336,7 @@ export function SearchPanel({ cameraMove }: Props) {
   useEffect(() => {
     if (
       routingActive &&
+      !hasAutoFilledStart &&
       userLocation &&
       !routeStart &&
       startValue.length === 0
@@ -342,11 +344,14 @@ export function SearchPanel({ cameraMove }: Props) {
       setRouteStart(userLocation);
       setStartValue("My location");
       setRouteStartIsCurrentLocation(true);
+      setHasAutoFilledStart(true);
     }
   }, [
+    hasAutoFilledStart,
     routingActive,
     userLocation,
     routeStart,
+    setHasAutoFilledStart,
     setRouteStart,
     startValue,
     setRouteStartIsCurrentLocation,
@@ -359,6 +364,7 @@ export function SearchPanel({ cameraMove }: Props) {
       setActiveField("end");
       setFocused(false);
       setRoutingSearchSheetOpen(false);
+      setHasAutoFilledStart(false);
       setSearchQuery("");
       setRouteRequested(false);
     }
