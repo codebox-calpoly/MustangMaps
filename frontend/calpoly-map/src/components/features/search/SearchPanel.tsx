@@ -37,6 +37,7 @@ export function SearchPanel({ cameraMove }: Props) {
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
+  const routingSearchInputRef = useRef<TextInput>(null);
   const snapPoints = useMemo(() => ["25%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
@@ -113,6 +114,9 @@ export function SearchPanel({ cameraMove }: Props) {
       setRoutingSearchSheetOpen(true);
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
+        setTimeout(() => {
+          routingSearchInputRef.current?.focus();
+        }, 60);
       });
     },
     [endValue, setSearchQuery, startValue],
@@ -541,6 +545,7 @@ export function SearchPanel({ cameraMove }: Props) {
               </Pressable>
             </View>
             <TextInput
+              ref={routingSearchInputRef}
               style={styles.input}
               placeholder={
                 activeField === "start"
