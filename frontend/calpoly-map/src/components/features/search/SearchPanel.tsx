@@ -69,6 +69,7 @@ export function SearchPanel({ cameraMove }: Props) {
     clearRoute,
     setUserLocation,
   } = useMapContext();
+  const summaryVisible = routingActive && Boolean(routeStart && routeEnd && activePath && !routeError);
 
   const {
     history,
@@ -418,6 +419,14 @@ export function SearchPanel({ cameraMove }: Props) {
     setRouteRequested(Boolean(routeStart && routeEnd));
   }, [routeEnd, routeStart, routingActive, setRouteRequested]);
 
+  // Ensure route summary is visible by expanding the main sheet when it appears
+  useEffect(() => {
+    if (!summaryVisible || routingSearchSheetOpen) {
+      return;
+    }
+    sheetRef.current?.snapToIndex(2);
+  }, [summaryVisible, routingSearchSheetOpen]);
+
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet
@@ -509,7 +518,7 @@ export function SearchPanel({ cameraMove }: Props) {
           </View>
 
           {/* INLINE ROUTE SUMMARY */}
-          {routingActive && routeStart && routeEnd && activePath && !routeError && (
+          {summaryVisible && (
             <View style={styles.routeSummaryContainer}>
               <View style={styles.routeSummaryLeft}>
                 <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
