@@ -34,13 +34,18 @@ type SectionKind = "favorite" | "history" | "result";
 export function SearchPanel({ cameraMove }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
+  const routingSearchSheetRef = useRef<BottomSheet>(null);
+  const routeStartInputRef = useRef<TextInput>(null);
+  const routeEndInputRef = useRef<TextInput>(null);
   const snapPoints = useMemo(() => ["25%", "35%", "55%", "75%"], []);
+  const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
     sheetRef.current?.snapToIndex(1);
   }, []);
 
   const [focused, setFocused] = useState(false);
+  const [routingSearchSheetOpen, setRoutingSearchSheetOpen] = useState(false);
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
   const [endValue, setEndValue] = useState("");
@@ -96,6 +101,45 @@ export function SearchPanel({ cameraMove }: Props) {
       }
     },
     [setSearchQuery],
+  );
+
+  // Opens the routing search based on which field is selected
+  const openRoutingSearchSheet = useCallback(
+    (field: "start" | "end") => {
+      const value = field === "start" ? startValue : endValue;
+      setActiveField(field);
+      setSearchQuery(value);
+      setFocused(true);
+      setRoutingSearchSheetOpen(true);
+      requestAnimationFrame(() => {
+        routingSearchSheetRef.current?.snapToIndex(0);
+      });
+    },
+    [endValue, setSearchQuery, startValue],
+  );
+  const blurRoutingInputs = useCallback(() => {
+    routeStartInputRef.current?.blur();
+    routeEndInputRef.current?.blur();
+  }, []);
+  const closeRoutingSearchSheet = useCallback(() => {
+    setRoutingSearchSheetOpen(false);
+    setFocused(false);
+    blurRoutingInputs();
+    routingSearchSheetRef.current?.close();
+  }, [blurRoutingInputs]);
+  const handleRoutingSearchChange = useCallback(
+    (text: string) => {
+      if (activeField === "start") {
+        setStartValue(text);
+        setRouteStartIsCurrentLocation(false);
+      } else {
+        setEndValue(text);
+      }
+      setSearchQuery(text);
+      setFocused(Boolean(text));
+      setRouteRequested(false);
+    },
+    [activeField, setRouteRequested, setRouteStartIsCurrentLocation, setSearchQuery],
   );
 
   const data = geoData.features;
@@ -196,12 +240,17 @@ export function SearchPanel({ cameraMove }: Props) {
 
       // UX: hide results and collapse sheet a bit
       setFocused(false);
-      sheetRef.current?.snapToIndex(0);
+      if (routingActive) {
+        closeRoutingSearchSheet();
+      } else {
+        sheetRef.current?.snapToIndex(0);
+      }
     },
     [
       activeField,
       addToHistory,
       cameraMove,
+      closeRoutingSearchSheet,
       isValidCoordinate,
       routingActive,
       setEndValue,
@@ -255,7 +304,7 @@ export function SearchPanel({ cameraMove }: Props) {
       startValue.length === 0
     ) {
       setRouteStart(userLocation);
-      setStartValue("Current location");
+      setStartValue("My location");
       setRouteStartIsCurrentLocation(true);
     }
   }, [
@@ -273,6 +322,7 @@ export function SearchPanel({ cameraMove }: Props) {
       setEndValue("");
       setActiveField("end");
       setFocused(false);
+      setRoutingSearchSheetOpen(false);
       setSearchQuery("");
       setRouteRequested(false);
     }
@@ -282,7 +332,7 @@ export function SearchPanel({ cameraMove }: Props) {
     <View style={{ flex: 1 }}>
       <BottomSheet
         ref={sheetRef}
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
@@ -291,29 +341,24 @@ export function SearchPanel({ cameraMove }: Props) {
           {routingActive ? (
             <View style={styles.routeInputs}>
               <TextInput
+                ref={routeStartInputRef}
                 style={styles.input}
                 placeholder="Starting point"
                 value={startValue}
                 clearButtonMode="always"
                 onFocus={() => {
-                  openSheet();
-                  setActiveField("start");
-                  if (startValue) {
-                    setSearchQuery(startValue);
-                    setFocused(true);
-                  }
+                  openRoutingSearchSheet("start");
                 }}
                 onChangeText={(text) => {
                   setStartValue(text);
                   setActiveField("start");
-                  setSearchQuery(text);
-                  setFocused(Boolean(text));
                   setRouteRequested(false);
                   setRouteStartIsCurrentLocation(false);
                 }}
               />
 
               <TextInput
+                ref={routeEndInputRef}
                 style={styles.input}
                 placeholder="Destination"
                 clearButtonMode="always"
@@ -321,18 +366,11 @@ export function SearchPanel({ cameraMove }: Props) {
                 autoCorrect={false}
                 value={endValue}
                 onFocus={() => {
-                  openSheet();
-                  setActiveField("end");
-                  if (endValue) {
-                    setSearchQuery(endValue);
-                    setFocused(true);
-                  }
+                  openRoutingSearchSheet("end");
                 }}
                 onChangeText={(text) => {
                   setEndValue(text);
                   setActiveField("end");
-                  setSearchQuery(text);
-                  setFocused(Boolean(text));
                   setRouteRequested(false);
                 }}
               />
@@ -340,9 +378,10 @@ export function SearchPanel({ cameraMove }: Props) {
               <View style={styles.routeActions}>
                 <Pressable
                   onPress={() => {
-                if (routeStart && routeEnd) {
-                  setRouteRequested(true);
-                }
+                    if (routeStart && routeEnd) {
+                      setRouteRequested(true);
+                      closeRoutingSearchSheet();
+                    }
                   }}
                   style={[
                     styles.routeButton,
@@ -354,7 +393,13 @@ export function SearchPanel({ cameraMove }: Props) {
                   </Text>
                 </Pressable>
 
-                <Pressable onPress={clearRoute} style={styles.clearChip}>
+                <Pressable
+                  onPress={() => {
+                    clearRoute();
+                    closeRoutingSearchSheet();
+                  }}
+                  style={styles.clearChip}
+                >
                   <Text style={styles.clearChipText}>Clear</Text>
                 </Pressable>
               </View>
@@ -390,72 +435,193 @@ export function SearchPanel({ cameraMove }: Props) {
             {routeError && <Text style={styles.errorText}>{routeError}</Text>}
           </View>
 
-          {sections.length > 0 && (
-            <SectionList
-              sections={sections}
-              keyExtractor={(item, index) => `${item.id}-${index}`}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 24 }}
-              renderSectionHeader={({ section }) => (
-                <View style={styles.sectionHeader}>
-                  <Text style={styles.sectionTitle}>{section.title}</Text>
-                  {section.kind === "history" && (
-                    <Pressable
-                      onPress={clearHistory}
-                      style={styles.sectionAction}
-                    >
-                      <Text style={styles.sectionActionText}>Clear</Text>
-                    </Pressable>
-                  )}
-                </View>
-              )}
-              renderItem={({ item, section }) => (
-                <Pressable
-                  onPress={() => handleSelectPlace(item)}
-                  style={({ pressed }) => [
-                    { backgroundColor: pressed ? "#D2E6FF" : "white" },
-                    styles.itemContainer,
-                  ]}
-                >
-              {/* TODO: insert logo based on type of building */}
-                  <Text style={styles.itemIcon}>
-                    {item.name.charAt(0).toUpperCase()}
-                  </Text>
-
-                  <View style={styles.itemMeta}>
-                    <Text style={styles.buildingName}>{item.name}</Text>
-                    <Text style={styles.subscript}>
-                      {item.coordinate[1].toFixed(5)},{" "}
-                      {item.coordinate[0].toFixed(5)}
-                    </Text>
-                  </View>
-
-                  <View style={styles.itemActions}>
-                    <Pressable
-                      onPress={() => toggleFavorite(item)}
-                      style={styles.actionChip}
-                    >
-                      <Text style={styles.actionChipText}>
-                        {isFavorite(item.id) ? "Unfav" : "Fav"}
-                      </Text>
-                    </Pressable>
-
+          {sections.length > 0 && !routingActive && (
+            <View style={styles.resultsPanel}>
+              <SectionList
+                sections={sections}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ paddingBottom: 24 }}
+                renderSectionHeader={({ section }) => (
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>{section.title}</Text>
                     {section.kind === "history" && (
                       <Pressable
-                        onPress={() => removeFromHistory(item.id)}
-                        style={[styles.actionChip, styles.removeChip]}
+                        onPress={clearHistory}
+                        style={styles.sectionAction}
                       >
-                        <Text style={styles.actionChipText}>Remove</Text>
+                        <Text style={styles.sectionActionText}>Clear</Text>
                       </Pressable>
                     )}
                   </View>
-                </Pressable>
-              )}
-              stickySectionHeadersEnabled={false}
-            />
+                )}
+                renderItem={({ item, section }) => (
+                  <Pressable
+                    onPress={() => handleSelectPlace(item)}
+                    style={({ pressed }) => [
+                      { backgroundColor: pressed ? "#D2E6FF" : "white" },
+                      styles.itemContainer,
+                    ]}
+                  >
+                {/* TODO: insert logo based on type of building */}
+                    <Text style={styles.itemIcon}>
+                      {item.name.charAt(0).toUpperCase()}
+                    </Text>
+
+                    <View style={styles.itemMeta}>
+                      <Text style={styles.buildingName}>{item.name}</Text>
+                      <Text style={styles.subscript}>
+                        {item.coordinate[1].toFixed(5)},{" "}
+                        {item.coordinate[0].toFixed(5)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.itemActions}>
+                      <Pressable
+                        onPress={() => toggleFavorite(item)}
+                        style={styles.actionChip}
+                      >
+                        <Text style={styles.actionChipText}>
+                          {isFavorite(item.id) ? "Unfav" : "Fav"}
+                        </Text>
+                      </Pressable>
+
+                      {section.kind === "history" && (
+                        <Pressable
+                          onPress={() => removeFromHistory(item.id)}
+                          style={[styles.actionChip, styles.removeChip]}
+                        >
+                          <Text style={styles.actionChipText}>Remove</Text>
+                        </Pressable>
+                      )}
+                    </View>
+                  </Pressable>
+                )}
+                stickySectionHeadersEnabled={false}
+              />
+            </View>
           )}
         </BottomSheetView>
       </BottomSheet>
+      {routingActive && (
+        <BottomSheet
+          ref={routingSearchSheetRef}
+          index={-1}
+          snapPoints={routingSearchSnapPoints}
+          enableDynamicSizing={false}
+          enablePanDownToClose
+          enableOverDrag={false}
+          keyboardBehavior="interactive"
+          keyboardBlurBehavior="restore"
+          onChange={(index) => {
+            if (index < 0) {
+              setRoutingSearchSheetOpen(false);
+              setFocused(false);
+              blurRoutingInputs();
+            }
+          }}
+          onClose={() => {
+            setRoutingSearchSheetOpen(false);
+            setFocused(false);
+            blurRoutingInputs();
+          }}
+        >
+          <BottomSheetView style={styles.routingSearchSheetContent}>
+            <View style={styles.routingSearchHeader}>
+              <Text style={styles.routingSearchPanelTitle}>
+                Search for {activeField === "start" ? "starting point" : "destination"}
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close search panel"
+                onPress={closeRoutingSearchSheet}
+                style={styles.routingSearchCloseButton}
+              >
+                <Text style={styles.routingSearchCloseButtonText}>X</Text>
+              </Pressable>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder={
+                activeField === "start"
+                  ? "Search starting point"
+                  : "Search destination"
+              }
+              clearButtonMode="always"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={activeField === "start" ? startValue : endValue}
+              onChangeText={handleRoutingSearchChange}
+              autoFocus={routingSearchSheetOpen}
+            />
+
+            {sections.length > 0 && (
+              <SectionList
+                sections={sections}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ paddingBottom: 24 }}
+                renderSectionHeader={({ section }) => (
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>{section.title}</Text>
+                    {section.kind === "history" && (
+                      <Pressable
+                        onPress={clearHistory}
+                        style={styles.sectionAction}
+                      >
+                        <Text style={styles.sectionActionText}>Clear</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                )}
+                renderItem={({ item, section }) => (
+                  <Pressable
+                    onPress={() => handleSelectPlace(item)}
+                    style={({ pressed }) => [
+                      { backgroundColor: pressed ? "#D2E6FF" : "white" },
+                      styles.itemContainer,
+                    ]}
+                  >
+                {/* TODO: insert logo based on type of building */}
+                    <Text style={styles.itemIcon}>
+                      {item.name.charAt(0).toUpperCase()}
+                    </Text>
+
+                    <View style={styles.itemMeta}>
+                      <Text style={styles.buildingName}>{item.name}</Text>
+                      <Text style={styles.subscript}>
+                        {item.coordinate[1].toFixed(5)},{" "}
+                        {item.coordinate[0].toFixed(5)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.itemActions}>
+                      <Pressable
+                        onPress={() => toggleFavorite(item)}
+                        style={styles.actionChip}
+                      >
+                        <Text style={styles.actionChipText}>
+                          {isFavorite(item.id) ? "Unfav" : "Fav"}
+                        </Text>
+                      </Pressable>
+
+                      {section.kind === "history" && (
+                        <Pressable
+                          onPress={() => removeFromHistory(item.id)}
+                          style={[styles.actionChip, styles.removeChip]}
+                        >
+                          <Text style={styles.actionChipText}>Remove</Text>
+                        </Pressable>
+                      )}
+                    </View>
+                  </Pressable>
+                )}
+                stickySectionHeadersEnabled={false}
+              />
+            )}
+          </BottomSheetView>
+        </BottomSheet>
+      )}
     </View>
   );
 }
@@ -465,6 +631,44 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     paddingTop: 8,
+  },
+  resultsPanel: {
+    marginTop: 6,
+    flex: 1,
+  },
+  routingSearchSheetContent: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingTop: 8,
+    gap: 8,
+  },
+  routingSearchHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  routingSearchPanelTitle: {
+    marginLeft: 10,
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#111827",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  routingSearchCloseButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+  },
+  routingSearchCloseButtonText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#111827",
   },
 
   floatingOpenButton: {
