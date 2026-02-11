@@ -38,7 +38,8 @@ export function SearchPanel({ cameraMove }: Props) {
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
   const routingSearchInputRef = useRef<TextInput>(null);
-  const snapPoints = useMemo(() => ["25%", "35%", "55%", "75%"], []);
+
+  const snapPoints = useMemo(() => ["27%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
@@ -112,6 +113,7 @@ export function SearchPanel({ cameraMove }: Props) {
       setSearchQuery(value);
       setFocused(true);
       setRoutingSearchSheetOpen(true);
+
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
         setTimeout(() => {
@@ -121,16 +123,19 @@ export function SearchPanel({ cameraMove }: Props) {
     },
     [endValue, setSearchQuery, startValue],
   );
+
   const blurRoutingInputs = useCallback(() => {
     routeStartInputRef.current?.blur();
     routeEndInputRef.current?.blur();
   }, []);
+
   const closeRoutingSearchSheet = useCallback(() => {
     setRoutingSearchSheetOpen(false);
     setFocused(false);
     blurRoutingInputs();
     routingSearchSheetRef.current?.close();
   }, [blurRoutingInputs]);
+
   const handleRoutingSearchChange = useCallback(
     (text: string) => {
       if (activeField === "start") {
@@ -205,7 +210,7 @@ export function SearchPanel({ cameraMove }: Props) {
       if (geometry.type === "MultiPolygon") {
         return geometry.coordinates[0]?.[0] ?? null;
       }
-      return null;
+    return null;
     },
     [],
   );
@@ -228,6 +233,7 @@ export function SearchPanel({ cameraMove }: Props) {
     },
     [buildPlaceId, getRingCoordinates, middle],
   );
+
   // If user location is valid, create a "My location" place to show in results
   const myLocationPlace = useMemo<SavedPlace | null>(() => {
     if (!isValidCoordinate(userLocation)) {
@@ -247,6 +253,7 @@ export function SearchPanel({ cameraMove }: Props) {
         return;
       }
       const isMyLocation = place.id === "my-location";
+
       if (routingActive) {
         if (activeField === "start") {
           setRouteStart(place.coordinate);
@@ -266,6 +273,7 @@ export function SearchPanel({ cameraMove }: Props) {
 
       // UX: hide results and collapse sheet a bit
       setFocused(false);
+
       if (routingActive) {
         closeRoutingSearchSheet();
       } else {
@@ -330,9 +338,40 @@ export function SearchPanel({ cameraMove }: Props) {
         kind: "result" as const,
       });
     }
+
     return list;
   }, [favorites, history, focused, resultsAsPlaces]);
 
+  // Route summary formatters time, distance, and ETA based on activePath and user location
+  const formatTime = () => {
+    if (!activePath) return "—";
+    const distanceMeters = activePath.distance;
+    const speedMetersPerSecond = 1.3; // walking
+    const minutes = distanceMeters / speedMetersPerSecond / 60;
+    return `${minutes.toFixed(0)} min`;
+  };
+
+  const formatDistance = () => {
+    if (!activePath) return "—";
+    const miles = activePath.distance * 0.000621371;
+    return `${miles.toFixed(1)} mi`;
+  };
+
+  const formatETA = () => {
+    if (!activePath) return "—";
+    const speedMetersPerSecond = 1.3;
+    const secondsToArrival = activePath.distance / speedMetersPerSecond;
+    const arrival = new Date(Date.now() + secondsToArrival * 1000);
+
+    return (
+      arrival.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+      }) + " Arrival"
+    );
+  };
+
+  // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
     if (
       routingActive &&
@@ -357,6 +396,7 @@ export function SearchPanel({ cameraMove }: Props) {
     setRouteStartIsCurrentLocation,
   ]);
 
+  // Reset routing UI when routing is turned off
   useEffect(() => {
     if (!routingActive) {
       setStartValue("");
@@ -388,6 +428,8 @@ export function SearchPanel({ cameraMove }: Props) {
         keyboardBlurBehavior="restore"
       >
         <BottomSheetView style={styles.sheetContent}>
+          <Text style={styles.directionHeader}>{routingActive ? "Directions" : "Search"}</Text>
+
           {routingActive ? (
             <View style={styles.routeInputs}>
               <TextInput
@@ -396,9 +438,7 @@ export function SearchPanel({ cameraMove }: Props) {
                 placeholder="Starting point"
                 value={startValue}
                 clearButtonMode="always"
-                onFocus={() => {
-                  openRoutingSearchSheet("start");
-                }}
+                onFocus={() => openRoutingSearchSheet("start")}
                 onChangeText={(text) => {
                   setStartValue(text);
                   setActiveField("start");
@@ -416,9 +456,7 @@ export function SearchPanel({ cameraMove }: Props) {
                 autoCapitalize="none"
                 autoCorrect={false}
                 value={endValue}
-                onFocus={() => {
-                  openRoutingSearchSheet("end");
-                }}
+                onFocus={() => openRoutingSearchSheet("end")}
                 onChangeText={(text) => {
                   setEndValue(text);
                   setActiveField("end");
@@ -470,6 +508,29 @@ export function SearchPanel({ cameraMove }: Props) {
             {routeError && <Text style={styles.errorText}>{routeError}</Text>}
           </View>
 
+          {/* INLINE ROUTE SUMMARY */}
+          {routingActive && routeStart && routeEnd && activePath && !routeError && (
+            <View style={styles.routeSummaryContainer}>
+              <View style={styles.routeSummaryLeft}>
+                <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
+                <Text style={styles.routeSummaryMeta}>
+                  {formatDistance()} • {formatETA()}
+                </Text>
+              </View>
+
+              <Pressable
+                style={styles.goButton}
+                onPress={() => {
+                  // replace with your "start navigation" logic if needed
+                  setRouteRequested(true);
+                }}
+              >
+                <Text style={styles.goButtonText}>GO</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* SEARCH RESULTS (only when NOT routing) */}
           {sections.length > 0 && !routingActive && (
             <View style={styles.resultsPanel}>
               <SectionList
@@ -538,6 +599,8 @@ export function SearchPanel({ cameraMove }: Props) {
           )}
         </BottomSheetView>
       </BottomSheet>
+
+      {/* ROUTING SEARCH SHEET (overlay) */}
       {routingActive && (
         <BottomSheet
           ref={routingSearchSheetRef}
@@ -575,6 +638,7 @@ export function SearchPanel({ cameraMove }: Props) {
                 <Text style={styles.routingSearchCloseButtonText}>X</Text>
               </Pressable>
             </View>
+
             <TextInput
               ref={routingSearchInputRef}
               style={styles.input}
@@ -667,6 +731,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
     paddingTop: 8,
+    paddingBottom: 16,
   },
   resultsPanel: {
     marginTop: 6,
@@ -773,7 +838,6 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     borderRadius: 8,
   },
-  button: {},
   icon: {
     width: 50,
     height: 50,
@@ -836,5 +900,56 @@ const styles = StyleSheet.create({
     color: "#1D4ED8",
     fontSize: 12,
     fontWeight: "600",
+  },
+  directionHeader: {
+    fontSize: 25,
+    fontWeight: "900",
+    top: -15,
+    marginLeft: 10,
+    marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  // Inline route summary card
+  routeSummaryContainer: {
+    marginTop: 16,
+    marginHorizontal: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  routeSummaryLeft: {
+    flexDirection: "column",
+    gap: 2,
+  },
+  routeSummaryTime: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+  },
+  routeSummaryMeta: {
+    fontSize: 13,
+    color: "#6B7280",
+  },
+  goButton: {
+    width: 64,
+    height: 52,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#22C55E",
+  },
+  goButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "900",
   },
 });
