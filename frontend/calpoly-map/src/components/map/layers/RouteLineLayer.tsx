@@ -4,10 +4,10 @@ import { CircleLayer, LineLayer, ShapeSource } from "@maplibre/maplibre-react-na
 import { useMapContext } from "../../../context/MapContext";
 
 export function RouteLineLayer() {
-  const { activePath, routeStart, routeEnd } = useMapContext();
+  const { activeRoute, routeStart, routeEnd } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
-    if (!activePath || activePath.path.length < 2) {
+    if (!activeRoute || activeRoute.coordinates.length < 2) {
       return null;
     }
     return {
@@ -17,13 +17,13 @@ export function RouteLineLayer() {
           type: "Feature",
           geometry: {
             type: "LineString",
-            coordinates: activePath.path,
+            coordinates: activeRoute.coordinates,
           },
           properties: {},
         },
       ],
     };
-  }, [activePath]);
+  }, [activeRoute]);
 
   const pointCollection = useMemo<FeatureCollection<Point> | null>(() => {
     if (!routeStart && !routeEnd) {

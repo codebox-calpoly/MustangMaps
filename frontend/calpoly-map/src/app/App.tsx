@@ -61,6 +61,7 @@ function MapScreen({
     routeRequested,
     routeStartIsCurrentLocation,
     setActivePath,
+    setRoute,
     setRouteError,
   } = useMapContext();
   const { graph, error } = usePathGraph();
@@ -78,8 +79,11 @@ function MapScreen({
   useEffect(() => {
     if (!routingActive || !routeRequested || !routeStart || !routeEnd || !graph) {
       setActivePath(null);
+      setRoute(null);
       if (routingActive && routeRequested && routeStart && routeEnd && !graph) {
         setRouteError("Loading paths data...");
+      } else if (routingActive && routeRequested && (!routeStart || !routeEnd)) {
+        setRouteError("Select a start and destination");
       } else {
         setRouteError(null);
       }
@@ -99,6 +103,7 @@ function MapScreen({
     }
     if (!result) {
       setActivePath(null);
+      setRoute(null);
       setRouteError(
         routeStartIsCurrentLocation
           ? "Current location isn't on the path network. Choose a start point."
@@ -109,6 +114,11 @@ function MapScreen({
 
     setRouteError(null);
     setActivePath(result);
+    setRoute({
+      nodes: [],
+      totalDistance: result.distance,
+      coordinates: result.path,
+    });
   }, [
     graph,
     routeStart,
@@ -116,6 +126,7 @@ function MapScreen({
     routingActive,
     routeRequested,
     setActivePath,
+    setRoute,
     setRouteError,
   ]);
 
