@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import React, { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MapProvider, useMapContext } from '../context/MapContext';
@@ -11,6 +12,7 @@ import type { BuildingFilterOption, AmenityFilterOption } from '../components/fe
 import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
 import { LocationProvider } from "../context/UserLocationContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All", types: null },
@@ -27,20 +29,22 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <LocationProvider>
-      <MapProvider>
-        <SavedPlacesProvider>
-          <SafeAreaView style={{ flex: 1 }}>
-            <MapScreen
-              buildingOptions={BUILDING_OPTIONS}
-              amenityOptions={AMENITY_OPTIONS}
-            />
-          </SafeAreaView>
-        </SavedPlacesProvider>
-      </MapProvider>
-      </LocationProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <LocationProvider>
+        <MapProvider>
+          <SavedPlacesProvider>
+            <SafeAreaView style={{ flex: 1 }}>
+              <MapScreen
+                buildingOptions={BUILDING_OPTIONS}
+                amenityOptions={AMENITY_OPTIONS}
+              />
+            </SafeAreaView>
+          </SavedPlacesProvider>
+        </MapProvider>
+        </LocationProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

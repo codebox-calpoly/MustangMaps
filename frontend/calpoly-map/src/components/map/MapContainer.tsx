@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   MapView,
   Camera,
@@ -7,7 +7,15 @@ import {
   type MapViewRef,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -39,6 +47,7 @@ export function MapContainer({
   const cameraRef = useRef<CameraRef | null>(null);
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
+  const pendingRouteFitRef = useRef<{ start: [number, number]; end: [number, number] } | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const {
@@ -127,6 +136,73 @@ export function MapContainer({
       cameraBusyRef.current = false;
     }
   }, [clampCoordinate, isValidCoordinate, mapReady]);
+  
+  const fitRouteBounds = useCallback((start: [number, number], end: [number, number]) => {
+    const map = mapRef.current;
+    const camera = cameraRef.current;
+    if (!mapReady || !map || !camera) {
+      return false;
+    }
+
+    const ne: [number, number] = [
+      Math.max(start[0], end[0]),
+      Math.max(start[1], end[1]),
+    ];
+    const sw: [number, number] = [
+      Math.min(start[0], end[0]),
+      Math.min(start[1], end[1]),
+    ];
+
+    const windowHeight = Dimensions.get("window").height;
+    const topPadding = Math.round(windowHeight * 0.18);
+    const bottomPadding = Math.round(windowHeight * 0.58);
+    const padding: [number, number, number, number] = [topPadding, 56, bottomPadding, 56];
+
+    camera.fitBounds(ne, sw, padding, 350);
+
+    // iOS can apply stale layout metrics during bottom-sheet animation; a short retry stabilizes framing.
+    if (Platform.OS === "ios") {
+      setTimeout(() => {
+        const retryMap = mapRef.current;
+        const retryCamera = cameraRef.current;
+        if (!mapReady || !retryMap || !retryCamera) {
+          return;
+        }
+        retryCamera.fitBounds(ne, sw, padding, 250);
+      }, 320);
+    }
+
+    return true;
+  }, [mapReady]);
+
+  // Keep both route start/end points visible when a route is active.
+  const handleCameraFitRoute = useCallback((start: number[], end: number[]) => {
+    if (!isValidCoordinate(start) || !isValidCoordinate(end)) {
+      return;
+    }
+
+    const safeStart = clampCoordinate(start as [number, number]);
+    const safeEnd = clampCoordinate(end as [number, number]);
+
+    const didFit = fitRouteBounds(safeStart, safeEnd);
+    if (!didFit) {
+      pendingRouteFitRef.current = { start: safeStart, end: safeEnd };
+      return;
+    }
+
+    pendingRouteFitRef.current = null;
+  }, [clampCoordinate, fitRouteBounds, isValidCoordinate]);
+
+  useEffect(() => {
+    if (!mapReady || !pendingRouteFitRef.current) {
+      return;
+    }
+    const pending = pendingRouteFitRef.current;
+    const didFit = fitRouteBounds(pending.start, pending.end);
+    if (didFit) {
+      pendingRouteFitRef.current = null;
+    }
+  }, [fitRouteBounds, mapReady]);
 
   const handleBuildingPress = useCallback((feature: any) => {
     // Handle building press from BuildingLayer
@@ -157,20 +233,9 @@ export function MapContainer({
 
   return (
     <View style={styles.container}>
-      <SearchPanel cameraMove={handleCameraMove}/>
-      <MapFilters
-        mapMode={mapMode}
-        onMapModeChange={setMapMode}
-        buildingFilterId={buildingFilterId}
-        onBuildingFilterChange={setBuildingFilterId}
-        amenityTypeIds={amenityTypeIds}
-        onAmenityTypesChange={setAmenityTypeIds}
-        buildingOptions={buildingOptions}
-        amenityOptions={amenityOptions}
-      />
       <MapView
         ref={mapRef}
-        style={styles.map}
+        style={StyleSheet.absoluteFill}
         mapStyle={mapStyleUrl}
         logoEnabled={false}
         zoomEnabled
@@ -194,6 +259,20 @@ export function MapContainer({
           return child;
         })}
       </MapView>
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+      />
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingFilterId={buildingFilterId}
+        onBuildingFilterChange={setBuildingFilterId}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -368,4 +447,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
 });
-
