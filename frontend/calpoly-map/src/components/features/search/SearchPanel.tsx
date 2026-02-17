@@ -7,13 +7,15 @@ import React, {
 } from "react";
 import {
   Pressable,
-  SectionList,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetFlatList,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
 
 import { useMapContext } from "../../../context/MapContext";
@@ -28,11 +30,24 @@ import geoData from "./test.json";
 interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
+  onMapGestureEnabledChange?: (enabled: boolean) => void;
 }
 
 type SectionKind = "favorite" | "history" | "result";
+type SearchSection = {
+  title: string;
+  data: SavedPlace[];
+  kind: SectionKind;
+};
+type SearchRow =
+  | { id: string; type: "header"; section: SearchSection }
+  | { id: string; type: "item"; sectionKind: SectionKind; item: SavedPlace };
 
-export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
+export function SearchPanel({
+  cameraMove,
+  cameraFitRoute,
+  onMapGestureEnabledChange,
+}: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -232,7 +247,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
         id: buildPlaceId(name, coord),
         name,
         coordinate: coord,
-        updatedAt: Date.now(),
+        // Search results are transient; keep a stable timestamp to avoid list resets.
+        updatedAt: 0,
       };
     },
     [buildPlaceId, getRingCoordinates, middle],
@@ -247,9 +263,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
       id: "my-location",
       name: "My location",
       coordinate: userLocation,
-      updatedAt: Date.now(),
+      // Keep stable across renders so the list does not reset during location updates.
+      updatedAt: 0,
     };
   }, [isValidCoordinate, userLocation]);
+
+  const baseResultsAsPlaces = useMemo(
+    () =>
+      filteredData
+        .map(placeFromFeature)
+        .filter((place): place is SavedPlace => Boolean(place)),
+    [filteredData, placeFromFeature],
+  );
 
   const handleSelectPlace = useCallback(
     (place: SavedPlace) => {
@@ -302,28 +327,21 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
   );
 
   const resultsAsPlaces = useMemo(() => {
-    const baseResults = filteredData
-      .map(placeFromFeature)
-      .filter((place): place is SavedPlace => Boolean(place));
     if (!myLocationPlace) {
-      return baseResults;
+      return baseResultsAsPlaces;
     }
     const normalizedQuery = searchQuery.trim().toLowerCase();
     if (normalizedQuery.length === 0) {
-      return baseResults;
+      return baseResultsAsPlaces;
     }
     if ("my location".includes(normalizedQuery)) {
-      return [myLocationPlace, ...baseResults];
+      return [myLocationPlace, ...baseResultsAsPlaces];
     }
-    return baseResults;
-  }, [filteredData, myLocationPlace, placeFromFeature, searchQuery]);
+    return baseResultsAsPlaces;
+  }, [baseResultsAsPlaces, myLocationPlace, searchQuery]);
 
   const sections = useMemo(() => {
-    const list: Array<{
-      title: string;
-      data: SavedPlace[];
-      kind: SectionKind;
-    }> = [];
+    const list: SearchSection[] = [];
 
     if (favorites.length > 0) {
       list.push({
@@ -345,6 +363,90 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
 
     return list;
   }, [favorites, history, focused, resultsAsPlaces]);
+
+  const searchRows = useMemo(() => {
+    const rows: SearchRow[] = [];
+    sections.forEach((section) => {
+      rows.push({
+        id: `header-${section.kind}`,
+        type: "header",
+        section,
+      });
+      section.data.forEach((item) => {
+        rows.push({
+          id: `${section.kind}-${item.id}`,
+          type: "item",
+          sectionKind: section.kind,
+          item,
+        });
+      });
+    });
+    return rows;
+  }, [sections]);
+
+  const renderSearchRow = useCallback(
+    ({ item }: { item: SearchRow }) => {
+      if (item.type === "header") {
+        return (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{item.section.title}</Text>
+            {item.section.kind === "history" && (
+              <Pressable onPress={clearHistory} style={styles.sectionAction}>
+                <Text style={styles.sectionActionText}>Clear</Text>
+              </Pressable>
+            )}
+          </View>
+        );
+      }
+
+      const place = item.item;
+      return (
+        <Pressable
+          onPress={() => handleSelectPlace(place)}
+          style={({ pressed }) => [
+            { backgroundColor: pressed ? "#D2E6FF" : "white" },
+            styles.itemContainer,
+          ]}
+        >
+          <Text style={styles.itemIcon}>{place.name.charAt(0).toUpperCase()}</Text>
+
+          <View style={styles.itemMeta}>
+            <Text style={styles.buildingName}>{place.name}</Text>
+            <Text style={styles.subscript}>
+              {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
+            </Text>
+          </View>
+
+          <View style={styles.itemActions}>
+            <Pressable
+              onPress={() => toggleFavorite(place)}
+              style={styles.actionChip}
+            >
+              <Text style={styles.actionChipText}>
+                {isFavorite(place.id) ? "Unfav" : "Fav"}
+              </Text>
+            </Pressable>
+
+            {item.sectionKind === "history" && (
+              <Pressable
+                onPress={() => removeFromHistory(place.id)}
+                style={[styles.actionChip, styles.removeChip]}
+              >
+                <Text style={styles.actionChipText}>Remove</Text>
+              </Pressable>
+            )}
+          </View>
+        </Pressable>
+      );
+    },
+    [
+      clearHistory,
+      handleSelectPlace,
+      isFavorite,
+      removeFromHistory,
+      toggleFavorite,
+    ],
+  );
 
   // Route summary formatters time, distance, and ETA based on activePath and user location
   const formatTime = () => {
@@ -374,6 +476,209 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
       }) + " Arrival"
     );
   };
+
+  const showMainResults = sections.length > 0 && !routingActive;
+  const showRoutingResults = sections.length > 0;
+
+  const renderMainSheetHeader = useCallback(
+    () => (
+      <>
+        <Text style={styles.directionHeader}>{routingActive ? "Directions" : "Search"}</Text>
+
+        {routingActive ? (
+          <View style={styles.routeInputs}>
+            <TextInput
+              ref={routeStartInputRef}
+              style={styles.input}
+              placeholder="Starting point"
+              value={startValue}
+              clearButtonMode="always"
+              onFocus={() => openRoutingSearchSheet("start")}
+              onChangeText={(text) => {
+                setStartValue(text);
+                setActiveField("start");
+                setRouteStart(null);
+                setRouteRequested(false);
+                setRouteStartIsCurrentLocation(false);
+              }}
+            />
+
+            <TextInput
+              ref={routeEndInputRef}
+              style={styles.input}
+              placeholder="Destination"
+              clearButtonMode="always"
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={endValue}
+              onFocus={() => openRoutingSearchSheet("end")}
+              onChangeText={(text) => {
+                setEndValue(text);
+                setActiveField("end");
+                setRouteEnd(null);
+                setRouteRequested(false);
+              }}
+            />
+
+            <View style={styles.routeActions}>
+              <Pressable
+                onPress={() => {
+                  clearRoute();
+                  setStartValue("");
+                  setEndValue("");
+                  setSearchQuery("");
+                  setActiveField("end");
+                  closeRoutingSearchSheet();
+                }}
+                style={styles.clearChip}
+              >
+                <Text style={styles.clearChipText}>Clear</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <TextInput
+            style={styles.input}
+            placeholder="Type Destination Here..."
+            clearButtonMode="always"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={handleSearch}
+            value={searchQuery}
+            onFocus={() => {
+              openSheet();
+              setFocused(Boolean(searchQuery));
+            }}
+          />
+        )}
+
+        <View style={styles.statusRow}>
+          <Text style={styles.statusText}>
+            Start: {routeStart ? "set" : "not set"}
+          </Text>
+          <Text style={styles.statusText}>
+            End: {routeEnd ? "set" : "not set"}
+          </Text>
+          {activePath && (
+            <Text style={styles.statusText}>
+              Distance: {Math.round(activePath.distance)}m
+            </Text>
+          )}
+          {routeError && <Text style={styles.errorText}>{routeError}</Text>}
+        </View>
+
+        {summaryVisible && (
+          <View style={styles.routeSummaryContainer}>
+            <View style={styles.routeSummaryLeft}>
+              <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
+              <Text style={styles.routeSummaryMeta}>
+                {formatDistance()} • {formatETA()}
+              </Text>
+            </View>
+
+            <Pressable
+              style={styles.goButton}
+              onPress={() => {
+                console.log("Starting navigation...");
+                setRouteRequested(true);
+              }}
+            >
+              <Text style={styles.goButtonText}>GO</Text>
+            </Pressable>
+          </View>
+        )}
+      </>
+    ),
+    [
+      activePath,
+      clearRoute,
+      closeRoutingSearchSheet,
+      endValue,
+      formatDistance,
+      formatETA,
+      formatTime,
+      handleSearch,
+      openRoutingSearchSheet,
+      openSheet,
+      routeEnd,
+      routeError,
+      routeStart,
+      routingActive,
+      searchQuery,
+      setRouteEnd,
+      setRouteRequested,
+      setRouteStart,
+      setRouteStartIsCurrentLocation,
+      setSearchQuery,
+      startValue,
+      summaryVisible,
+    ],
+  );
+
+  const renderRoutingSearchHeader = useCallback(
+    () => (
+      <>
+        <View style={styles.routingSearchHeader}>
+          <Text style={styles.routingSearchPanelTitle}>
+            Search for {activeField === "start" ? "starting point" : "destination"}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close search panel"
+            onPress={closeRoutingSearchSheet}
+            style={styles.routingSearchCloseButton}
+          >
+            <Text style={styles.routingSearchCloseButtonText}>X</Text>
+          </Pressable>
+        </View>
+
+        <TextInput
+          ref={routingSearchInputRef}
+          style={styles.input}
+          placeholder={
+            activeField === "start"
+              ? "Search starting point"
+              : "Search destination"
+          }
+          clearButtonMode="always"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={activeField === "start" ? startValue : endValue}
+          onChangeText={handleRoutingSearchChange}
+          autoFocus={routingSearchSheetOpen}
+          selectTextOnFocus
+        />
+      </>
+    ),
+    [
+      activeField,
+      closeRoutingSearchSheet,
+      endValue,
+      handleRoutingSearchChange,
+      routingSearchSheetOpen,
+      startValue,
+    ],
+  );
+
+  const isListVisible = useMemo(() => {
+    const hasAnyRows = sections.some((section) => section.data.length > 0);
+    if (!hasAnyRows) {
+      return false;
+    }
+    // Main search results list.
+    if (!routingActive) {
+      return true;
+    }
+    // Routing overlay list only when the overlay is open.
+    return routingSearchSheetOpen;
+  }, [routingActive, routingSearchSheetOpen, sections]);
+
+  useEffect(() => {
+    onMapGestureEnabledChange?.(!isListVisible);
+    return () => {
+      onMapGestureEnabledChange?.(true);
+    };
+  }, [isListVisible, onMapGestureEnabledChange]);
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
@@ -456,185 +761,29 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
         ref={sheetRef}
         index={0}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        enableContentPanningGesture
+        enableHandlePanningGesture
+        enableOverDrag={false}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
       >
-        <BottomSheetView style={styles.sheetContent}>
-          <Text style={styles.directionHeader}>{routingActive ? "Directions" : "Search"}</Text>
-
-          {routingActive ? (
-            <View style={styles.routeInputs}>
-              <TextInput
-                ref={routeStartInputRef}
-                style={styles.input}
-                placeholder="Starting point"
-                value={startValue}
-                clearButtonMode="always"
-                onFocus={() => openRoutingSearchSheet("start")}
-                onChangeText={(text) => {
-                  setStartValue(text);
-                  setActiveField("start");
-                  setRouteStart(null);
-                  setRouteRequested(false);
-                  setRouteStartIsCurrentLocation(false);
-                }}
-              />
-
-              <TextInput
-                ref={routeEndInputRef}
-                style={styles.input}
-                placeholder="Destination"
-                clearButtonMode="always"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={endValue}
-                onFocus={() => openRoutingSearchSheet("end")}
-                onChangeText={(text) => {
-                  setEndValue(text);
-                  setActiveField("end");
-                  setRouteEnd(null);
-                  setRouteRequested(false);
-                }}
-              />
-
-              <View style={styles.routeActions}>
-                <Pressable
-                  onPress={() => {
-                    clearRoute();
-                    setStartValue("");
-                    setEndValue("");
-                    setSearchQuery("");
-                    setActiveField("end");
-                    closeRoutingSearchSheet();
-                  }}
-                  style={styles.clearChip}
-                >
-                  <Text style={styles.clearChipText}>Clear</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : (
-            <TextInput
-              style={styles.input}
-              placeholder="Type Destination Here..."
-              clearButtonMode="always"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onChangeText={handleSearch}
-              value={searchQuery}
-              onFocus={() => {
-                openSheet();
-                setFocused(Boolean(searchQuery));
-              }}
-            />
-          )}
-
-          <View style={styles.statusRow}>
-            <Text style={styles.statusText}>
-              Start: {routeStart ? "set" : "not set"}
-            </Text>
-            <Text style={styles.statusText}>
-              End: {routeEnd ? "set" : "not set"}
-            </Text>
-            {activePath && (
-              <Text style={styles.statusText}>
-                Distance: {Math.round(activePath.distance)}m
-              </Text>
-            )}
-            {routeError && <Text style={styles.errorText}>{routeError}</Text>}
-          </View>
-
-          {/* INLINE ROUTE SUMMARY */}
-          {summaryVisible && (
-            <View style={styles.routeSummaryContainer}>
-              <View style={styles.routeSummaryLeft}>
-                <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
-                <Text style={styles.routeSummaryMeta}>
-                  {formatDistance()} • {formatETA()}
-                </Text>
-              </View>
-
-              <Pressable
-                style={styles.goButton}
-                onPress={() => {
-                  // replace with your "start navigation" logic if needed
-                  console.log("Starting navigation...");
-                  setRouteRequested(true);
-                }}
-              >
-                <Text style={styles.goButtonText}>GO</Text>
-              </Pressable>
-            </View>
-          )}
-
-          {/* SEARCH RESULTS (only when NOT routing) */}
-          {sections.length > 0 && !routingActive && (
-            <View style={styles.resultsPanel}>
-              <SectionList
-                sections={sections}
-                keyExtractor={(item, index) => `${item.id}-${index}`}
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{ paddingBottom: 24 }}
-                renderSectionHeader={({ section }) => (
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>{section.title}</Text>
-                    {section.kind === "history" && (
-                      <Pressable
-                        onPress={clearHistory}
-                        style={styles.sectionAction}
-                      >
-                        <Text style={styles.sectionActionText}>Clear</Text>
-                      </Pressable>
-                    )}
-                  </View>
-                )}
-                renderItem={({ item, section }) => (
-                  <Pressable
-                    onPress={() => handleSelectPlace(item)}
-                    style={({ pressed }) => [
-                      { backgroundColor: pressed ? "#D2E6FF" : "white" },
-                      styles.itemContainer,
-                    ]}
-                  >
-                {/* TODO: insert logo based on type of building */}
-                    <Text style={styles.itemIcon}>
-                      {item.name.charAt(0).toUpperCase()}
-                    </Text>
-
-                    <View style={styles.itemMeta}>
-                      <Text style={styles.buildingName}>{item.name}</Text>
-                      <Text style={styles.subscript}>
-                        {item.coordinate[1].toFixed(5)},{" "}
-                        {item.coordinate[0].toFixed(5)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.itemActions}>
-                      <Pressable
-                        onPress={() => toggleFavorite(item)}
-                        style={styles.actionChip}
-                      >
-                        <Text style={styles.actionChipText}>
-                          {isFavorite(item.id) ? "Unfav" : "Fav"}
-                        </Text>
-                      </Pressable>
-
-                      {section.kind === "history" && (
-                        <Pressable
-                          onPress={() => removeFromHistory(item.id)}
-                          style={[styles.actionChip, styles.removeChip]}
-                        >
-                          <Text style={styles.actionChipText}>Remove</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                  </Pressable>
-                )}
-                stickySectionHeadersEnabled={false}
-              />
-            </View>
-          )}
-        </BottomSheetView>
+        {showMainResults ? (
+          <BottomSheetFlatList
+            data={searchRows}
+            keyExtractor={(item) => item.id}
+            renderItem={renderSearchRow}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+            style={styles.resultsList}
+            contentContainerStyle={styles.resultsListContent}
+            ListHeaderComponent={renderMainSheetHeader}
+          />
+        ) : (
+          <BottomSheetView style={styles.sheetContent}>
+            {renderMainSheetHeader()}
+          </BottomSheetView>
+        )}
       </BottomSheet>
 
       {/* ROUTING SEARCH SHEET (overlay) */}
@@ -644,6 +793,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
           index={-1}
           snapPoints={routingSearchSnapPoints}
           enableDynamicSizing={false}
+          enableContentPanningGesture
+          enableHandlePanningGesture
           enablePanDownToClose
           enableOverDrag={false}
           keyboardBehavior="interactive"
@@ -661,103 +812,22 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
             blurRoutingInputs();
           }}
         >
-          <BottomSheetView style={styles.routingSearchSheetContent}>
-            <View style={styles.routingSearchHeader}>
-              <Text style={styles.routingSearchPanelTitle}>
-                Search for {activeField === "start" ? "starting point" : "destination"}
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Close search panel"
-                onPress={closeRoutingSearchSheet}
-                style={styles.routingSearchCloseButton}
-              >
-                <Text style={styles.routingSearchCloseButtonText}>X</Text>
-              </Pressable>
-            </View>
-
-            <TextInput
-              ref={routingSearchInputRef}
-              style={styles.input}
-              placeholder={
-                activeField === "start"
-                  ? "Search starting point"
-                  : "Search destination"
-              }
-              clearButtonMode="always"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={activeField === "start" ? startValue : endValue}
-              onChangeText={handleRoutingSearchChange}
-              autoFocus={routingSearchSheetOpen}
-              selectTextOnFocus
+          {showRoutingResults ? (
+            <BottomSheetFlatList
+              data={searchRows}
+              keyExtractor={(item) => item.id}
+              renderItem={renderSearchRow}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+              style={styles.resultsList}
+              contentContainerStyle={styles.resultsListContent}
+              ListHeaderComponent={renderRoutingSearchHeader}
             />
-
-            {sections.length > 0 && (
-              <SectionList
-                sections={sections}
-                keyExtractor={(item, index) => `${item.id}-${index}`}
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{ paddingBottom: 24 }}
-                renderSectionHeader={({ section }) => (
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>{section.title}</Text>
-                    {section.kind === "history" && (
-                      <Pressable
-                        onPress={clearHistory}
-                        style={styles.sectionAction}
-                      >
-                        <Text style={styles.sectionActionText}>Clear</Text>
-                      </Pressable>
-                    )}
-                  </View>
-                )}
-                renderItem={({ item, section }) => (
-                  <Pressable
-                    onPress={() => handleSelectPlace(item)}
-                    style={({ pressed }) => [
-                      { backgroundColor: pressed ? "#D2E6FF" : "white" },
-                      styles.itemContainer,
-                    ]}
-                  >
-                {/* TODO: insert logo based on type of building */}
-                    <Text style={styles.itemIcon}>
-                      {item.name.charAt(0).toUpperCase()}
-                    </Text>
-
-                    <View style={styles.itemMeta}>
-                      <Text style={styles.buildingName}>{item.name}</Text>
-                      <Text style={styles.subscript}>
-                        {item.coordinate[1].toFixed(5)},{" "}
-                        {item.coordinate[0].toFixed(5)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.itemActions}>
-                      <Pressable
-                        onPress={() => toggleFavorite(item)}
-                        style={styles.actionChip}
-                      >
-                        <Text style={styles.actionChipText}>
-                          {isFavorite(item.id) ? "Unfav" : "Fav"}
-                        </Text>
-                      </Pressable>
-
-                      {section.kind === "history" && (
-                        <Pressable
-                          onPress={() => removeFromHistory(item.id)}
-                          style={[styles.actionChip, styles.removeChip]}
-                        >
-                          <Text style={styles.actionChipText}>Remove</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                  </Pressable>
-                )}
-                stickySectionHeadersEnabled={false}
-              />
-            )}
-          </BottomSheetView>
+          ) : (
+            <BottomSheetView style={styles.routingSearchSheetContent}>
+              {renderRoutingSearchHeader()}
+            </BottomSheetView>
+          )}
         </BottomSheet>
       )}
     </View>
@@ -767,6 +837,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
 const styles = StyleSheet.create({
   sheetContent: {
     flex: 1,
+    minHeight: 0,
     paddingHorizontal: 10,
     paddingTop: 8,
     paddingBottom: 16,
@@ -774,9 +845,19 @@ const styles = StyleSheet.create({
   resultsPanel: {
     marginTop: 6,
     flex: 1,
+    minHeight: 0,
+  },
+  resultsList: {
+    flex: 1,
+  },
+  resultsListContent: {
+    paddingHorizontal: 10,
+    paddingTop: 8,
+    paddingBottom: 24,
   },
   routingSearchSheetContent: {
     flex: 1,
+    minHeight: 0,
     paddingHorizontal: 10,
     paddingTop: 8,
     gap: 8,

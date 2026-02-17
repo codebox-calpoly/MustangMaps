@@ -50,6 +50,7 @@ export function MapContainer({
   const pendingRouteFitRef = useRef<{ start: [number, number]; end: [number, number] } | null>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
     setRouteDestination,
     mapMode,
@@ -238,8 +239,8 @@ export function MapContainer({
         style={StyleSheet.absoluteFill}
         mapStyle={mapStyleUrl}
         logoEnabled={false}
-        zoomEnabled
-        scrollEnabled
+        zoomEnabled={mapGesturesEnabled}
+        scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => setMapReady(true)}
       >
@@ -262,6 +263,7 @@ export function MapContainer({
       <SearchPanel
         cameraMove={handleCameraMove}
         cameraFitRoute={handleCameraFitRoute}
+        onMapGestureEnabledChange={setMapGesturesEnabled}
       />
       <MapFilters
         mapMode={mapMode}
