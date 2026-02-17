@@ -17,7 +17,7 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 interface MapContextValue {
   mapMode: "buildings" | "amenities" | "routing";
   mapStyle: "light" | "dark";
-  buildingFilterId: string;
+  buildingTypeIds: string[];
   amenityTypeIds: string[];
   selectedBuilding: SelectedBuilding | null;
   searchQuery: string;
@@ -47,7 +47,7 @@ interface MapContextValue {
   setRoutingActive: (active: boolean) => void;
   setMapMode: (mode: "buildings" | "amenities" | "routing") => void;
   setMapStyle: (style: "light" | "dark") => void;
-  setBuildingFilterId: (id: string) => void;
+  setBuildingTypeIds: (ids: string[]) => void;
   setAmenityTypeIds: (ids: string[]) => void;
   setRouteRequested: (requested: boolean) => void;
   setRouteStartIsCurrentLocation: (value: boolean) => void;
@@ -66,7 +66,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [mapMode, setMapMode] =
     useState<"buildings" | "amenities" | "routing">("buildings");
   const [mapStyle, setMapStyle] = useState<"light" | "dark">("light");
-  const [buildingFilterId, setBuildingFilterId] = useState("all");
+  const [buildingTypeIds, setBuildingTypeIds] = useState<string[]>([]);
   const [amenityTypeIds, setAmenityTypeIds] = useState<string[]>([]);
   const [selectedBuilding, setSelectedBuilding] =
     useState<SelectedBuilding | null>(null);
@@ -151,7 +151,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     () => ({
       mapMode,
       mapStyle,
-      buildingFilterId,
+      buildingTypeIds,
       amenityTypeIds,
       selectedBuilding,
       searchQuery,
@@ -181,7 +181,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRoutingActive,
       setMapMode,
       setMapStyle,
-      setBuildingFilterId,
+      setBuildingTypeIds,
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
@@ -192,7 +192,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     [
       mapMode,
       mapStyle,
-      buildingFilterId,
+      buildingTypeIds,
       amenityTypeIds,
       selectedBuilding,
       searchQuery,
@@ -220,7 +220,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRoutingActive,
       setMapMode,
       setMapStyle,
-      setBuildingFilterId,
+      setBuildingTypeIds,
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
