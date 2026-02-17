@@ -55,8 +55,8 @@ export function MapContainer({
     mapMode,
     setMapMode,
     mapStyle,
-    buildingFilterId,
-    setBuildingFilterId,
+    buildingTypeIds,
+    setBuildingTypeIds,
     amenityTypeIds,
     setAmenityTypeIds,
     mapDataLoading,
@@ -266,8 +266,8 @@ export function MapContainer({
       <MapFilters
         mapMode={mapMode}
         onMapModeChange={setMapMode}
-        buildingFilterId={buildingFilterId}
-        onBuildingFilterChange={setBuildingFilterId}
+        buildingTypeIds={buildingTypeIds}
+        onBuildingTypesChange={setBuildingTypeIds}
         amenityTypeIds={amenityTypeIds}
         onAmenityTypesChange={setAmenityTypeIds}
         buildingOptions={buildingOptions}

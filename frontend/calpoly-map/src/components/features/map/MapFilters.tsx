@@ -7,7 +7,6 @@ export type MapMode = "buildings" | "amenities" | "routing";
 export type BuildingFilterOption = {
   id: string;
   label: string;
-  types: string[] | null;
 };
 
 export type AmenityFilterOption = {
@@ -18,8 +17,8 @@ export type AmenityFilterOption = {
 type Props = {
   mapMode: MapMode;
   onMapModeChange: (mode: MapMode) => void;
-  buildingFilterId: string;
-  onBuildingFilterChange: (id: string) => void;
+  buildingTypeIds: string[];
+  onBuildingTypesChange: (ids: string[]) => void;
   amenityTypeIds: string[];
   onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
@@ -29,13 +28,14 @@ type Props = {
 export function MapFilters({
   mapMode,
   onMapModeChange,
-  buildingFilterId,
-  onBuildingFilterChange,
+  buildingTypeIds,
+  onBuildingTypesChange,
   amenityTypeIds,
   onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
 }: Props) {
+  const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
   const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
   const nextMapStyle = mapStyle === "light" ? "dark" : "light";
@@ -94,25 +94,38 @@ export function MapFilters({
 
         {mapMode === "buildings" && (
           <View style={styles.rowWrap}>
-            {buildingOptions.map((option) => (
-              <Pressable
-                key={option.id}
-                onPress={() => onBuildingFilterChange(option.id)}
-                style={[
-                  styles.chip,
-                  buildingFilterId === option.id && styles.chipActive,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.chipText,
-                    buildingFilterId === option.id && styles.chipTextActive,
-                  ]}
+            {buildingOptions.map((option) => {
+              const isAllOption = option.id === "all";
+              const isActive = isAllOption
+                ? buildingTypeIds.length === 0
+                : buildingSet.has(option.id);
+
+              return (
+                <Pressable
+                  key={option.id}
+                  onPress={() => {
+                    // "All" (or an empty set) means show every building.
+                    if (isAllOption) {
+                      onBuildingTypesChange([]);
+                      return;
+                    }
+
+                    const next = new Set(buildingTypeIds);
+                    if (next.has(option.id)) {
+                      next.delete(option.id);
+                    } else {
+                      next.add(option.id);
+                    }
+                    onBuildingTypesChange(Array.from(next));
+                  }}
+                  style={[styles.chip, isActive && styles.chipActive]}
                 >
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
+                  <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         )}
 
