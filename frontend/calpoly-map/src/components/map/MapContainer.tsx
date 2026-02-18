@@ -71,7 +71,7 @@ export function MapContainer({
 
   const { latitude, longitude } = useUserLocation();
   const userLocation = latitude != null && longitude != null ? [longitude, latitude] : null;
-  const [followUser, setFollowUser] = useState<Boolean>(false);
+  const [followUser, setFollowUser] = useState<boolean>(false);
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
@@ -141,10 +141,20 @@ export function MapContainer({
   };
   
   const toggleFollowUser = () => {
-    if (!userLocation) {
+    const camera = cameraRef.current;
+    const map = mapRef.current;
+    if (!userLocation || !mapReady || !map || !camera) {
       return;
     }
-    setFollowUser(!followUser);
+
+    if (followUser) {
+      setFollowUser(false);
+      return;
+    }
+
+    lastCameraStopRef.current = null;
+    setFollowUser(true);
+    handleCameraMove(userLocation);
   }
 
   useEffect(() => {
@@ -152,7 +162,7 @@ export function MapContainer({
       return;
     }
     handleCameraMove(userLocation);
-  }, [userLocation]);
+  }, [followUser, handleCameraMove, userLocation]);
 
    const handleRegionChange = useCallback((feature: any) => {
     if (!followUser) {
@@ -160,8 +170,9 @@ export function MapContainer({
     }
     if (feature?.properties?.isUserInteraction) {
       setFollowUser(false);
+      lastCameraStopRef.current = null;
     }
-  }, [userLocation]);
+  }, [followUser]);
 
   const handleCameraMove = useCallback(async (loc: number[]) => {
     const map = mapRef.current;
@@ -169,6 +180,7 @@ export function MapContainer({
     if (!mapReady || !map || !camera) {
       return;
     }
+    const zoom = await map.getZoom();
     if (!isValidCoordinate(loc)) {
       return;
     }
@@ -182,9 +194,9 @@ export function MapContainer({
       cameraBusyRef.current = true;
       lastCameraStopRef.current = stopKey;
       requestAnimationFrame(() => {
+        camera.flyTo(safeLoc, 250);
+        camera.zoomTo(zoom, 250);
         camera.setCamera({
-          centerCoordinate: safeLoc,
-          zoomLevel: 17,
           animationDuration: 250,
         });
         setTimeout(() => {
