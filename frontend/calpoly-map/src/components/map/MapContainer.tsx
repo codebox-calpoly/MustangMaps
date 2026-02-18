@@ -121,10 +121,6 @@ export function MapContainer({
       return;
     }
     return (
-      <Animated.View
-        style={[styles.locationControls, controlsAnimatedStyle]}
-        pointerEvents="box-none"
-      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Center User Location"
@@ -136,7 +132,6 @@ export function MapContainer({
             <View style={styles.locationIconOuter} />
           </View>
         </Pressable>
-      </Animated.View>
     )
   };
   
@@ -369,12 +364,12 @@ export function MapContainer({
         </View>
       )}
 
-      <UserLocationButton />
-
       <Animated.View
         style={[styles.zoomControls, controlsAnimatedStyle]}
         pointerEvents="box-none"
       >
+        <UserLocationButton />
+        
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Zoom in"
