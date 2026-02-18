@@ -162,7 +162,7 @@ export function MapContainer({
       return;
     }
     handleCameraMove(userLocation);
-  }, [followUser, handleCameraMove, userLocation]);
+  }, [userLocation]);
 
    const handleRegionChange = useCallback((feature: any) => {
     if (!followUser) {
@@ -180,7 +180,6 @@ export function MapContainer({
     if (!mapReady || !map || !camera) {
       return;
     }
-    const zoom = await map.getZoom();
     if (!isValidCoordinate(loc)) {
       return;
     }
@@ -195,7 +194,6 @@ export function MapContainer({
       lastCameraStopRef.current = stopKey;
       requestAnimationFrame(() => {
         camera.flyTo(safeLoc, 250);
-        camera.zoomTo(zoom, 250);
         camera.setCamera({
           animationDuration: 250,
         });
