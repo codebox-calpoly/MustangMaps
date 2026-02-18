@@ -93,8 +93,8 @@ export function MapContainer({
   const windowHeight = Dimensions.get("window").height;
 
   const controlsAnimatedStyle = useAnimatedStyle(() => {
-    const top = searchPanelHeight.value - 110;
-    return { top: top < 120 ? 600 : top};
+    const bottom = windowHeight - searchPanelHeight.value - 70;
+    return { bottom: bottom > 630 ? 100 : bottom};
   }, [windowHeight]);
 
   const handleZoom = useCallback(async (delta: number) => {
