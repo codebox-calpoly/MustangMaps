@@ -25,6 +25,7 @@ import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
+import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 // Disable telemetry
@@ -68,6 +69,10 @@ export function MapContainer({
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
+  const { latitude, longitude } = useUserLocation();
+  const userLocation = latitude != null && longitude != null ? [longitude, latitude] : null;
+  const [followUser, setFollowUser] = useState<Boolean>(false);
+
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
       coord.length === 2 &&
@@ -87,7 +92,7 @@ export function MapContainer({
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
 
-  const zoomControlsAnimatedStyle = useAnimatedStyle(() => {
+  const controlsAnimatedStyle = useAnimatedStyle(() => {
     const top = searchPanelHeight.value - 110;
     return { top: top < 120 ? 600 : top};
   }, [windowHeight]);
@@ -110,6 +115,53 @@ export function MapContainer({
       // Ignore transient zoom errors to keep taps safe.
     }
   }, [mapReady]);
+
+  function UserLocationButton() {
+    if (!userLocation) {
+      return;
+    }
+    return (
+      <Animated.View
+        style={[styles.locationControls, controlsAnimatedStyle]}
+        pointerEvents="box-none"
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Center User Location"
+          onPress={toggleFollowUser}
+          style={[styles.zoomButton, followUser && styles.locationButtonActive]}
+        >
+          <View style={styles.zoomIcon}>
+            <View style={styles.locationIconInner} />
+            <View style={styles.locationIconOuter} />
+          </View>
+        </Pressable>
+      </Animated.View>
+    )
+  };
+  
+  const toggleFollowUser = () => {
+    if (!userLocation) {
+      return;
+    }
+    setFollowUser(!followUser);
+  }
+
+  useEffect(() => {
+    if (!userLocation || !followUser) {
+      return;
+    }
+    handleCameraMove(userLocation);
+  }, [userLocation]);
+
+   const handleRegionChange = useCallback((feature: any) => {
+    if (!followUser) {
+      return;
+    }
+    if (feature?.properties?.isUserInteraction) {
+      setFollowUser(false);
+    }
+  }, [userLocation]);
 
   const handleCameraMove = useCallback(async (loc: number[]) => {
     const map = mapRef.current;
@@ -250,6 +302,7 @@ export function MapContainer({
         scrollEnabled
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => setMapReady(true)}
+        onRegionWillChange={handleRegionChange}
       >
         
         <UserLocationMarker />
@@ -306,8 +359,10 @@ export function MapContainer({
         </View>
       )}
 
+      <UserLocationButton />
+
       <Animated.View
-        style={[styles.zoomControls, zoomControlsAnimatedStyle]}
+        style={[styles.zoomControls, controlsAnimatedStyle]}
         pointerEvents="box-none"
       >
         <Pressable
@@ -457,5 +512,26 @@ const styles = StyleSheet.create({
     width: 2,
     height: 18,
     backgroundColor: "#F9FAFB",
+  },
+  locationControls: {
+    position: "absolute",
+    left: 16,
+    gap: 10,
+  },
+  locationIconInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: "#ffffffff",
+  },
+  locationIconOuter: {
+    position: "absolute",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  locationButtonActive: {
+    backgroundColor: "#0B5FFF",
   },
 });
