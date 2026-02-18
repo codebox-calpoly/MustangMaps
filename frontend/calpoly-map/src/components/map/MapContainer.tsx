@@ -3,7 +3,6 @@ import {
   MapView,
   Camera,
   setAccessToken,
-  UserLocation,
   type MapViewRef,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
@@ -26,6 +25,7 @@ import { BuildingPopup } from "./BuildingPopup";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 // Disable telemetry
 setAccessToken(null);
@@ -83,6 +83,14 @@ export function MapContainer({
   const hasLoading = Object.values(mapDataLoading).some(Boolean);
   const errorMessage =
     Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
+
+  const searchPanelHeight = useSharedValue<number>(0);
+  const windowHeight = Dimensions.get("window").height;
+
+  const zoomControlsAnimatedStyle = useAnimatedStyle(() => {
+    const top = searchPanelHeight.value - 110;
+    return { top: top < 120 ? 600 : top};
+  }, [windowHeight]);
 
   const handleZoom = useCallback(async (delta: number) => {
     const map = mapRef.current;
@@ -259,10 +267,7 @@ export function MapContainer({
           return child;
         })}
       </MapView>
-      <SearchPanel
-        cameraMove={handleCameraMove}
-        cameraFitRoute={handleCameraFitRoute}
-      />
+
       <MapFilters
         mapMode={mapMode}
         onMapModeChange={setMapMode}
@@ -301,7 +306,10 @@ export function MapContainer({
         </View>
       )}
 
-      <View style={styles.zoomControls} pointerEvents="box-none">
+      <Animated.View
+        style={[styles.zoomControls, zoomControlsAnimatedStyle]}
+        pointerEvents="box-none"
+      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Zoom in"
@@ -323,7 +331,13 @@ export function MapContainer({
             <View style={styles.zoomIconBarHorizontal} />
           </View>
         </Pressable>
-      </View>
+      </Animated.View>
+
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+        bottomSheetPosition={searchPanelHeight}
+      />
 
       <BuildingPopup
         visible={selectedBuilding !== null}
@@ -412,9 +426,7 @@ const styles = StyleSheet.create({
   zoomControls: {
     position: "absolute",
     right: 16,
-    bottom: 32,
     gap: 10,
-    alignItems: "center",
   },
   zoomButton: {
     width: 44,
