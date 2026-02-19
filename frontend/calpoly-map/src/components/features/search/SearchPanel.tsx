@@ -11,6 +11,7 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
+import type { SharedValue } from "react-native-reanimated";
 
 import { useMapContext } from "../../../context/MapContext";
 import {
@@ -24,24 +25,12 @@ import geoData from "./test.json";
 interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
-  onMapGestureEnabledChange?: (enabled: boolean) => void;
+  bottomSheetPosition: SharedValue<number>;
 }
 
 type SectionKind = "favorite" | "history" | "result";
-type SearchSection = {
-  title: string;
-  data: SavedPlace[];
-  kind: SectionKind;
-};
-type SearchRow =
-  | { id: string; type: "header"; section: SearchSection }
-  | { id: string; type: "item"; sectionKind: SectionKind; item: SavedPlace };
 
-export function SearchPanel({
-  cameraMove,
-  cameraFitRoute,
-  onMapGestureEnabledChange,
-}: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -773,10 +762,7 @@ export function SearchPanel({
         ref={sheetRef}
         index={0}
         snapPoints={snapPoints}
-        enableDynamicSizing={false}
-        enableContentPanningGesture
-        enableHandlePanningGesture
-        enableOverDrag={false}
+        animatedPosition={bottomSheetPosition}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
       >

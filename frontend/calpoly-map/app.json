@@ -27,7 +27,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sbalaji524.calpolymap",
+      "bundleIdentifier": "com.sbalaji524.mustangmaps.dev",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
@@ -47,14 +47,21 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.sbalaji524.calpolymap"
+      "package": "com.sbalaji524.calpolymap",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "77a97d44-36ac-4290-8d63-6246c73fc745"
+        "projectId": "93fe3dd3-94e5-4f5a-bc6f-690389d53b30"
       }
     }
   }

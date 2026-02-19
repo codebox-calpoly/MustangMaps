@@ -1,4 +1,3 @@
-import "react-native-gesture-handler";
 import React, { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { MapProvider, useMapContext } from '../context/MapContext';
@@ -15,10 +14,10 @@ import { LocationProvider } from "../context/UserLocationContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
-  { id: "all", label: "All", types: null },
-  { id: "academic", label: "Academic", types: ["academic"] },
-  { id: "residential", label: "Residential", types: ["residential"] },
-  { id: "dining", label: "Dining", types: ["dining"] },
+  { id: "all", label: "All" },
+  { id: "academic", label: "Academic" },
+  { id: "residential", label: "Residential" },
+  { id: "dining", label: "Dining" },
 ];
 
 const AMENITY_OPTIONS: AmenityFilterOption[] = [
@@ -57,7 +56,7 @@ function MapScreen({
 }) {
   const {
     mapMode,
-    buildingFilterId,
+    buildingTypeIds,
     amenityTypeIds,
     routeStart,
     routeEnd,
@@ -68,10 +67,6 @@ function MapScreen({
     setRouteError,
   } = useMapContext();
   const { graph, error } = usePathGraph();
-
-  // get building types from filter
-  const selectedBuildingOption = BUILDING_OPTIONS.find(opt => opt.id === buildingFilterId);
-  const buildingTypes = selectedBuildingOption?.types ?? undefined;
 
   useEffect(() => {
     if (error) {
@@ -128,7 +123,7 @@ function MapScreen({
       buildingOptions={buildingOptions}
       amenityOptions={amenityOptions}
     >
-      <BuildingLayer buildingTypes={buildingTypes} />
+      <BuildingLayer buildingTypes={buildingTypeIds} />
       <ClassZonesLayer />
       {/* Only render amenities when in amenities mode or when filters are selected */}
       {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
