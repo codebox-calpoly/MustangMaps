@@ -115,7 +115,7 @@ export function MapContainer({
     if (searchPanelHeight.value / windowHeight > 0.265) {
       return { bottom: bottom };
     } else {
-      return { bottom: -100 };
+      return { bottom: -300 };
     }
   }, [windowHeight]);
 
