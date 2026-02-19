@@ -196,6 +196,19 @@ export function MapContainer({
           cameraBusyRef.current = false;
         }, 300);
       });
+      if (Platform.OS === "ios") {
+        setTimeout(() => {
+          const retryMap = mapRef.current;
+          const retryCamera = cameraRef.current;
+          if (!mapReady || !retryMap || !retryCamera) {
+            return;
+          }
+          retryCamera.flyTo(safeLoc, 250);
+          setTimeout(() => {
+            cameraBusyRef.current = false;
+          }, 300);
+        }, 320);
+      }
     } catch {
       // Ignore transient zoom errors to keep taps safe.
       cameraBusyRef.current = false;
