@@ -94,7 +94,11 @@ export function MapContainer({
 
   const controlsAnimatedStyle = useAnimatedStyle(() => {
     const bottom = windowHeight - searchPanelHeight.value - 70;
-    return { bottom: bottom > 630 ? 100 : bottom};
+    if (searchPanelHeight.value / windowHeight > 0.265) {
+      return { bottom: bottom};
+    } else {
+      return { bottom: -100 };
+    }
   }, [windowHeight]);
 
   const handleZoom = useCallback(async (delta: number) => {
@@ -107,10 +111,7 @@ export function MapContainer({
     try {
       const zoom = await map.getZoom();
       const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
-      camera.setCamera({
-        zoomLevel: nextZoom,
-        animationDuration: 150,
-      });
+      camera.zoomTo(nextZoom, 150);
     } catch {
       // Ignore transient zoom errors to keep taps safe.
     }
@@ -231,7 +232,7 @@ export function MapContainer({
       Math.min(start[1], end[1]),
     ];
 
-    const windowHeight = Dimensions.get("window").height;
+
     const topPadding = Math.round(windowHeight * 0.18);
     const bottomPadding = Math.round(windowHeight * 0.58);
     const padding: [number, number, number, number] = [topPadding, 56, bottomPadding, 56];
