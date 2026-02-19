@@ -60,6 +60,7 @@ export function MapContainer({
     GeoJsonProperties
   > | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
     setRouteDestination,
     mapMode,
@@ -366,8 +367,8 @@ export function MapContainer({
         style={StyleSheet.absoluteFill}
         mapStyle={mapStyleUrl}
         logoEnabled={false}
-        zoomEnabled
-        scrollEnabled
+        zoomEnabled={mapGesturesEnabled}
+        scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => setMapReady(true)}
         onRegionWillChange={handleRegionChange}
