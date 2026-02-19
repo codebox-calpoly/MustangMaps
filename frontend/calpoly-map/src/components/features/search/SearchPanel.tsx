@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import {
+  Image,
   Pressable,
   SectionList,
   StyleSheet,
@@ -31,6 +32,8 @@ interface Props {
 }
 
 type SectionKind = "favorite" | "history" | "result";
+const UNIVERSAL_BUILDING_IMAGE_URI =
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Cal_Poly_Campus.jpg/640px-Cal_Poly_Campus.jpg";
 
 export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
   // Bottom sheet controls
@@ -59,13 +62,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
     searchQuery,
     setSearchQuery,
     userLocation,
+    selectedBuilding,
+    routeDestination,
     routeStart,
     routeEnd,
     activePath,
     routeError,
     routingActive,
+    clearSelection,
+    setMapMode,
     setRouteStart,
     setRouteEnd,
+    setRouteDestination,
+    setRoutingActive,
     setRouteRequested,
     setRouteStartIsCurrentLocation,
     clearRoute,
@@ -250,6 +259,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
       updatedAt: Date.now(),
     };
   }, [isValidCoordinate, userLocation]);
+
+  const selectedBuildingPlace = useMemo(() => {
+    if (!selectedBuilding) {
+      return null;
+    }
+    return placeFromFeature(selectedBuilding);
+  }, [placeFromFeature, selectedBuilding]);
 
   const handleSelectPlace = useCallback(
     (place: SavedPlace) => {
@@ -450,6 +466,58 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
     }
   }, [routingActive]);
 
+  useEffect(() => {
+    if (!selectedBuilding || routingActive) {
+      return;
+    }
+    sheetRef.current?.snapToIndex(2);
+  }, [routingActive, selectedBuilding]);
+
+  useEffect(() => {
+    if (!routingActive || !routeDestination) {
+      return;
+    }
+
+    const destination = placeFromFeature(routeDestination);
+    if (!destination || !isValidCoordinate(destination.coordinate)) {
+      setRouteDestination(null);
+      return;
+    }
+
+    setRouteEnd(destination.coordinate);
+    setEndValue(destination.name);
+    setRouteRequested(Boolean(routeStart && destination.coordinate));
+    setFocused(false);
+    setSearchQuery("");
+    setRouteDestination(null);
+  }, [
+    isValidCoordinate,
+    placeFromFeature,
+    routeDestination,
+    routeStart,
+    routingActive,
+    setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
+    setSearchQuery,
+  ]);
+
+  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
+  const selectedBuildingNumber =
+    String(
+      selectedBuilding?.properties?.ref ??
+      selectedBuilding?.properties?.["building:ref"] ??
+      selectedBuilding?.properties?.["addr:housenumber"] ??
+      "N/A",
+    );
+  const selectedBuildingSubtitle =
+    String(
+      selectedBuilding?.properties?.["university-function"] ??
+      selectedBuilding?.properties?.amenity ??
+      selectedBuilding?.properties?.building ??
+      "Campus building",
+    );
+
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet
@@ -460,7 +528,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
         keyboardBlurBehavior="restore"
       >
         <BottomSheetView style={styles.sheetContent}>
-          <Text style={styles.directionHeader}>{routingActive ? "Directions" : "Search"}</Text>
+          <Text style={styles.directionHeader}>
+            {routingActive ? "Directions" : selectedBuilding ? "Building" : "Search"}
+          </Text>
 
           {routingActive ? (
             <View style={styles.routeInputs}>
@@ -513,6 +583,64 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
                 </Pressable>
               </View>
             </View>
+          ) : selectedBuilding ? (
+            <View style={styles.buildingPanel}>
+              <View style={styles.buildingPanelHeader}>
+                <Text style={styles.buildingBadge}>BLDG {selectedBuildingNumber}</Text>
+                <View style={styles.buildingHeaderActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Toggle favorite building"
+                    onPress={() => {
+                      if (selectedBuildingPlace) {
+                        toggleFavorite(selectedBuildingPlace);
+                      }
+                    }}
+                    style={styles.buildingIconAction}
+                  >
+                    <Text style={styles.buildingIconActionText}>
+                      {selectedBuildingPlace && isFavorite(selectedBuildingPlace.id) ? "♥" : "♡"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Close building panel"
+                    onPress={clearSelection}
+                    style={styles.buildingIconAction}
+                  >
+                    <Text style={styles.buildingIconActionText}>X</Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              <Text style={styles.buildingPanelTitle}>{selectedBuildingName}</Text>
+              <Text style={styles.buildingPanelSubtitle}>
+                {selectedBuildingSubtitle.replace(/_/g, " ")}
+              </Text>
+
+              <View style={styles.buildingPanelActions}>
+                <Pressable
+                  onPress={() => {
+                    setRouteDestination(selectedBuilding);
+                    setMapMode("routing");
+                    setRoutingActive(true);
+                    clearSelection();
+                  }}
+                  style={({ pressed }) => [
+                    styles.buildingDirectionsButton,
+                    pressed && styles.buildingDirectionsButtonPressed,
+                  ]}
+                >
+                  <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
+                </Pressable>
+              </View>
+
+              <Image
+                source={{ uri: UNIVERSAL_BUILDING_IMAGE_URI }}
+                resizeMode="cover"
+                style={styles.buildingPanelImage}
+              />
+            </View>
           ) : (
             <TextInput
               style={styles.input}
@@ -529,20 +657,22 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
             />
           )}
 
-          <View style={styles.statusRow}>
-            <Text style={styles.statusText}>
-              Start: {routeStart ? "set" : "not set"}
-            </Text>
-            <Text style={styles.statusText}>
-              End: {routeEnd ? "set" : "not set"}
-            </Text>
-            {activePath && (
+          {!selectedBuilding && (
+            <View style={styles.statusRow}>
               <Text style={styles.statusText}>
-                Distance: {Math.round(activePath.distance)}m
+                Start: {routeStart ? "set" : "not set"}
               </Text>
-            )}
-            {routeError && <Text style={styles.errorText}>{routeError}</Text>}
-          </View>
+              <Text style={styles.statusText}>
+                End: {routeEnd ? "set" : "not set"}
+              </Text>
+              {activePath && (
+                <Text style={styles.statusText}>
+                  Distance: {Math.round(activePath.distance)}m
+                </Text>
+              )}
+              {routeError && <Text style={styles.errorText}>{routeError}</Text>}
+            </View>
+          )}
 
           {/* INLINE ROUTE SUMMARY */}
           {summaryVisible && (
@@ -568,7 +698,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
           )}
 
           {/* SEARCH RESULTS (only when NOT routing) */}
-          {sections.length > 0 && !routingActive && (
+          {sections.length > 0 && !routingActive && !selectedBuilding && (
             <View style={styles.resultsPanel}>
               <SectionList
                 sections={sections}
@@ -648,7 +778,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
           enableOverDrag={false}
           keyboardBehavior="interactive"
           keyboardBlurBehavior="restore"
-          onChange={(index) => {
+          onChange={(index: number) => {
             if (index < 0) {
               setRoutingSearchSheetOpen(false);
               setFocused(false);
@@ -948,6 +1078,87 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  buildingPanel: {
+    marginTop: 8,
+    marginHorizontal: 10,
+    gap: 10,
+  },
+  buildingPanelHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  buildingBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 999,
+    backgroundColor: "#F3F4F6",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
+    color: "#111827",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  buildingHeaderActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  buildingIconAction: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#FFFFFF",
+  },
+  buildingIconActionText: {
+    color: "#111827",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  buildingPanelTitle: {
+    fontSize: 22,
+    color: "#111827",
+    fontWeight: "800",
+  },
+  buildingPanelSubtitle: {
+    fontSize: 13,
+    color: "#6B7280",
+    textTransform: "capitalize",
+  },
+  buildingPanelActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  buildingDirectionsButton: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "#16A34A",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+  },
+  buildingDirectionsButtonPressed: {
+    backgroundColor: "#15803D",
+  },
+  buildingDirectionsButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  buildingPanelImage: {
+    width: "100%",
+    height: 160,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#E5E7EB",
   },
 
   // Inline route summary card
