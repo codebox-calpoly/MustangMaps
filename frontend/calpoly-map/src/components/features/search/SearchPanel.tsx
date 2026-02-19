@@ -30,6 +30,25 @@ interface Props {
 
 type SectionKind = "favorite" | "history" | "result";
 
+interface SearchSection {
+  title: string;
+  data: SavedPlace[];
+  kind: SectionKind;
+}
+
+type SearchRow =
+  | {
+      id: string;
+      type: "header";
+      section: SearchSection;
+    }
+  | {
+      id: string;
+      type: "item";
+      sectionKind: SectionKind;
+      item: SavedPlace;
+    };
+
 export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
@@ -656,26 +675,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       startValue,
     ],
   );
-
-  const isListVisible = useMemo(() => {
-    const hasAnyRows = sections.some((section) => section.data.length > 0);
-    if (!hasAnyRows) {
-      return false;
-    }
-    // Main search results list.
-    if (!routingActive) {
-      return true;
-    }
-    // Routing overlay list only when the overlay is open.
-    return routingSearchSheetOpen;
-  }, [routingActive, routingSearchSheetOpen, sections]);
-
-  useEffect(() => {
-    onMapGestureEnabledChange?.(!isListVisible);
-    return () => {
-      onMapGestureEnabledChange?.(true);
-    };
-  }, [isListVisible, onMapGestureEnabledChange]);
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
