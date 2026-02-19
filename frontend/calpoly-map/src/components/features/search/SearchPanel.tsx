@@ -5,13 +5,7 @@ import React, {
   useState,
   useRef,
 } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetView,
@@ -86,7 +80,9 @@ export function SearchPanel({
     clearRoute,
     setUserLocation,
   } = useMapContext();
-  const summaryVisible = routingActive && Boolean(routeStart && routeEnd && activePath && !routeError);
+  const summaryVisible =
+    routingActive &&
+    Boolean(routeStart && routeEnd && activePath && !routeError);
 
   const {
     history,
@@ -105,11 +101,16 @@ export function SearchPanel({
     setUserLocation([longitude, latitude]);
   }, [latitude, longitude, setUserLocation]);
 
-  const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
-    return Array.isArray(coord) &&
+  const isValidCoordinate = useCallback(
+    (coord?: number[] | null): coord is [number, number] => {
+      return (
+        Array.isArray(coord) &&
         coord.length === 2 &&
-      coord.every((value) => Number.isFinite(value));
-  }, []);
+        coord.every((value) => Number.isFinite(value))
+      );
+    },
+    [],
+  );
 
   const handleSearch = useCallback(
     (input: string) => {
@@ -229,7 +230,7 @@ export function SearchPanel({
       if (geometry.type === "MultiPolygon") {
         return geometry.coordinates[0]?.[0] ?? null;
       }
-    return null;
+      return null;
     },
     [],
   );
@@ -408,7 +409,9 @@ export function SearchPanel({
             styles.itemContainer,
           ]}
         >
-          <Text style={styles.itemIcon}>{place.name.charAt(0).toUpperCase()}</Text>
+          <Text style={styles.itemIcon}>
+            {place.name.charAt(0).toUpperCase()}
+          </Text>
 
           <View style={styles.itemMeta}>
             <Text style={styles.buildingName}>{place.name}</Text>
@@ -448,6 +451,8 @@ export function SearchPanel({
     ],
   );
 
+  const extractSearchRowKey = useCallback((item: SearchRow) => item.id, []);
+
   // Route summary formatters time, distance, and ETA based on activePath and user location
   const formatTime = () => {
     if (!activePath) return "—";
@@ -483,7 +488,9 @@ export function SearchPanel({
   const renderMainSheetHeader = useCallback(
     () => (
       <>
-        <Text style={styles.directionHeader}>{routingActive ? "Directions" : "Search"}</Text>
+        <Text style={styles.directionHeader}>
+          {routingActive ? "Directions" : "Search"}
+        </Text>
 
         {routingActive ? (
           <View style={styles.routeInputs}>
@@ -620,7 +627,8 @@ export function SearchPanel({
       <>
         <View style={styles.routingSearchHeader}>
           <Text style={styles.routingSearchPanelTitle}>
-            Search for {activeField === "start" ? "starting point" : "destination"}
+            Search for{" "}
+            {activeField === "start" ? "starting point" : "destination"}
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -646,7 +654,7 @@ export function SearchPanel({
           value={activeField === "start" ? startValue : endValue}
           onChangeText={handleRoutingSearchChange}
           autoFocus={routingSearchSheetOpen}
-          selectTextOnFocus
+          selectTextOnFocus={false}
         />
       </>
     ),
@@ -737,7 +745,11 @@ export function SearchPanel({
 
   // Fit the camera to both route endpoints when a valid route is ready.
   useEffect(() => {
-    if (!summaryVisible || !isValidCoordinate(routeStart) || !isValidCoordinate(routeEnd)) {
+    if (
+      !summaryVisible ||
+      !isValidCoordinate(routeStart) ||
+      !isValidCoordinate(routeEnd)
+    ) {
       return;
     }
 
@@ -771,13 +783,13 @@ export function SearchPanel({
         {showMainResults ? (
           <BottomSheetFlatList
             data={searchRows}
-            keyExtractor={(item) => item.id}
+            keyExtractor={extractSearchRowKey}
             renderItem={renderSearchRow}
             keyboardShouldPersistTaps="handled"
             bounces={false}
             style={styles.resultsList}
             contentContainerStyle={styles.resultsListContent}
-            ListHeaderComponent={renderMainSheetHeader}
+            ListHeaderComponent={renderMainSheetHeader()}
           />
         ) : (
           <BottomSheetView style={styles.sheetContent}>
@@ -815,13 +827,13 @@ export function SearchPanel({
           {showRoutingResults ? (
             <BottomSheetFlatList
               data={searchRows}
-              keyExtractor={(item) => item.id}
+              keyExtractor={extractSearchRowKey}
               renderItem={renderSearchRow}
               keyboardShouldPersistTaps="handled"
               bounces={false}
               style={styles.resultsList}
               contentContainerStyle={styles.resultsListContent}
-              ListHeaderComponent={renderRoutingSearchHeader}
+              ListHeaderComponent={renderRoutingSearchHeader()}
             />
           ) : (
             <BottomSheetView style={styles.routingSearchSheetContent}>
