@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
+import type { SharedValue } from "react-native-reanimated";
 
 import { useMapContext } from "../../../context/MapContext";
 import {
@@ -28,11 +29,12 @@ import geoData from "./test.json";
 interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
+  bottomSheetPosition: SharedValue<number>;
 }
 
 type SectionKind = "favorite" | "history" | "result";
 
-export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -456,6 +458,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
         ref={sheetRef}
         index={0}
         snapPoints={snapPoints}
+        animatedPosition={bottomSheetPosition}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
       >
