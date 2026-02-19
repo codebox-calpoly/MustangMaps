@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   MapView,
   Camera,
+  CircleLayer,
+  ShapeSource,
   setAccessToken,
-  UserLocation,
   type MapViewRef,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
@@ -22,8 +23,13 @@ import {
   type AmenityFilterOption,
   type BuildingFilterOption,
 } from "../features/map/MapFilters";
-import { BuildingPopup } from "./BuildingPopup";
-import type { Feature, Geometry, GeoJsonProperties } from "geojson";
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeoJsonProperties,
+  Point,
+} from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 
@@ -48,10 +54,11 @@ export function MapContainer({
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
   const pendingRouteFitRef = useRef<{ start: [number, number]; end: [number, number] } | null>(null);
-  const [selectedBuilding, setSelectedBuilding] = useState<Feature<Geometry, GeoJsonProperties> | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const {
-    setRouteDestination,
+    selectedBuilding,
+    selectBuilding,
+    clearSelection,
     mapMode,
     setMapMode,
     mapStyle,
@@ -67,6 +74,61 @@ export function MapContainer({
     mapStyle === "dark"
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+
+  const middle = useCallback((coordinates: number[][]): [number, number] | null => {
+    if (!coordinates.length) return null;
+    let lngSum = 0;
+    let latSum = 0;
+
+    coordinates.forEach((position) => {
+      lngSum += position[0];
+      latSum += position[1];
+    });
+
+    return [lngSum / coordinates.length, latSum / coordinates.length];
+  }, []);
+
+  const featureCenter = useCallback((feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
+    const geometry = feature.geometry;
+    if (!geometry) {
+      return null;
+    }
+
+    if (geometry.type === "Point") {
+      const [lng, lat] = geometry.coordinates;
+      return Number.isFinite(lng) && Number.isFinite(lat) ? [lng, lat] : null;
+    }
+
+    if (geometry.type === "Polygon") {
+      return middle(geometry.coordinates[0] ?? []);
+    }
+
+    if (geometry.type === "MultiPolygon") {
+      return middle(geometry.coordinates[0]?.[0] ?? []);
+    }
+
+    return null;
+  }, [middle]);
+
+  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!selectedBuilding) {
+      return null;
+    }
+    const center = featureCenter(selectedBuilding);
+    if (!center) {
+      return null;
+    }
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: center },
+          properties: {},
+        },
+      ],
+    };
+  }, [featureCenter, selectedBuilding]);
 
   const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
     return Array.isArray(coord) &&
@@ -208,14 +270,14 @@ export function MapContainer({
     // Handle building press from BuildingLayer
     const properties = feature.properties;
     if (properties && (properties.building || properties.amenity)) {
-      setSelectedBuilding(feature as Feature<Geometry, GeoJsonProperties>);
+      const building = feature as Feature<Geometry, GeoJsonProperties>;
+      selectBuilding(building);
+      const center = featureCenter(building);
+      if (center) {
+        handleCameraMove(center);
+      }
     }
-  }, []);
-
-  const handleNavigate = useCallback((feature: Feature<Geometry, GeoJsonProperties>) => {
-    setRouteDestination(feature);
-    setMapMode("routing");
-  }, [setMapMode, setRouteDestination]);
+  }, [featureCenter, handleCameraMove, selectBuilding]);
 
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
     const map = mapRef.current;
@@ -223,13 +285,13 @@ export function MapContainer({
 
     const properties = feature.properties;
     if (!properties || (!properties.building && !properties.amenity)) {
-      setSelectedBuilding(null);
+      clearSelection();
     }
 
     if (onMapPress) {
       onMapPress(feature);
     }
-  }, [onMapPress]);
+  }, [clearSelection, onMapPress]);
 
   return (
     <View style={styles.container}>
@@ -258,6 +320,19 @@ export function MapContainer({
           }
           return child;
         })}
+        {selectedBuildingMarker && (
+          <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
+            <CircleLayer
+              id="selected-building-marker"
+              style={{
+                circleRadius: 7,
+                circleColor: "#2563EB",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 2,
+              }}
+            />
+          </ShapeSource>
+        )}
       </MapView>
       <SearchPanel
         cameraMove={handleCameraMove}
@@ -325,12 +400,6 @@ export function MapContainer({
         </Pressable>
       </View>
 
-      <BuildingPopup
-        visible={selectedBuilding !== null}
-        building={selectedBuilding}
-        onClose={() => setSelectedBuilding(null)}
-        onNavigate={handleNavigate}
-      />
     </View>
   );
 }
