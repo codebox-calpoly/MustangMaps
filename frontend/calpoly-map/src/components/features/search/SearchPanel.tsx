@@ -528,9 +528,37 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
         keyboardBlurBehavior="restore"
       >
         <BottomSheetView style={styles.sheetContent}>
-          <Text style={styles.directionHeader}>
-            {routingActive ? "Directions" : selectedBuilding ? "Building" : "Search"}
-          </Text>
+          <View style={styles.sheetHeaderRow}>
+            <Text style={styles.directionHeader}>
+              {routingActive ? "Directions" : selectedBuilding ? "Building" : "Search"}
+            </Text>
+            {selectedBuilding && (
+              <View style={styles.buildingHeaderActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Toggle favorite building"
+                  onPress={() => {
+                    if (selectedBuildingPlace) {
+                      toggleFavorite(selectedBuildingPlace);
+                    }
+                  }}
+                  style={styles.buildingIconAction}
+                >
+                  <Text style={styles.buildingIconActionText}>
+                    {selectedBuildingPlace && isFavorite(selectedBuildingPlace.id) ? "♥" : "♡"}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Close building panel"
+                  onPress={clearSelection}
+                  style={styles.buildingIconAction}
+                >
+                  <Text style={styles.buildingIconActionText}>X</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
 
           {routingActive ? (
             <View style={styles.routeInputs}>
@@ -587,30 +615,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute }: Props) {
             <View style={styles.buildingPanel}>
               <View style={styles.buildingPanelHeader}>
                 <Text style={styles.buildingBadge}>BLDG {selectedBuildingNumber}</Text>
-                <View style={styles.buildingHeaderActions}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Toggle favorite building"
-                    onPress={() => {
-                      if (selectedBuildingPlace) {
-                        toggleFavorite(selectedBuildingPlace);
-                      }
-                    }}
-                    style={styles.buildingIconAction}
-                  >
-                    <Text style={styles.buildingIconActionText}>
-                      {selectedBuildingPlace && isFavorite(selectedBuildingPlace.id) ? "♥" : "♡"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Close building panel"
-                    onPress={clearSelection}
-                    style={styles.buildingIconAction}
-                  >
-                    <Text style={styles.buildingIconActionText}>X</Text>
-                  </Pressable>
-                </View>
               </View>
 
               <Text style={styles.buildingPanelTitle}>{selectedBuildingName}</Text>
@@ -1069,15 +1073,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  directionHeader: {
-    fontSize: 25,
-    fontWeight: "900",
-    top: -15,
+  sheetHeaderRow: {
     marginLeft: 10,
     marginRight: 10,
+    marginBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  directionHeader: {
+    fontSize: 25,
+    fontWeight: "900",
   },
   buildingPanel: {
     marginTop: 8,
