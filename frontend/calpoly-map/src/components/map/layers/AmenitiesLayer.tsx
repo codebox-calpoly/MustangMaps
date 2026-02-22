@@ -1,11 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection, Point } from "geojson";
 import {
   ShapeSource,
   SymbolLayer,
   Images,
 } from "@maplibre/maplibre-react-native";
-import features from "../../../../geojson_files/amenities.json";
+import { useMapContext } from "../../../context/MapContext";
 
 // Icon image mappings for different amenity categories
 const AMENITY_ICONS: Record<string, any> = {
@@ -14,20 +16,58 @@ const AMENITY_ICONS: Record<string, any> = {
   "printer": require("../../../../assets/icons/printer.png"),
 };
 
-// Function to add a GeoJSON layer with icon-based symbols
-type AddGeoJSONLayerArgs = {
-  sourceId: string;
-  layerId: string;
-  data: FeatureCollection<Point>;
-  amenityTypes: string[];
-};
+// Main component to render the amenities layer on the map
+export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
+  const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
+  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
-function addGeoJSONLayer({
-  sourceId,
-  layerId,
-  data,
-  amenityTypes,
-}: AddGeoJSONLayerArgs) {
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setMapDataStatus("amenities", { loading: true, error: null });
+        const asset = Asset.fromModule(
+          require("../../../../geojson_files/amenities.json"),
+        );
+
+        await asset.downloadAsync();
+
+        const uri = asset.localUri ?? asset.uri;
+        const text = await FileSystem.readAsStringAsync(uri);
+        const parsed = JSON.parse(text);
+
+        if (
+          !parsed ||
+          typeof parsed !== "object" ||
+          parsed.type !== "FeatureCollection"
+        ) {
+          throw new Error(
+            "amenities.json is not a valid GeoJSON FeatureCollection",
+          );
+        }
+
+        if (!cancelled) {
+          setAmenityData(parsed as FeatureCollection<Point>);
+          setMapDataStatus("amenities", { loading: false });
+        }
+      } catch (e) {
+        console.error("Failed to load amenities data:", e);
+        if (!cancelled) {
+          setAmenityData(null);
+          setMapDataStatus("amenities", {
+            loading: false,
+            error: "Failed to load amenities data.",
+          });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setMapDataStatus, mapDataRetryToken]);
+
   // Create icon image expression - map category to icon name
   const iconImageExpression = useMemo(() => {
     return [
@@ -50,15 +90,17 @@ function addGeoJSONLayer({
         ["literal", amenityTypes],
       ];
 
+  if (!amenityData) return null;
+
   return (
     <>
       {/* Load icon images */}
       <Images images={AMENITY_ICONS} />
 
-      <ShapeSource id={sourceId} shape={data}>
+      <ShapeSource id="amenities-source" shape={amenityData}>
         {/* Icon-based symbol layer */}
         <SymbolLayer
-          id={layerId}
+          id="amenities-layer"
           filter={filter}
           style={{
             iconImage: iconImageExpression,
@@ -79,14 +121,4 @@ function addGeoJSONLayer({
       </ShapeSource>
     </>
   );
-}
-
-// Main component to render the amenities layer on the map
-export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
-  return addGeoJSONLayer({
-    sourceId: "amenities-source",
-    layerId: "amenities-layer",
-    data: features as FeatureCollection<Point>,
-    amenityTypes,
-  });
 }

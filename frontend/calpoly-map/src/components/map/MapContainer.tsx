@@ -55,6 +55,7 @@ export function MapContainer({
   const cameraBusyRef = useRef(false);
   const pendingRouteFitRef = useRef<{ start: [number, number]; end: [number, number] } | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const {
     selectedBuilding,
     selectBuilding,
@@ -144,6 +145,7 @@ export function MapContainer({
   }, []);
   const hasLoading = Object.values(mapDataLoading).some(Boolean);
   const errorMessage =
+    mapLoadError ??
     Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
 
   const handleZoom = useCallback(async (delta: number) => {
@@ -279,6 +281,15 @@ export function MapContainer({
     }
   }, [featureCenter, handleCameraMove, selectBuilding]);
 
+  const handleMapLoadError = useCallback(() => {
+    setMapLoadError("Map tiles failed to load. Check your network connection.");
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setMapLoadError(null);
+    retryMapData();
+  }, [retryMapData]);
+
   const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
     const map = mapRef.current;
     if (!map) return;
@@ -303,7 +314,11 @@ export function MapContainer({
         zoomEnabled
         scrollEnabled
         onPress={handleMapPress}
-        onDidFinishLoadingMap={() => setMapReady(true)}
+        onDidFinishLoadingMap={() => {
+          setMapReady(true);
+          setMapLoadError(null);
+        }}
+        onDidFailLoadingMap={handleMapLoadError}
       >
         
         <UserLocationMarker />
@@ -358,7 +373,7 @@ export function MapContainer({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Retry loading map data"
-                onPress={retryMapData}
+                onPress={handleRetry}
                 style={({ pressed }) => [
                   styles.retryButton,
                   pressed && styles.retryButtonPressed,
