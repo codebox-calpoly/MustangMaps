@@ -5,9 +5,10 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
+  BottomSheetTextInput,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
@@ -57,17 +58,43 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
-  const routingSearchInputRef = useRef<TextInput>(null);
 
   const snapPoints = useMemo(() => ["27%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
-    sheetRef.current?.snapToIndex(1);
+    sheetRef.current?.snapToIndex(2);
+  }, []);
+
+  // Snap the main sheet to a higher point when the iOS keyboard opens so
+  // the search input and results stay visible above the keyboard.
+  const routingSearchOpenRef = useRef(false);
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const onShow = () => {
+      if (routingSearchOpenRef.current) return;
+      sheetRef.current?.snapToIndex(3);
+    };
+    const onHide = () => {
+      if (routingSearchOpenRef.current) return;
+      sheetRef.current?.snapToIndex(0);
+    };
+
+    const showSub = Keyboard.addListener(showEvent, onShow);
+    const hideSub = Keyboard.addListener(hideEvent, onHide);
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
   }, []);
 
   const [focused, setFocused] = useState(false);
   const [routingSearchSheetOpen, setRoutingSearchSheetOpen] = useState(false);
+  useEffect(() => {
+    routingSearchOpenRef.current = routingSearchSheetOpen;
+  }, [routingSearchSheetOpen]);
   const [hasAutoFilledStart, setHasAutoFilledStart] = useState(false);
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
@@ -151,10 +178,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
-        // Auto-focus routing searchbar when sheet opens
-        setTimeout(() => {
-          routingSearchInputRef.current?.focus();
-        }, 60);
       });
     },
     [endValue, setSearchQuery, startValue],
@@ -560,7 +583,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             </View>
           </View>
         ) : (
-          <TextInput
+          <BottomSheetTextInput
             style={styles.input}
             placeholder="Type Destination Here..."
             clearButtonMode="always"
@@ -656,8 +679,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
           </Pressable>
         </View>
 
-        <TextInput
-          ref={routingSearchInputRef}
+        <BottomSheetTextInput
           style={styles.input}
           placeholder={
             activeField === "start"
@@ -822,7 +844,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         index={0}
         snapPoints={snapPoints}
         animatedPosition={bottomSheetPosition}
-        keyboardBehavior="interactive"
+        keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
       >
         {showMainResults ? (
@@ -854,7 +876,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
           enableHandlePanningGesture
           enablePanDownToClose
           enableOverDrag={false}
-          keyboardBehavior="interactive"
+          keyboardBehavior="extend"
           keyboardBlurBehavior="restore"
           onChange={(index: number) => {
             if (index < 0) {

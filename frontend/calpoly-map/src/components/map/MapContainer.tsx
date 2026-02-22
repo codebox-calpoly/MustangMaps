@@ -62,10 +62,6 @@ export function MapContainer({
     start: [number, number];
     end: [number, number];
   } | null>(null);
-  const [selectedBuilding, setSelectedBuilding] = useState<Feature<
-    Geometry,
-    GeoJsonProperties
-  > | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
@@ -83,6 +79,7 @@ export function MapContainer({
     mapDataLoading,
     mapDataErrors,
     retryMapData,
+    setRouteDestination,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -117,6 +114,50 @@ export function MapContainer({
   const hasLoading = Object.values(mapDataLoading).some(Boolean);
   const errorMessage =
     Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
+
+  const handleRetry = useCallback(() => {
+    retryMapData();
+  }, [retryMapData]);
+
+  const featureCenter = useCallback(
+    (feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
+      const geom = feature.geometry;
+      if (geom.type === "Point") {
+        return geom.coordinates as [number, number];
+      }
+      let ring: number[][] | null = null;
+      if (geom.type === "Polygon") {
+        ring = geom.coordinates[0] ?? null;
+      } else if (geom.type === "MultiPolygon") {
+        ring = geom.coordinates[0]?.[0] ?? null;
+      }
+      if (!ring || ring.length === 0) return null;
+      let sumLng = 0;
+      let sumLat = 0;
+      for (const pt of ring) {
+        sumLng += pt[0];
+        sumLat += pt[1];
+      }
+      return [sumLng / ring.length, sumLat / ring.length];
+    },
+    [],
+  );
+
+  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!selectedBuilding) return null;
+    const center = featureCenter(selectedBuilding);
+    if (!center) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: center },
+          properties: {},
+        },
+      ],
+    };
+  }, [featureCenter, selectedBuilding]);
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
@@ -365,14 +406,14 @@ export function MapContainer({
 
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
-        setSelectedBuilding(null);
+        clearSelection();
       }
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [onMapPress],
+    [clearSelection, onMapPress],
   );
 
   return (
