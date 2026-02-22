@@ -20,6 +20,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 - [Nick Endresen](https://www.linkedin.com/in/nick-endresen-1208a42b1/) - Developer
 - [Snehil Kakani](https://linkedin.com/in/snehilkakani) - Developer
 - [Daniel Erazo](https://www.linkedin.com/in/danzo/) - Developer
+- [Aswath Subramanian](https://www.linkedin.com/in/aswathsub/) - Developer
 
 ## Contributing
 

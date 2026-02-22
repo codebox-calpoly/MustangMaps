@@ -32,6 +32,11 @@ import type {
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
+import { useUserLocation } from "../../context/UserLocationContext";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 
 // Disable telemetry
 setAccessToken(null);
@@ -53,8 +58,16 @@ export function MapContainer({
   const cameraRef = useRef<CameraRef | null>(null);
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
-  const pendingRouteFitRef = useRef<{ start: [number, number]; end: [number, number] } | null>(null);
+  const pendingRouteFitRef = useRef<{
+    start: [number, number];
+    end: [number, number];
+  } | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<Feature<
+    Geometry,
+    GeoJsonProperties
+  > | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
     selectedBuilding,
     selectBuilding,
@@ -75,185 +88,242 @@ export function MapContainer({
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
-  const middle = useCallback((coordinates: number[][]): [number, number] | null => {
-    if (!coordinates.length) return null;
-    let lngSum = 0;
-    let latSum = 0;
+  const { latitude, longitude } = useUserLocation();
+  const userLocation =
+    latitude != null && longitude != null ? [longitude, latitude] : null;
+  const [followUser, setFollowUser] = useState<boolean>(false);
 
-    coordinates.forEach((position) => {
-      lngSum += position[0];
-      latSum += position[1];
-    });
+  const isValidCoordinate = useCallback(
+    (coord?: number[] | null): coord is [number, number] => {
+      return (
+        Array.isArray(coord) &&
+        coord.length === 2 &&
+        coord.every((value) => Number.isFinite(value))
+      );
+    },
+    [],
+  );
 
-    return [lngSum / coordinates.length, latSum / coordinates.length];
-  }, []);
-
-  const featureCenter = useCallback((feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
-    const geometry = feature.geometry;
-    if (!geometry) {
-      return null;
-    }
-
-    if (geometry.type === "Point") {
-      const [lng, lat] = geometry.coordinates;
-      return Number.isFinite(lng) && Number.isFinite(lat) ? [lng, lat] : null;
-    }
-
-    if (geometry.type === "Polygon") {
-      return middle(geometry.coordinates[0] ?? []);
-    }
-
-    if (geometry.type === "MultiPolygon") {
-      return middle(geometry.coordinates[0]?.[0] ?? []);
-    }
-
-    return null;
-  }, [middle]);
-
-  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
-    if (!selectedBuilding) {
-      return null;
-    }
-    const center = featureCenter(selectedBuilding);
-    if (!center) {
-      return null;
-    }
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: { type: "Point", coordinates: center },
-          properties: {},
-        },
-      ],
-    };
-  }, [featureCenter, selectedBuilding]);
-
-  const isValidCoordinate = useCallback((coord?: number[] | null): coord is [number, number] => {
-    return Array.isArray(coord) &&
-      coord.length === 2 &&
-      coord.every((value) => Number.isFinite(value));
-  }, []);
-
-  const clampCoordinate = useCallback((coord: [number, number]): [number, number] => {
-    const [lng, lat] = coord;
-    const safeLng = Math.max(-180, Math.min(180, lng));
-    const safeLat = Math.max(-85, Math.min(85, lat));
-    return [safeLng, safeLat];
-  }, []);
+  const clampCoordinate = useCallback(
+    (coord: [number, number]): [number, number] => {
+      const [lng, lat] = coord;
+      const safeLng = Math.max(-180, Math.min(180, lng));
+      const safeLat = Math.max(-85, Math.min(85, lat));
+      return [safeLng, safeLat];
+    },
+    [],
+  );
   const hasLoading = Object.values(mapDataLoading).some(Boolean);
   const errorMessage =
     Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
 
-  const handleZoom = useCallback(async (delta: number) => {
-    const map = mapRef.current;
-    const camera = cameraRef.current;
-    if (!mapReady || !map || !camera) {
-      return;
-    }
+  const searchPanelHeight = useSharedValue<number>(0);
+  const windowHeight = Dimensions.get("window").height;
 
-    try {
-      const zoom = await map.getZoom();
-      const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
-      camera.setCamera({
-        zoomLevel: nextZoom,
-        animationDuration: 150,
-      });
-    } catch {
-      // Ignore transient zoom errors to keep taps safe.
+  const controlsAnimatedStyle = useAnimatedStyle(() => {
+    const bottom = windowHeight - searchPanelHeight.value - 70;
+    if (searchPanelHeight.value / windowHeight > 0.265) {
+      return { bottom: bottom };
+    } else {
+      return { bottom: -100 };
     }
-  }, [mapReady]);
+  }, [windowHeight]);
 
-  const handleCameraMove = useCallback(async (loc: number[]) => {
-    const map = mapRef.current;
-    const camera = cameraRef.current;
-    if (!mapReady || !map || !camera) {
-      return;
-    }
-    if (!isValidCoordinate(loc)) {
-      return;
-    }
-
-    try {
-      const safeLoc = clampCoordinate(loc as [number, number]);
-      const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
-      if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
+  const handleZoom = useCallback(
+    async (delta: number) => {
+      const map = mapRef.current;
+      const camera = cameraRef.current;
+      if (!mapReady || !map || !camera) {
         return;
       }
-      cameraBusyRef.current = true;
-      lastCameraStopRef.current = stopKey;
-      requestAnimationFrame(() => {
-        camera.setCamera({
-          centerCoordinate: safeLoc,
-          zoomLevel: 17,
-          animationDuration: 250,
-        });
-        setTimeout(() => {
-          cameraBusyRef.current = false;
-        }, 300);
-      });
-    } catch {
-      // Ignore transient zoom errors to keep taps safe.
-      cameraBusyRef.current = false;
+
+      try {
+        const zoom = await map.getZoom();
+        const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
+        camera.zoomTo(nextZoom, 150);
+      } catch {
+        // Ignore transient zoom errors to keep taps safe.
+      }
+    },
+    [mapReady],
+  );
+
+  // Show user location button if we have a valid location, and center map on tap.
+  function UserLocationButton() {
+    if (!userLocation) {
+      return;
     }
-  }, [clampCoordinate, isValidCoordinate, mapReady]);
-  
-  const fitRouteBounds = useCallback((start: [number, number], end: [number, number]) => {
-    const map = mapRef.current;
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Center User Location"
+        onPress={toggleFollowUser}
+        style={[styles.zoomButton, followUser && styles.locationButtonActive]}
+      >
+        <View style={styles.zoomIcon}>
+          <View style={styles.locationIconInner} />
+          <View style={styles.locationIconOuter} />
+        </View>
+      </Pressable>
+    );
+  }
+
+  // Toggle follow user mode on/off. When on, the map will center on the user's location and follow it as it moves.
+  const toggleFollowUser = () => {
     const camera = cameraRef.current;
-    if (!mapReady || !map || !camera) {
-      return false;
+    const map = mapRef.current;
+    if (!userLocation || !mapReady || !map || !camera) {
+      return;
     }
 
-    const ne: [number, number] = [
-      Math.max(start[0], end[0]),
-      Math.max(start[1], end[1]),
-    ];
-    const sw: [number, number] = [
-      Math.min(start[0], end[0]),
-      Math.min(start[1], end[1]),
-    ];
+    if (followUser) {
+      setFollowUser(false);
+      return;
+    }
 
-    const windowHeight = Dimensions.get("window").height;
-    const topPadding = Math.round(windowHeight * 0.18);
-    const bottomPadding = Math.round(windowHeight * 0.58);
-    const padding: [number, number, number, number] = [topPadding, 56, bottomPadding, 56];
+    lastCameraStopRef.current = null;
+    setFollowUser(true);
+    handleCameraMove(userLocation);
+  };
 
-    camera.fitBounds(ne, sw, padding, 350);
+  // Center map on user location when it changes, but only if follow user mode is active.
+  useEffect(() => {
+    if (!userLocation || !followUser) {
+      return;
+    }
+    handleCameraMove(userLocation);
+  }, [userLocation]);
 
-    // iOS can apply stale layout metrics during bottom-sheet animation; a short retry stabilizes framing.
-    if (Platform.OS === "ios") {
-      setTimeout(() => {
-        const retryMap = mapRef.current;
-        const retryCamera = cameraRef.current;
-        if (!mapReady || !retryMap || !retryCamera) {
+  // Disable follow user mode if the user manually moves the map.
+  const handleRegionChange = useCallback(
+    (feature: any) => {
+      if (!followUser) {
+        return;
+      }
+      if (feature?.properties?.isUserInteraction) {
+        setFollowUser(false);
+        lastCameraStopRef.current = null;
+      }
+    },
+    [followUser],
+  );
+
+  const handleCameraMove = useCallback(
+    async (loc: number[]) => {
+      const map = mapRef.current;
+      const camera = cameraRef.current;
+      if (!mapReady || !map || !camera) {
+        return;
+      }
+      if (!isValidCoordinate(loc)) {
+        return;
+      }
+
+      try {
+        const safeLoc = clampCoordinate(loc as [number, number]);
+        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
+        if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
           return;
         }
-        retryCamera.fitBounds(ne, sw, padding, 250);
-      }, 320);
-    }
+        cameraBusyRef.current = true;
+        lastCameraStopRef.current = stopKey;
+        requestAnimationFrame(() => {
+          camera.flyTo(safeLoc, 250);
+          camera.setCamera({
+            animationDuration: 250,
+          });
+          setTimeout(() => {
+            cameraBusyRef.current = false;
+          }, 300);
+        });
 
-    return true;
-  }, [mapReady]);
+        // Retry camera movement on IOS after delay
+        if (Platform.OS === "ios") {
+          setTimeout(() => {
+            const retryMap = mapRef.current;
+            const retryCamera = cameraRef.current;
+            if (!mapReady || !retryMap || !retryCamera) {
+              return;
+            }
+            retryCamera.flyTo(safeLoc, 250);
+            setTimeout(() => {
+              cameraBusyRef.current = false;
+            }, 300);
+          }, 320);
+        }
+      } catch {
+        // Ignore transient zoom errors to keep taps safe.
+        cameraBusyRef.current = false;
+      }
+    },
+    [clampCoordinate, isValidCoordinate, mapReady],
+  );
+
+  const fitRouteBounds = useCallback(
+    (start: [number, number], end: [number, number]) => {
+      const map = mapRef.current;
+      const camera = cameraRef.current;
+      if (!mapReady || !map || !camera) {
+        return false;
+      }
+
+      const ne: [number, number] = [
+        Math.max(start[0], end[0]),
+        Math.max(start[1], end[1]),
+      ];
+      const sw: [number, number] = [
+        Math.min(start[0], end[0]),
+        Math.min(start[1], end[1]),
+      ];
+
+      const topPadding = Math.round(windowHeight * 0.18);
+      const bottomPadding = Math.round(windowHeight * 0.58);
+      const padding: [number, number, number, number] = [
+        topPadding,
+        56,
+        bottomPadding,
+        56,
+      ];
+
+      camera.fitBounds(ne, sw, padding, 350);
+
+      // iOS can apply stale layout metrics during bottom-sheet animation; a short retry stabilizes framing.
+      if (Platform.OS === "ios") {
+        setTimeout(() => {
+          const retryMap = mapRef.current;
+          const retryCamera = cameraRef.current;
+          if (!mapReady || !retryMap || !retryCamera) {
+            return;
+          }
+          retryCamera.fitBounds(ne, sw, padding, 250);
+        }, 320);
+      }
+
+      return true;
+    },
+    [mapReady],
+  );
 
   // Keep both route start/end points visible when a route is active.
-  const handleCameraFitRoute = useCallback((start: number[], end: number[]) => {
-    if (!isValidCoordinate(start) || !isValidCoordinate(end)) {
-      return;
-    }
+  const handleCameraFitRoute = useCallback(
+    (start: number[], end: number[]) => {
+      if (!isValidCoordinate(start) || !isValidCoordinate(end)) {
+        return;
+      }
 
-    const safeStart = clampCoordinate(start as [number, number]);
-    const safeEnd = clampCoordinate(end as [number, number]);
+      const safeStart = clampCoordinate(start as [number, number]);
+      const safeEnd = clampCoordinate(end as [number, number]);
 
-    const didFit = fitRouteBounds(safeStart, safeEnd);
-    if (!didFit) {
-      pendingRouteFitRef.current = { start: safeStart, end: safeEnd };
-      return;
-    }
+      const didFit = fitRouteBounds(safeStart, safeEnd);
+      if (!didFit) {
+        pendingRouteFitRef.current = { start: safeStart, end: safeEnd };
+        return;
+      }
 
-    pendingRouteFitRef.current = null;
-  }, [clampCoordinate, fitRouteBounds, isValidCoordinate]);
+      pendingRouteFitRef.current = null;
+    },
+    [clampCoordinate, fitRouteBounds, isValidCoordinate],
+  );
 
   useEffect(() => {
     if (!mapReady || !pendingRouteFitRef.current) {
@@ -277,21 +347,32 @@ export function MapContainer({
         handleCameraMove(center);
       }
     }
-  }, [featureCenter, handleCameraMove, selectBuilding]);
+  }, []);
 
-  const handleMapPress = useCallback(async (feature: Feature<Geometry, GeoJsonProperties>) => {
-    const map = mapRef.current;
-    if (!map) return;
+  const handleNavigate = useCallback(
+    (feature: Feature<Geometry, GeoJsonProperties>) => {
+      setRouteDestination(feature);
+      setMapMode("routing");
+    },
+    [setMapMode, setRouteDestination],
+  );
 
-    const properties = feature.properties;
-    if (!properties || (!properties.building && !properties.amenity)) {
-      clearSelection();
-    }
+  const handleMapPress = useCallback(
+    async (feature: Feature<Geometry, GeoJsonProperties>) => {
+      const map = mapRef.current;
+      if (!map) return;
 
-    if (onMapPress) {
-      onMapPress(feature);
-    }
-  }, [clearSelection, onMapPress]);
+      const properties = feature.properties;
+      if (!properties || (!properties.building && !properties.amenity)) {
+        setSelectedBuilding(null);
+      }
+
+      if (onMapPress) {
+        onMapPress(feature);
+      }
+    },
+    [onMapPress],
+  );
 
   return (
     <View style={styles.container}>
@@ -300,12 +381,12 @@ export function MapContainer({
         style={StyleSheet.absoluteFill}
         mapStyle={mapStyleUrl}
         logoEnabled={false}
-        zoomEnabled
-        scrollEnabled
+        zoomEnabled={mapGesturesEnabled}
+        scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => setMapReady(true)}
+        onRegionWillChange={handleRegionChange}
       >
-        
         <UserLocationMarker />
         <Camera
           ref={cameraRef}
@@ -316,7 +397,9 @@ export function MapContainer({
         />
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            return React.cloneElement(child, { onBuildingPress: handleBuildingPress } as any);
+            return React.cloneElement(child, {
+              onBuildingPress: handleBuildingPress,
+            } as any);
           }
           return child;
         })}
@@ -334,10 +417,7 @@ export function MapContainer({
           </ShapeSource>
         )}
       </MapView>
-      <SearchPanel
-        cameraMove={handleCameraMove}
-        cameraFitRoute={handleCameraFitRoute}
-      />
+
       <MapFilters
         mapMode={mapMode}
         onMapModeChange={setMapMode}
@@ -376,7 +456,12 @@ export function MapContainer({
         </View>
       )}
 
-      <View style={styles.zoomControls} pointerEvents="box-none">
+      <Animated.View
+        style={[styles.zoomControls, controlsAnimatedStyle]}
+        pointerEvents="box-none"
+      >
+        <UserLocationButton />
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Zoom in"
@@ -398,7 +483,13 @@ export function MapContainer({
             <View style={styles.zoomIconBarHorizontal} />
           </View>
         </Pressable>
-      </View>
+      </Animated.View>
+
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+        bottomSheetPosition={searchPanelHeight}
+      />
 
     </View>
   );
@@ -481,9 +572,7 @@ const styles = StyleSheet.create({
   zoomControls: {
     position: "absolute",
     right: 16,
-    bottom: 32,
     gap: 10,
-    alignItems: "center",
   },
   zoomButton: {
     width: 44,
@@ -514,5 +603,26 @@ const styles = StyleSheet.create({
     width: 2,
     height: 18,
     backgroundColor: "#F9FAFB",
+  },
+  locationControls: {
+    position: "absolute",
+    left: 16,
+    gap: 10,
+  },
+  locationIconInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: "#ffffffff",
+  },
+  locationIconOuter: {
+    position: "absolute",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  locationButtonActive: {
+    backgroundColor: "#0B5FFF",
   },
 });
