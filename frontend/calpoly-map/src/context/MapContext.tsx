@@ -125,10 +125,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const setMapDataStatus = useCallback(
     (key: string, status: { loading?: boolean; error?: string | null }) => {
       if (status.loading !== undefined) {
-        setMapDataLoading((prev) => ({ ...prev, [key]: status.loading }));
+        const loading = status.loading;
+        setMapDataLoading((prev) => ({ ...prev, [key]: loading }));
       }
       if (status.error !== undefined) {
-        setMapDataErrors((prev) => ({ ...prev, [key]: status.error }));
+        const error = status.error;
+        setMapDataErrors((prev) => ({ ...prev, [key]: error }));
       }
     },
     [],

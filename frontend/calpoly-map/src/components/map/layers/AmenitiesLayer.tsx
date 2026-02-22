@@ -101,7 +101,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
-          filter={filter}
+          filter={filter as any}
           style={{
             iconImage: iconImageExpression,
             iconSize: [

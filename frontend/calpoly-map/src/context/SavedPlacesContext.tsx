@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 export type SavedPlace = {
   id: string;
