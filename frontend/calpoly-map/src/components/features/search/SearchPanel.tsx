@@ -29,6 +29,8 @@ interface Props {
 }
 
 type SectionKind = "favorite" | "history" | "result";
+const UNIVERSAL_BUILDING_IMAGE_URI =
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Cal_Poly_Campus.jpg/640px-Cal_Poly_Campus.jpg";
 
 interface SearchSection {
   title: string;
@@ -76,13 +78,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     searchQuery,
     setSearchQuery,
     userLocation,
+    selectedBuilding,
+    routeDestination,
     routeStart,
     routeEnd,
     activePath,
     routeError,
     routingActive,
+    clearSelection,
+    setMapMode,
     setRouteStart,
     setRouteEnd,
+    setRouteDestination,
+    setRoutingActive,
     setRouteRequested,
     setRouteStartIsCurrentLocation,
     clearRoute,
@@ -755,6 +763,58 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     }
   }, [routingActive]);
 
+  useEffect(() => {
+    if (!selectedBuilding || routingActive) {
+      return;
+    }
+    sheetRef.current?.snapToIndex(2);
+  }, [routingActive, selectedBuilding]);
+
+  useEffect(() => {
+    if (!routingActive || !routeDestination) {
+      return;
+    }
+
+    const destination = placeFromFeature(routeDestination);
+    if (!destination || !isValidCoordinate(destination.coordinate)) {
+      setRouteDestination(null);
+      return;
+    }
+
+    setRouteEnd(destination.coordinate);
+    setEndValue(destination.name);
+    setRouteRequested(Boolean(routeStart && destination.coordinate));
+    setFocused(false);
+    setSearchQuery("");
+    setRouteDestination(null);
+  }, [
+    isValidCoordinate,
+    placeFromFeature,
+    routeDestination,
+    routeStart,
+    routingActive,
+    setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
+    setSearchQuery,
+  ]);
+
+  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
+  const selectedBuildingNumber =
+    String(
+      selectedBuilding?.properties?.ref ??
+      selectedBuilding?.properties?.["building:ref"] ??
+      selectedBuilding?.properties?.["addr:housenumber"] ??
+      "N/A",
+    );
+  const selectedBuildingSubtitle =
+    String(
+      selectedBuilding?.properties?.["university-function"] ??
+      selectedBuilding?.properties?.amenity ??
+      selectedBuilding?.properties?.building ??
+      "Campus building",
+    );
+
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet
@@ -796,7 +856,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
           enableOverDrag={false}
           keyboardBehavior="interactive"
           keyboardBlurBehavior="restore"
-          onChange={(index) => {
+          onChange={(index: number) => {
             if (index < 0) {
               setRoutingSearchSheetOpen(false);
               setFocused(false);
@@ -1017,15 +1077,98 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
-  directionHeader: {
-    fontSize: 25,
-    fontWeight: "900",
-    top: -15,
+  sheetHeaderRow: {
     marginLeft: 10,
     marginRight: 10,
+    marginBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  directionHeader: {
+    fontSize: 25,
+    fontWeight: "900",
+  },
+  buildingPanel: {
+    marginTop: 8,
+    marginHorizontal: 10,
+    gap: 10,
+  },
+  buildingPanelHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  buildingBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 999,
+    backgroundColor: "#F3F4F6",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
+    color: "#111827",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  buildingHeaderActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  buildingIconAction: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#FFFFFF",
+  },
+  buildingIconActionText: {
+    color: "#111827",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  buildingPanelTitle: {
+    fontSize: 22,
+    color: "#111827",
+    fontWeight: "800",
+  },
+  buildingPanelSubtitle: {
+    fontSize: 13,
+    color: "#6B7280",
+    textTransform: "capitalize",
+  },
+  buildingPanelActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  buildingDirectionsButton: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "#16A34A",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+  },
+  buildingDirectionsButtonPressed: {
+    backgroundColor: "#15803D",
+  },
+  buildingDirectionsButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  buildingPanelImage: {
+    width: "100%",
+    height: 160,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#E5E7EB",
   },
 
   // Inline route summary card

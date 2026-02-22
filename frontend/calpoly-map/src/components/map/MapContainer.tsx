@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   MapView,
   Camera,
+  CircleLayer,
+  ShapeSource,
   setAccessToken,
   type MapViewRef,
   type CameraRef,
@@ -21,8 +23,13 @@ import {
   type AmenityFilterOption,
   type BuildingFilterOption,
 } from "../features/map/MapFilters";
-import { BuildingPopup } from "./BuildingPopup";
-import type { Feature, Geometry, GeoJsonProperties } from "geojson";
+import type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeoJsonProperties,
+  Point,
+} from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { useUserLocation } from "../../context/UserLocationContext";
@@ -62,7 +69,9 @@ export function MapContainer({
   const [mapReady, setMapReady] = useState(false);
   const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
-    setRouteDestination,
+    selectedBuilding,
+    selectBuilding,
+    clearSelection,
     mapMode,
     setMapMode,
     mapStyle,
@@ -331,7 +340,12 @@ export function MapContainer({
     // Handle building press from BuildingLayer
     const properties = feature.properties;
     if (properties && (properties.building || properties.amenity)) {
-      setSelectedBuilding(feature as Feature<Geometry, GeoJsonProperties>);
+      const building = feature as Feature<Geometry, GeoJsonProperties>;
+      selectBuilding(building);
+      const center = featureCenter(building);
+      if (center) {
+        handleCameraMove(center);
+      }
     }
   }, []);
 
@@ -389,6 +403,19 @@ export function MapContainer({
           }
           return child;
         })}
+        {selectedBuildingMarker && (
+          <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
+            <CircleLayer
+              id="selected-building-marker"
+              style={{
+                circleRadius: 7,
+                circleColor: "#2563EB",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 2,
+              }}
+            />
+          </ShapeSource>
+        )}
       </MapView>
 
       <MapFilters
@@ -464,12 +491,6 @@ export function MapContainer({
         bottomSheetPosition={searchPanelHeight}
       />
 
-      <BuildingPopup
-        visible={selectedBuilding !== null}
-        building={selectedBuilding}
-        onClose={() => setSelectedBuilding(null)}
-        onNavigate={handleNavigate}
-      />
     </View>
   );
 }
