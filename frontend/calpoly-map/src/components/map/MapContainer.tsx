@@ -67,6 +67,7 @@ export function MapContainer({
     GeoJsonProperties
   > | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
     selectedBuilding,
@@ -438,7 +439,7 @@ export function MapContainer({
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Retry loading map data"
-                onPress={retryMapData}
+                onPress={handleRetry}
                 style={({ pressed }) => [
                   styles.retryButton,
                   pressed && styles.retryButtonPressed,
