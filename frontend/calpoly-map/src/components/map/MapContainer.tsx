@@ -62,10 +62,6 @@ export function MapContainer({
     start: [number, number];
     end: [number, number];
   } | null>(null);
-  const [selectedBuilding, setSelectedBuilding] = useState<Feature<
-    Geometry,
-    GeoJsonProperties
-  > | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
@@ -75,6 +71,7 @@ export function MapContainer({
     clearSelection,
     mapMode,
     setMapMode,
+    setRouteDestination,
     mapStyle,
     buildingTypeIds,
     setBuildingTypeIds,
@@ -305,6 +302,55 @@ export function MapContainer({
     [mapReady],
   );
 
+  const featureCenter = useCallback(
+    (
+      feature: Feature<Geometry, GeoJsonProperties>,
+    ): [number, number] | null => {
+      const { geometry } = feature;
+      if (!geometry) {
+        return null;
+      }
+      const ring =
+        geometry.type === "Polygon"
+          ? geometry.coordinates[0]
+          : geometry.type === "MultiPolygon"
+            ? geometry.coordinates[0]?.[0]
+            : null;
+      if (!ring || ring.length === 0) {
+        return null;
+      }
+      let lng = 0;
+      let lat = 0;
+      for (const [x, y] of ring) {
+        lng += x;
+        lat += y;
+      }
+      return [lng / ring.length, lat / ring.length];
+    },
+    [],
+  );
+
+  const selectedBuildingMarker = useMemo<
+    Feature<Point, GeoJsonProperties> | null
+  >(() => {
+    if (!selectedBuilding) {
+      return null;
+    }
+    const center = featureCenter(selectedBuilding);
+    if (!center) {
+      return null;
+    }
+    return {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "Point", coordinates: center },
+    };
+  }, [featureCenter, selectedBuilding]);
+
+  const handleRetry = useCallback(() => {
+    retryMapData();
+  }, [retryMapData]);
+
   // Keep both route start/end points visible when a route is active.
   const handleCameraFitRoute = useCallback(
     (start: number[], end: number[]) => {
@@ -337,18 +383,21 @@ export function MapContainer({
     }
   }, [fitRouteBounds, mapReady]);
 
-  const handleBuildingPress = useCallback((feature: any) => {
-    // Handle building press from BuildingLayer
-    const properties = feature.properties;
-    if (properties && (properties.building || properties.amenity)) {
-      const building = feature as Feature<Geometry, GeoJsonProperties>;
-      selectBuilding(building);
-      const center = featureCenter(building);
-      if (center) {
-        handleCameraMove(center);
+  const handleBuildingPress = useCallback(
+    (feature: any) => {
+      const properties = feature.properties;
+      if (properties && (properties.building || properties.amenity)) {
+        const building = feature as Feature<Geometry, GeoJsonProperties>;
+        selectBuilding(building);
+        onBuildingPress?.(feature);
+        const center = featureCenter(building);
+        if (center) {
+          handleCameraMove(center);
+        }
       }
-    }
-  }, []);
+    },
+    [featureCenter, handleCameraMove, onBuildingPress, selectBuilding],
+  );
 
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
@@ -365,14 +414,14 @@ export function MapContainer({
 
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
-        setSelectedBuilding(null);
+        clearSelection();
       }
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [onMapPress],
+    [clearSelection, onMapPress],
   );
 
   return (

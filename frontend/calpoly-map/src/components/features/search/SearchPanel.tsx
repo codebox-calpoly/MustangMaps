@@ -47,7 +47,7 @@ type SearchRow =
   | {
       id: string;
       type: "item";
-      sectionKind: SectionKind;
+      sourceKind: SectionKind;
       item: SavedPlace;
     };
 
@@ -357,7 +357,53 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     return baseResultsAsPlaces;
   }, [baseResultsAsPlaces, myLocationPlace, searchQuery]);
 
+  const normalizedQuery = useMemo(
+    () => searchQuery.trim().toLowerCase(),
+    [searchQuery],
+  );
+  const hasQuery = normalizedQuery.length > 0;
+
+  const matchesQuery = useCallback(
+    (place: SavedPlace) => place.name.toLowerCase().includes(normalizedQuery),
+    [normalizedQuery],
+  );
+
+  const matchingFavorites = useMemo(
+    () => (hasQuery ? favorites.filter(matchesQuery) : []),
+    [favorites, hasQuery, matchesQuery],
+  );
+
+  const matchingHistory = useMemo(
+    () => (hasQuery ? history.filter(matchesQuery) : []),
+    [hasQuery, history, matchesQuery],
+  );
+
+  const queryResults = useMemo(() => {
+    if (!hasQuery) {
+      return [];
+    }
+    const seen = new Set<string>();
+    const ranked: Array<{ place: SavedPlace; sourceKind: SectionKind }> = [];
+    const append = (list: SavedPlace[], sourceKind: SectionKind) => {
+      list.forEach((place) => {
+        if (seen.has(place.id)) {
+          return;
+        }
+        seen.add(place.id);
+        ranked.push({ place, sourceKind });
+      });
+    };
+
+    append(matchingFavorites, "favorite");
+    append(matchingHistory, "history");
+    append(resultsAsPlaces, "result");
+    return ranked;
+  }, [hasQuery, matchingFavorites, matchingHistory, resultsAsPlaces]);
+
   const sections = useMemo(() => {
+    if (hasQuery) {
+      return [];
+    }
     const list: SearchSection[] = [];
 
     if (favorites.length > 0) {
@@ -370,18 +416,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     if (history.length > 0) {
       list.push({ title: "History", data: history, kind: "history" as const });
     }
-    if (focused) {
-      list.push({
-        title: "Results",
-        data: resultsAsPlaces,
-        kind: "result" as const,
-      });
-    }
-
     return list;
-  }, [favorites, history, focused, resultsAsPlaces]);
+  }, [favorites, hasQuery, history]);
 
-  const searchRows = useMemo(() => {
+  const sectionRows = useMemo(() => {
     const rows: SearchRow[] = [];
     sections.forEach((section) => {
       rows.push({
@@ -393,13 +431,26 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         rows.push({
           id: `${section.kind}-${item.id}`,
           type: "item",
-          sectionKind: section.kind,
+          sourceKind: section.kind,
           item,
         });
       });
     });
     return rows;
   }, [sections]);
+
+  const queryRows = useMemo(
+    () =>
+      queryResults.map(({ place, sourceKind }) => ({
+        id: `query-${sourceKind}-${place.id}`,
+        type: "item" as const,
+        sourceKind,
+        item: place,
+      })),
+    [queryResults],
+  );
+
+  const searchRows = hasQuery ? queryRows : sectionRows;
 
   const renderSearchRow = useCallback(
     ({ item }: { item: SearchRow }) => {
@@ -417,6 +468,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       }
 
       const place = item.item;
+      const sourceIcon =
+        item.sourceKind === "favorite"
+          ? "F"
+          : item.sourceKind === "history"
+            ? "R"
+            : "B";
+      const sourceLabel =
+        item.sourceKind === "favorite"
+          ? "Favorite"
+          : item.sourceKind === "history"
+            ? "Recent"
+            : "Result";
+
       return (
         <Pressable
           onPress={() => handleSelectPlace(place)}
@@ -425,14 +489,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             styles.itemContainer,
           ]}
         >
-          <Text style={styles.itemIcon}>
-            {place.name.charAt(0).toUpperCase()}
-          </Text>
+          <Text style={styles.itemIcon}>{sourceIcon}</Text>
 
           <View style={styles.itemMeta}>
             <Text style={styles.buildingName}>{place.name}</Text>
             <Text style={styles.subscript}>
-              {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
+              {sourceLabel} - {place.coordinate[1].toFixed(5)},{" "}
+              {place.coordinate[0].toFixed(5)}
             </Text>
           </View>
 
@@ -446,7 +509,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
               </Text>
             </Pressable>
 
-            {item.sectionKind === "history" && (
+            {item.sourceKind === "history" && !hasQuery && (
               <Pressable
                 onPress={() => removeFromHistory(place.id)}
                 style={[styles.actionChip, styles.removeChip]}
@@ -461,6 +524,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     [
       clearHistory,
       handleSelectPlace,
+      hasQuery,
       isFavorite,
       removeFromHistory,
       toggleFavorite,
@@ -498,8 +562,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     );
   };
 
-  const showMainResults = sections.length > 0 && !routingActive;
-  const showRoutingResults = sections.length > 0;
+  const showMainResults = (hasQuery || sections.length > 0) && !routingActive;
+  const showRoutingResults = hasQuery || sections.length > 0;
 
   const renderMainSheetHeader = useCallback(
     () => (
