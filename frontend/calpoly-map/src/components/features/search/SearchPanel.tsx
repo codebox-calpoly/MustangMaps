@@ -72,6 +72,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
   const [endValue, setEndValue] = useState("");
+  const [mainSearchInput, setMainSearchInput] = useState("");
   const lastFittedRouteRef = useRef<string | null>(null);
 
   const {
@@ -130,12 +131,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
   const handleSearch = useCallback(
     (input: string) => {
-      setSearchQuery(input);
-      if (input) {
-        setFocused(true);
-      } else {
+      setMainSearchInput(input);
+      if (!input) {
+        setSearchQuery("");
         setFocused(false);
       }
+    },
+    [setSearchQuery],
+  );
+
+  const commitSearch = useCallback(
+    (text: string) => {
+      setSearchQuery(text);
+      setFocused(Boolean(text));
     },
     [setSearchQuery],
   );
@@ -308,6 +316,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         setRouteRequested(false);
       } else {
         setSearchQuery(place.name);
+        setMainSearchInput(place.name);
       }
 
       addToHistory(place);
@@ -563,11 +572,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={handleSearch}
-            value={searchQuery}
+            value={mainSearchInput}
             onFocus={() => {
               openSheet();
-              setFocused(Boolean(searchQuery));
             }}
+            onSubmitEditing={() => commitSearch(mainSearchInput)}
+            onBlur={() => commitSearch(mainSearchInput)}
+            returnKeyType="search"
           />
         )}
 
@@ -616,14 +627,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       formatDistance,
       formatETA,
       formatTime,
+      commitSearch,
       handleSearch,
+      mainSearchInput,
       openRoutingSearchSheet,
       openSheet,
       routeEnd,
       routeError,
       routeStart,
       routingActive,
-      searchQuery,
       setRouteEnd,
       setRouteRequested,
       setRouteStart,
@@ -714,6 +726,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       setRoutingSearchSheetOpen(false);
       setHasAutoFilledStart(false);
       setSearchQuery("");
+      setMainSearchInput("");
       setRouteRequested(false);
     }
   }, [routingActive, setSearchQuery, setRouteRequested]);
