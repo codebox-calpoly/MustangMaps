@@ -5,7 +5,7 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
@@ -63,38 +63,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
-    sheetRef.current?.snapToIndex(2);
-  }, []);
-
-  // Snap the main sheet to a higher point when the iOS keyboard opens so
-  // the search input and results stay visible above the keyboard.
-  const routingSearchOpenRef = useRef(false);
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
-    const onShow = () => {
-      if (routingSearchOpenRef.current) return;
-      sheetRef.current?.snapToIndex(3);
-    };
-    const onHide = () => {
-      if (routingSearchOpenRef.current) return;
-      sheetRef.current?.snapToIndex(0);
-    };
-
-    const showSub = Keyboard.addListener(showEvent, onShow);
-    const hideSub = Keyboard.addListener(hideEvent, onHide);
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
+    sheetRef.current?.snapToIndex(3);
   }, []);
 
   const [focused, setFocused] = useState(false);
   const [routingSearchSheetOpen, setRoutingSearchSheetOpen] = useState(false);
-  useEffect(() => {
-    routingSearchOpenRef.current = routingSearchSheetOpen;
-  }, [routingSearchSheetOpen]);
   const [hasAutoFilledStart, setHasAutoFilledStart] = useState(false);
   const [activeField, setActiveField] = useState<"start" | "end">("end");
   const [startValue, setStartValue] = useState("");
