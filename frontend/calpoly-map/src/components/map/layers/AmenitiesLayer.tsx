@@ -28,7 +28,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       try {
         setMapDataStatus("amenities", { loading: true, error: null });
         const asset = Asset.fromModule(
-          require("../../../../geojson_files/amenities.json"),
+          require("../../../../geojson_files/amenities.geojson"),
         );
 
         await asset.downloadAsync();
@@ -75,6 +75,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       ["get", "category"],
       "water_fountain", "water-fountain",
       "bathroom", "bathroom",
+      "toilet", "bathroom",
       "printer", "printer",
       "water-fountain" // default
     ] as any;
