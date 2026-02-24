@@ -10,7 +10,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 
 ### Team
 
-- [Idhika Nagalingam] - Project Manager
+- [Idhika Nagalingam](https://www.linkedin.com/in/idhikashini/) - Project Manager
 - [Siddharth Balaji](https://www.linkedin.com/in/siddharth-balaji-9b47712a5/) - Tech Lead
 - [Winnie Trinh](www.linkedin.com/in/winnie-trinh) - Tech Lead
 - [Osbaldo Orozco](https://www.linkedin.com/) - Developer
