@@ -57,6 +57,11 @@ interface MapContextValue {
   ) => void;
   retryMapData: () => void;
   clearRoute: () => void;
+  navigationMode: boolean;
+  navSteps: any[];
+  activeStepIndex: number;
+  startNavigation: () => void;
+  exitNavigation: () => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -86,6 +91,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeRequested, setRouteRequested] = useState(false);
   const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
     useState(false);
+
+  // navigation mode state
+  const [navigationMode, setNavigationMode] = useState(false);
+  const [navSteps, setNavSteps] = useState<any[]>([]);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,6 +150,26 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setMapDataRetryToken((prev) => prev + 1);
   }, []);
 
+  const startNavigation = useCallback(() => {
+    if (!activeRoute) return;
+
+    // TODO: replace stub with real directions once directions.ts is available
+    const steps = [
+      { instruction: "Head straight for 120 m", distance: 120 },
+      { instruction: "Turn left and continue for 40 m", distance: 40 },
+    ];
+
+    setNavSteps(steps);
+    setActiveStepIndex(0);
+    setNavigationMode(true);
+  }, [activeRoute]);
+
+  const exitNavigation = useCallback(() => {
+    setNavigationMode(false);
+    setNavSteps([]);
+    setActiveStepIndex(0);
+  }, []);
+
   const clearRoute = useCallback(() => {
     setRouteStart(null);
     setRouteEnd(null);
@@ -190,6 +220,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setMapDataStatus,
       retryMapData,
       clearRoute,
+      navigationMode,
+      navSteps,
+      activeStepIndex,
+      startNavigation,
+      exitNavigation,
     }),
     [
       mapMode,
@@ -229,6 +264,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setMapDataStatus,
       retryMapData,
       clearRoute,
+      navigationMode,
+      navSteps,
+      activeStepIndex,
+      startNavigation,
+      exitNavigation,
     ],
   );
 
