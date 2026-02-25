@@ -151,7 +151,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const startNavigation = useCallback(() => {
-    if (!activeRoute) return;
+    if (!activePath) return;
 
     // TODO: replace stub with real directions once directions.ts is available
     const steps = [
@@ -162,7 +162,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setNavSteps(steps);
     setActiveStepIndex(0);
     setNavigationMode(true);
-  }, [activeRoute]);
+  }, [activePath]);
 
   const exitNavigation = useCallback(() => {
     setNavigationMode(false);
