@@ -5,7 +5,7 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
@@ -828,6 +828,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         enableDynamicSizing={false}
         animatedPosition={bottomSheetPosition}
         enableContentPanningGesture={false}
+        handleStyle={styles.handleStyle}
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
       >
@@ -891,7 +892,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   );
 }
 
+const screenWidth = Math.round(Dimensions.get("window").width);
 const styles = StyleSheet.create({
+  handleStyle: {
+    position: "absolute",
+    left: - 20,
+    paddingBottom: 30,
+    paddingHorizontal: screenWidth / 2,
+  },
   fixedHeader: {
     paddingHorizontal: 10,
     paddingTop: 8,
