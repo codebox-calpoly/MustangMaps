@@ -511,6 +511,171 @@
           "type": "Point",
           "coordinates": [-120.661300, 35.299916]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_017",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4 Bathroom",
+          "building": "Clyde P. Fisher Science",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659297, 35.302033]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_017",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659812, 35.301946]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_018",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660008, 35.302]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_018",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660039, 35.301996]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_019",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659263, 35.301202]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_020",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659215, 35.301047]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_019",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659212, 35.301042]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_020",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658466, 35.300401]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_021",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658746, 35.300415]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "printer_003",
+          "category": "printer",
+          "name": "Floor 2 Printer",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658544, 35.300265]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_021",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658854, 35.300381]
+        }
       }
     ]
   }
