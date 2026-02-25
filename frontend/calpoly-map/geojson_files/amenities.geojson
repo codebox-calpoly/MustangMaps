@@ -331,6 +331,186 @@
           "type": "Point",
           "coordinates": [-120.661128, 35.302360]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_009",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4, 5, 6 Water Fountain",
+          "building": "Warren J. Baker Center",
+          "level": [2, 3, 4, 5, 6],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660277, 35.301490]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_014",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4, 5, 6 Toilet",
+          "building": "Warren J. Baker Center",
+          "level": [2, 3, 4, 5, 6],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660620, 35.301360]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_011",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Warren J. Baker Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661060, 35.301123]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_010",
+          "category": "toilet",
+          "name": "Floor 1 Toilet",
+          "building": "Warren J. Baker Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661087, 35.301170]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_012",
+          "category": "water_fountain",
+          "name": "Water Fountain 1",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661850, 35.300723]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_011",
+          "category": "toilet",
+          "name": "Toilet 1",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661879, 35.300700]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_013",
+          "category": "water_fountain",
+          "name": "Water Fountain 2",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661586, 35.300568]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_012",
+          "category": "toilet",
+          "name": "Toilet 2",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661428, 35.300451]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_014",
+          "category": "water_fountain",
+          "name": "Water Fountain 3",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661406, 35.300427]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_013",
+          "category": "toilet",
+          "name": "Toilet 3",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661270, 35.300256]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_015",
+          "category": "water_fountain",
+          "name": "Water Fountain 4",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661251, 35.300231]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_016",
+          "category": "water_fountain",
+          "name": "Water Fountain 5",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661300, 35.299916]
+        }
       }
     ]
   }
