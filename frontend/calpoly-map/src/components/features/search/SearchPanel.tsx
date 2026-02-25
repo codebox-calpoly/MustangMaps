@@ -5,13 +5,17 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Dimensions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Dimensions, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
-import type { SharedValue } from "react-native-reanimated";
+import {
+  useAnimatedReaction,
+  type SharedValue,
+} from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 
 import { useMapContext } from "../../../context/MapContext";
 import {
@@ -382,6 +386,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
     return list;
   }, [favorites, history, focused, resultsAsPlaces, searchQuery]);
+
+  const dismissThreshold = Dimensions.get("window").height * 0.58;
+  const dismissKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+  useAnimatedReaction(
+    () => bottomSheetPosition.value,
+    (current, previous) => {
+      if (previous == null) {
+        return;
+      }
+      if (previous <= dismissThreshold && current > dismissThreshold) {
+        runOnJS(dismissKeyboard)();
+      }
+    },
+    [dismissKeyboard, dismissThreshold],
+  );
 
   const searchRows = useMemo(() => {
     const rows: SearchRow[] = [];
