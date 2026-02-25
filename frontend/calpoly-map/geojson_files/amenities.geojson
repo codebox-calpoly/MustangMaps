@@ -110,36 +110,6 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_004",
-          "category": "toilet",
-          "name": "Floor 1 Bathroom (1)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663561, 35.301957]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_004",
-          "category": "water_fountain",
-          "name": "Floor 1 Water Fountain (1)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663531, 35.301957]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
           "id": "printer_001",
           "category": "printer",
           "name": "Floor 1 Printer",
@@ -155,39 +125,9 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_005",
-          "category": "toilet",
-          "name": "Floor 1 Bathroom (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.664173, 35.301750]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_005",
-          "category": "water_fountain",
-          "name": "Floor 1 Water Fountain (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.664140, 35.301750]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
           "id": "toilet_006",
           "category": "toilet",
-          "name": "Floor 5 Toilet (1)",
+          "name": "Back Toilet (2)",
           "building": "Robert E. Kennedy Library",
           "level": 5,
           "notes": "Replace this example with a real location"
@@ -202,9 +142,9 @@
         "properties": {
           "id": "water_fountain_006",
           "category": "water_fountain",
-          "name": "Floor 5 Water Fountain (1)",
+          "name": "Back Water Fountain (2)",
           "building": "Robert E. Kennedy Library",
-          "level": 5,
+          "level": [1, 2, 3, 4, 5],
           "notes": "Replace this example with a real location"
         },
         "geometry": {
@@ -215,46 +155,106 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "water_fountain_007",
-          "category": "water_fountain",
-          "name": "Floor 5 Water Fountain (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 5,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663550, 35.301990]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "toilet_007",
-          "category": "toilet",
-          "name": "Floor 5 Toilet (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 5,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663505, 35.302069]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "printer_001",
+          "id": "printer_002",
           "category": "printer",
-          "name": "Example Printer",
-          "building": "Library",
+          "name": "Floor 2 Printer",
+          "building": "Robert E. Kennedy Library",
           "level": 2,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.000000, 35.000000]
+          "coordinates": [-120.663500, 35.301915]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_008",
+          "category": "toilet",
+          "name": "Floor 1 Toilet",
+          "building": "Robert E. Kennedy Library",
+          "level": 5,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663520, 35.302069]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_007",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": 5,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663535, 35.302065]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_004",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4 Toilet",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663460, 35.301948]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_005",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4, 5 Toilet",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4, 5],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663482, 35.302050]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_004",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663510, 35.302046]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_005",
+          "category": "water_fountain",
+          "name": "Floor 5 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": 5,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663515, 35.301965]
         }
       }
     ]
