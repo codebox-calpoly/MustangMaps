@@ -96,6 +96,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setRouteStartIsCurrentLocation,
     clearRoute,
     setUserLocation,
+    startNavigation,
   } = useMapContext();
   const summaryVisible =
     routingActive &&
@@ -609,8 +610,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             <Pressable
               style={styles.goButton}
               onPress={() => {
-                console.log("Starting navigation...");
-                setRouteRequested(true);
+                startNavigation();
               }}
             >
               <Text style={styles.goButtonText}>GO</Text>
@@ -641,6 +641,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       setRouteStart,
       setRouteStartIsCurrentLocation,
       setSearchQuery,
+      startNavigation,
       startValue,
       summaryVisible,
     ],

@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
+import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -80,6 +81,7 @@ export function MapContainer({
     mapDataErrors,
     retryMapData,
     setRouteDestination,
+    navigationMode,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -498,11 +500,15 @@ export function MapContainer({
         </View>
       )}
 
-      <SearchPanel
-        cameraMove={handleCameraMove}
-        cameraFitRoute={handleCameraFitRoute}
-        bottomSheetPosition={searchPanelHeight}
-      />
+      {navigationMode ? (
+        <NavigationUI />
+      ) : (
+        <SearchPanel
+          cameraMove={handleCameraMove}
+          cameraFitRoute={handleCameraFitRoute}
+          bottomSheetPosition={searchPanelHeight}
+        />
+      )}
 
     </View>
   );
