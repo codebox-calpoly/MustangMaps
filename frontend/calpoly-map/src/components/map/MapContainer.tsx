@@ -33,6 +33,7 @@ import type {
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
+import { BuildingPopup } from "./BuildingPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, {
   useAnimatedStyle,
@@ -514,6 +515,12 @@ export function MapContainer({
         />
       )}
 
+      <BuildingPopup
+        visible={!!selectedBuilding}
+        building={selectedBuilding}
+        onClose={clearSelection}
+        onNavigate={handleNavigate}
+      />
     </View>
   );
 }
