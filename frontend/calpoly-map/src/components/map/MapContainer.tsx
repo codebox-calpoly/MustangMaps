@@ -164,10 +164,10 @@ export function MapContainer({
 
   const controlsAnimatedStyle = useAnimatedStyle(() => {
     const bottom = windowHeight - searchPanelHeight.value - 70;
-    if (searchPanelHeight.value / windowHeight > 0.68) {
+    if (searchPanelHeight.value / windowHeight > 0.265) {
       return { bottom: bottom };
     } else {
-      return { bottom: -100 };
+      return { bottom: -10000 };
     }
   }, [windowHeight]);
 
@@ -497,6 +497,35 @@ export function MapContainer({
           )}
         </View>
       )}
+
+      <Animated.View
+        style={[styles.zoomControls, controlsAnimatedStyle]}
+        pointerEvents="box-none"
+      >
+        <UserLocationButton />
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Zoom in"
+          onPress={() => handleZoom(1)}
+          style={styles.zoomButton}
+        >
+          <View style={styles.zoomIcon}>
+            <View style={styles.zoomIconBarHorizontal} />
+            <View style={styles.zoomIconBarVertical} />
+          </View>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Zoom out"
+          onPress={() => handleZoom(-1)}
+          style={styles.zoomButton}
+        >
+          <View style={styles.zoomIcon}>
+            <View style={styles.zoomIconBarHorizontal} />
+          </View>
+        </Pressable>
+      </Animated.View>
 
       <SearchPanel
         cameraMove={handleCameraMove}
