@@ -81,7 +81,10 @@ export function MapContainer({
     mapDataLoading,
     mapDataErrors,
     retryMapData,
+    setRouteStart,
+    setRouteStartIsCurrentLocation,
     setRouteDestination,
+    setRoutingActive,
     navigationMode,
   } = useMapContext();
   const mapStyleUrl =
@@ -381,25 +384,44 @@ export function MapContainer({
     }
   }, [fitRouteBounds, mapReady]);
 
-  const handleBuildingPress = useCallback((feature: any) => {
-    // Handle building press from BuildingLayer
-    const properties = feature.properties;
-    if (properties && (properties.building || properties.amenity)) {
-      const building = feature as Feature<Geometry, GeoJsonProperties>;
-      selectBuilding(building);
-      const center = featureCenter(building);
-      if (center) {
-        handleCameraMove(center);
+  const handleBuildingPress = useCallback(
+    (feature: any) => {
+      // Handle building press from BuildingLayer
+      const properties = feature.properties;
+      if (properties && (properties.building || properties.amenity)) {
+        const building = feature as Feature<Geometry, GeoJsonProperties>;
+        selectBuilding(building);
+        const center = featureCenter(building);
+        if (center) {
+          handleCameraMove(center);
+        }
       }
-    }
-  }, []);
+    },
+    [featureCenter, handleCameraMove, selectBuilding],
+  );
 
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
+      if (userLocation && isValidCoordinate(userLocation)) {
+        setRouteStart(userLocation);
+        setRouteStartIsCurrentLocation(true);
+      } else {
+        setRouteStart(null);
+        setRouteStartIsCurrentLocation(false);
+      }
+      setRoutingActive(true);
       setRouteDestination(feature);
       setMapMode("routing");
     },
-    [setMapMode, setRouteDestination],
+    [
+      isValidCoordinate,
+      setMapMode,
+      setRouteDestination,
+      setRouteStart,
+      setRouteStartIsCurrentLocation,
+      setRoutingActive,
+      userLocation,
+    ],
   );
 
   const handleMapPress = useCallback(
