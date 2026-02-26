@@ -170,6 +170,7 @@ export function MapContainer({
   }, [featureCenter, selectedBuilding]);
 
   const searchPanelHeight = useSharedValue<number>(0);
+  const [filtersPanelHeight, setFiltersPanelHeight] = useState(0);
   const windowHeight = Dimensions.get("window").height;
 
   const controlsAnimatedStyle = useAnimatedStyle(() => {
@@ -499,6 +500,7 @@ export function MapContainer({
         onAmenityTypesChange={setAmenityTypeIds}
         buildingOptions={buildingOptions}
         amenityOptions={amenityOptions}
+        onPanelLayout={setFiltersPanelHeight}
       />
 
       {(hasLoading || errorMessage) && (
@@ -529,49 +531,83 @@ export function MapContainer({
       )}
 
       {navigationMode ? (
-        <NavigationUI />
-      ) : (
-        <SearchPanel
-          cameraMove={handleCameraMove}
-          cameraFitRoute={handleCameraFitRoute}
-          bottomSheetPosition={searchPanelHeight}
-        />
-      )}
+        <>
+          <NavigationUI />
+          <Animated.View
+          style={[styles.zoomControlsNav, {top: filtersPanelHeight + 16}, controlsAnimatedStyle]}
+          pointerEvents="box-none"
+          >
+          <UserLocationButton />
 
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Zoom in"
+              onPress={() => handleZoom(1)}
+              style={styles.zoomButton}
+            >
+              <View style={styles.zoomIcon}>
+                <View style={styles.zoomIconBarHorizontal} />
+                <View style={styles.zoomIconBarVertical} />
+              </View>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Zoom out"
+              onPress={() => handleZoom(-1)}
+              style={styles.zoomButton}
+            >
+              <View style={styles.zoomIcon}>
+                <View style={styles.zoomIconBarHorizontal} />
+              </View>
+            </Pressable>
+          </Animated.View>
+        </>
+        
+      ) : (
+        <>
+          <SearchPanel
+            cameraMove={handleCameraMove}
+            cameraFitRoute={handleCameraFitRoute}
+            bottomSheetPosition={searchPanelHeight}
+          />
+
+          <Animated.View
+          style={[styles.zoomControls, controlsAnimatedStyle]}
+          pointerEvents="box-none"
+          >
+          <UserLocationButton />
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Zoom in"
+              onPress={() => handleZoom(1)}
+              style={styles.zoomButton}
+            >
+              <View style={styles.zoomIcon}>
+                <View style={styles.zoomIconBarHorizontal} />
+                <View style={styles.zoomIconBarVertical} />
+              </View>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Zoom out"
+              onPress={() => handleZoom(-1)}
+              style={styles.zoomButton}
+            >
+              <View style={styles.zoomIcon}>
+                <View style={styles.zoomIconBarHorizontal} />
+              </View>
+            </Pressable>
+          </Animated.View>
+        </>
+        
+      )}
       <BuildingPopup
         visible={!!selectedBuilding}
         building={selectedBuilding}
         onClose={clearSelection}
         onNavigate={handleNavigate}
       />
-      <Animated.View
-        style={[styles.zoomControls, controlsAnimatedStyle]}
-        pointerEvents="box-none"
-      >
-        <UserLocationButton />
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom in"
-          onPress={() => handleZoom(1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-            <View style={styles.zoomIconBarVertical} />
-          </View>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom out"
-          onPress={() => handleZoom(-1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-          </View>
-        </Pressable>
-      </Animated.View>
 
       <AmenityPopup
         visible={!!selectedAmenity}
@@ -657,6 +693,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#374151",
     fontWeight: "600",
+  },
+  zoomControlsNav: {
+    position: "absolute",
+    right: 16,
+    gap: 10,
   },
   zoomControls: {
     position: "absolute",
