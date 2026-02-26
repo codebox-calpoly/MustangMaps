@@ -789,12 +789,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     }
   }, [routingActive]);
 
-  useEffect(() => {
-    if (!selectedBuilding || routingActive) {
-      return;
-    }
-    sheetRef.current?.snapToIndex(2);
-  }, [routingActive, selectedBuilding]);
 
   useEffect(() => {
     if (!routingActive || !routeDestination) {
