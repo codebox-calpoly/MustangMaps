@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2c65a972-592f-4702-bda0-f259b6505831" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/calpoly-map/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/calpoly-map/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/calpoly-map/src/components/features/search/SearchPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/calpoly-map/src/components/features/search/SearchPanel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/calpoly-map/src/components/map/MapContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/calpoly-map/src/components/map/MapContainer.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +65,15 @@
       <option name="presentableId" value="Default" />
       <updated>1767681919685</updated>
     </task>
+    <task id="LOCAL-00001" summary="issue fixed">
+      <option name="closed" value="true" />
+      <created>1771830790805</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1771830790805</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -92,5 +98,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="issue fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="issue fixed" />
   </component>
 </project>

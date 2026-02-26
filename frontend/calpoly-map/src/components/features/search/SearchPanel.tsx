@@ -5,7 +5,7 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetView,
@@ -469,11 +469,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
       const place = item.item;
       const sourceIcon =
-        item.sourceKind === "favorite"
-          ? "F"
-          : item.sourceKind === "history"
-            ? "R"
-            : "B";
+        item.sourceKind === "favorite" ? (
+          <Image
+            source={require("../../../../assets/icons/star.png")}
+            style={styles.favoriteIcon}
+            resizeMode="contain"
+          />
+        ) : (
+          <Text style={styles.itemIcon}>{item.sourceKind === "history" ? "R" : "B"}</Text>
+        );
       const sourceLabel =
         item.sourceKind === "favorite"
           ? "Favorite"
@@ -489,7 +493,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             styles.itemContainer,
           ]}
         >
-          <Text style={styles.itemIcon}>{sourceIcon}</Text>
+          <View style={styles.iconContainer}>{sourceIcon}</View>
 
           <View style={styles.itemMeta}>
             <Text style={styles.buildingName}>{place.name}</Text>
@@ -1082,6 +1086,15 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  iconContainer: {
+    width: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  favoriteIcon: {
+    width: 32,
+    height: 32,
   },
   itemIcon: {
     fontSize: 34,
