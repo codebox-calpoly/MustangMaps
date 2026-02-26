@@ -63,7 +63,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
 
-  const snapPoints = useMemo(() => ["27%", "35%", "55%", "75%"], []);
+  const snapPoints = useMemo(() => ["14%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
@@ -593,6 +593,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             {routingActive ? "Directions" : "Search"}
           </Text>
 
+          {!routingActive && <View style={styles.inputSpacer} />}
+
           {routingActive ? (
             <View style={styles.routeInputs}>
               <View style={styles.routeInputRow}>
@@ -689,20 +691,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             />
           )}
 
-          <View style={styles.statusRow}>
-            <Text style={styles.statusText}>
-              Start: {routeStart ? "set" : "not set"}
-            </Text>
-            <Text style={styles.statusText}>
-              End: {routeEnd ? "set" : "not set"}
-            </Text>
-            {activePath && (
-              <Text style={styles.statusText}>
-                Distance: {Math.round(activePath.distance)}m
-              </Text>
-            )}
-            {routeError && <Text style={styles.errorText}>{routeError}</Text>}
-          </View>
+          {routeError && (
+            <View style={styles.statusRow}>
+              <Text style={styles.errorText}>{routeError}</Text>
+            </View>
+          )}
 
           {summaryVisible && (
             <View style={styles.routeSummaryContainer}>
@@ -996,13 +989,13 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: screenWidth / 2,
   },
+  inputSpacer: {
+    height: 20,
+  },
   fixedHeader: {
     paddingHorizontal: 10,
     paddingTop: 8,
     paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    marginBottom: 6,
     backgroundColor: "#FFFFFF",
     zIndex: 1,
   },
@@ -1016,7 +1009,6 @@ const styles = StyleSheet.create({
   },
   resultsListContent: {
     paddingHorizontal: 10,
-    paddingTop: 8,
     paddingBottom: 24,
   },
   routingSearchHeader: {
@@ -1069,6 +1061,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
+    textAlign: "center",
   },
   routeInputs: {
     gap: 8,

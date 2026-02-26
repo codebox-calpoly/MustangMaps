@@ -173,7 +173,7 @@ export function MapContainer({
 
   const controlsAnimatedStyle = useAnimatedStyle(() => {
     const bottom = windowHeight - searchPanelHeight.value - 70;
-    if (searchPanelHeight.value / windowHeight > 0.265) {
+    if (searchPanelHeight.value / windowHeight > 0.155) {
       return { bottom: bottom };
     } else {
       return { bottom: -10000 };
