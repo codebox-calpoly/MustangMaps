@@ -220,7 +220,7 @@ export function MapContainer({
   }
 
   // Toggle follow user mode on/off. When on, the map will center on the user's location and follow it as it moves.
-  const toggleFollowUser = () => {
+  const toggleFollowUser = async () => {
     const camera = cameraRef.current;
     const map = mapRef.current;
     if (!userLocation || !mapReady || !map || !camera) {
@@ -234,6 +234,28 @@ export function MapContainer({
 
     lastCameraStopRef.current = null;
     setFollowUser(true);
+
+    // If zoomed out, zoom in to street level while centering
+    const MIN_RECENTER_ZOOM = 15;
+    try {
+      const currentZoom = await map.getZoom();
+      if (currentZoom < MIN_RECENTER_ZOOM) {
+        const safeLoc = clampCoordinate(userLocation as [number, number]);
+        cameraBusyRef.current = true;
+        camera.setCamera({
+          centerCoordinate: safeLoc,
+          zoomLevel: 17,
+          animationDuration: 350,
+        });
+        setTimeout(() => {
+          cameraBusyRef.current = false;
+        }, 400);
+        return;
+      }
+    } catch {
+      // Fall through to default panning behavior
+    }
+
     handleCameraMove(userLocation);
   };
 
