@@ -1,6 +1,8 @@
-import { StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import * as Location from "expo-location";
+
+// Maximum accepted accuracy in meters — readings less precise than this are discarded.
+const ACCURACY_THRESHOLD = 25;
 
 // Retrieves user's latitude and longitude
 const UseLocation = () => {
@@ -29,7 +31,7 @@ const UseLocation = () => {
           return;
         }
 
-        // 3) Initial position (consider adding a timeout)
+        // 3) Initial position — use high accuracy for a solid first fix
         const current = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
@@ -39,15 +41,22 @@ const UseLocation = () => {
           setLongitude(current.coords.longitude);
         }
 
-        // 4) Live updates
+        // 4) Live updates — balanced accuracy + larger distance filter to avoid jitter
         subRef.current = await Location.watchPositionAsync(
           {
-            accuracy: Location.Accuracy.High,
-            timeInterval: 1000,
-            distanceInterval: 1,
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 3000,
+            distanceInterval: 5,
           },
           (loc) => {
             if (!isMounted) return;
+            // Discard inaccurate readings that would make the marker jump
+            if (
+              loc.coords.accuracy != null &&
+              loc.coords.accuracy > ACCURACY_THRESHOLD
+            ) {
+              return;
+            }
             setLatitude(loc.coords.latitude);
             setLongitude(loc.coords.longitude);
           }
@@ -70,4 +79,3 @@ const UseLocation = () => {
 };
 
 export default UseLocation;
-const styles = StyleSheet.create({});
