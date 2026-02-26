@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
+import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -32,6 +33,8 @@ import type {
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
+import { BuildingPopup } from "./BuildingPopup";
+import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, {
   useAnimatedStyle,
@@ -69,6 +72,9 @@ export function MapContainer({
     selectedBuilding,
     selectBuilding,
     clearSelection,
+    selectedAmenity,
+    amenityLevels,
+    clearAmenitySelection,
     mapMode,
     setMapMode,
     mapStyle,
@@ -79,7 +85,11 @@ export function MapContainer({
     mapDataLoading,
     mapDataErrors,
     retryMapData,
+    setRouteStart,
+    setRouteStartIsCurrentLocation,
     setRouteDestination,
+    setRoutingActive,
+    navigationMode,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -378,25 +388,44 @@ export function MapContainer({
     }
   }, [fitRouteBounds, mapReady]);
 
-  const handleBuildingPress = useCallback((feature: any) => {
-    // Handle building press from BuildingLayer
-    const properties = feature.properties;
-    if (properties && (properties.building || properties.amenity)) {
-      const building = feature as Feature<Geometry, GeoJsonProperties>;
-      selectBuilding(building);
-      const center = featureCenter(building);
-      if (center) {
-        handleCameraMove(center);
+  const handleBuildingPress = useCallback(
+    (feature: any) => {
+      // Handle building press from BuildingLayer
+      const properties = feature.properties;
+      if (properties && (properties.building || properties.amenity)) {
+        const building = feature as Feature<Geometry, GeoJsonProperties>;
+        selectBuilding(building);
+        const center = featureCenter(building);
+        if (center) {
+          handleCameraMove(center);
+        }
       }
-    }
-  }, []);
+    },
+    [featureCenter, handleCameraMove, selectBuilding],
+  );
 
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
+      if (userLocation && isValidCoordinate(userLocation)) {
+        setRouteStart(userLocation);
+        setRouteStartIsCurrentLocation(true);
+      } else {
+        setRouteStart(null);
+        setRouteStartIsCurrentLocation(false);
+      }
+      setRoutingActive(true);
       setRouteDestination(feature);
       setMapMode("routing");
     },
-    [setMapMode, setRouteDestination],
+    [
+      isValidCoordinate,
+      setMapMode,
+      setRouteDestination,
+      setRouteStart,
+      setRouteStartIsCurrentLocation,
+      setRoutingActive,
+      userLocation,
+    ],
   );
 
   const handleMapPress = useCallback(
@@ -408,12 +437,13 @@ export function MapContainer({
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
       }
+      clearAmenitySelection();
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [clearSelection, onMapPress],
+    [clearSelection, clearAmenitySelection, onMapPress],
   );
 
   return (
@@ -498,6 +528,23 @@ export function MapContainer({
         </View>
       )}
 
+<<<<<<< tappable-buildings
+      {navigationMode ? (
+        <NavigationUI />
+      ) : (
+        <SearchPanel
+          cameraMove={handleCameraMove}
+          cameraFitRoute={handleCameraFitRoute}
+          bottomSheetPosition={searchPanelHeight}
+        />
+      )}
+
+      <BuildingPopup
+        visible={!!selectedBuilding}
+        building={selectedBuilding}
+        onClose={clearSelection}
+        onNavigate={handleNavigate}
+=======
       <Animated.View
         style={[styles.zoomControls, controlsAnimatedStyle]}
         pointerEvents="box-none"
@@ -531,8 +578,16 @@ export function MapContainer({
         cameraMove={handleCameraMove}
         cameraFitRoute={handleCameraFitRoute}
         bottomSheetPosition={searchPanelHeight}
+>>>>>>> main
       />
 
+      <AmenityPopup
+        visible={!!selectedAmenity}
+        amenity={selectedAmenity}
+        levels={amenityLevels}
+        onClose={clearAmenitySelection}
+        onNavigate={handleNavigate}
+      />
     </View>
   );
 }

@@ -20,6 +20,8 @@ interface MapContextValue {
   buildingTypeIds: string[];
   amenityTypeIds: string[];
   selectedBuilding: SelectedBuilding | null;
+  selectedAmenity: Feature<Geometry, GeoJsonProperties> | null;
+  amenityLevels: number[];
   searchQuery: string;
   userLocation: Coordinates | null;
   mapDataLoading: Record<string, boolean>;
@@ -36,6 +38,8 @@ interface MapContextValue {
   routeStartIsCurrentLocation: boolean;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
+  selectAmenity: (amenity: Feature<Geometry, GeoJsonProperties>, levels: number[]) => void;
+  clearAmenitySelection: () => void;
   setRoute: (route: Route | null) => void;
   setRouteDestination: (building: SelectedBuilding | null) => void;
   setSearchQuery: (query: string) => void;
@@ -57,6 +61,11 @@ interface MapContextValue {
   ) => void;
   retryMapData: () => void;
   clearRoute: () => void;
+  navigationMode: boolean;
+  navSteps: any[];
+  activeStepIndex: number;
+  startNavigation: () => void;
+  exitNavigation: () => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -70,6 +79,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [amenityTypeIds, setAmenityTypeIds] = useState<string[]>([]);
   const [selectedBuilding, setSelectedBuilding] =
     useState<SelectedBuilding | null>(null);
+  const [selectedAmenity, setSelectedAmenity] =
+    useState<Feature<Geometry, GeoJsonProperties> | null>(null);
+  const [amenityLevels, setAmenityLevels] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [mapDataLoading, setMapDataLoading] = useState<Record<string, boolean>>({});
@@ -86,6 +98,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeRequested, setRouteRequested] = useState(false);
   const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
     useState(false);
+
+  // navigation mode state
+  const [navigationMode, setNavigationMode] = useState(false);
+  const [navSteps, setNavSteps] = useState<any[]>([]);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -118,6 +135,19 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setSelectedBuilding(null);
   }, []);
 
+  const selectAmenity = useCallback(
+    (amenity: Feature<Geometry, GeoJsonProperties>, levels: number[]) => {
+      setSelectedAmenity(amenity);
+      setAmenityLevels(levels);
+    },
+    [],
+  );
+
+  const clearAmenitySelection = useCallback(() => {
+    setSelectedAmenity(null);
+    setAmenityLevels([]);
+  }, []);
+
   const setRoute = useCallback((route: Route | null) => {
     setActiveRoute(route);
   }, []);
@@ -140,6 +170,26 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setMapDataRetryToken((prev) => prev + 1);
   }, []);
 
+  const startNavigation = useCallback(() => {
+    if (!activePath) return;
+
+    // TODO: replace stub with real directions once directions.ts is available
+    const steps = [
+      { instruction: "Head straight for 120 m", distance: 120 },
+      { instruction: "Turn left and continue for 40 m", distance: 40 },
+    ];
+
+    setNavSteps(steps);
+    setActiveStepIndex(0);
+    setNavigationMode(true);
+  }, [activePath]);
+
+  const exitNavigation = useCallback(() => {
+    setNavigationMode(false);
+    setNavSteps([]);
+    setActiveStepIndex(0);
+  }, []);
+
   const clearRoute = useCallback(() => {
     setRouteStart(null);
     setRouteEnd(null);
@@ -156,6 +206,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       buildingTypeIds,
       amenityTypeIds,
       selectedBuilding,
+      selectedAmenity,
+      amenityLevels,
       searchQuery,
       userLocation,
       mapDataLoading,
@@ -172,6 +224,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
+      selectAmenity,
+      clearAmenitySelection,
       setRoute,
       setRouteDestination,
       setSearchQuery,
@@ -190,6 +244,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setMapDataStatus,
       retryMapData,
       clearRoute,
+      navigationMode,
+      navSteps,
+      activeStepIndex,
+      startNavigation,
+      exitNavigation,
     }),
     [
       mapMode,
@@ -197,6 +256,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       buildingTypeIds,
       amenityTypeIds,
       selectedBuilding,
+      selectedAmenity,
+      amenityLevels,
       searchQuery,
       userLocation,
       mapDataLoading,
@@ -213,6 +274,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeStartIsCurrentLocation,
       selectBuilding,
       clearSelection,
+      selectAmenity,
+      clearAmenitySelection,
       setRoute,
       setRouteDestination,
       setRouteStart,
@@ -229,6 +292,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setMapDataStatus,
       retryMapData,
       clearRoute,
+      navigationMode,
+      navSteps,
+      activeStepIndex,
+      startNavigation,
+      exitNavigation,
     ],
   );
 
