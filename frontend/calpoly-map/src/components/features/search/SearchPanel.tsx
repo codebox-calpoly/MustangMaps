@@ -61,6 +61,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
+  const routingSearchInputRef = useRef<TextInput>(null);
 
   const snapPoints = useMemo(() => ["27%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
@@ -154,6 +155,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const openRoutingSearchSheet = useCallback(
     (field: "start" | "end") => {
       const value = field === "start" ? startValue : endValue;
+      routeStartInputRef.current?.blur();
+      routeEndInputRef.current?.blur();
       setActiveField(field);
       setSearchQuery(value);
       setFocused(true);
@@ -161,6 +164,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
+        sheetRef.current?.snapToIndex(3);
+        setTimeout(() => {
+          routingSearchInputRef.current?.focus();
+        }, 120);
       });
     },
     [endValue, setSearchQuery, startValue],
@@ -537,6 +544,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
               placeholder="Starting point"
               value={startValue}
               clearButtonMode="always"
+              showSoftInputOnFocus={false}
               onFocus={() => openRoutingSearchSheet("start")}
               onChangeText={(text) => {
                 setStartValue(text);
@@ -555,6 +563,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
               autoCapitalize="none"
               autoCorrect={false}
               value={endValue}
+              showSoftInputOnFocus={false}
               onFocus={() => openRoutingSearchSheet("end")}
               onChangeText={(text) => {
                 setEndValue(text);
@@ -683,6 +692,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         </View>
 
         <BottomSheetTextInput
+          ref={routingSearchInputRef}
           style={styles.input}
           placeholder={
             activeField === "start"

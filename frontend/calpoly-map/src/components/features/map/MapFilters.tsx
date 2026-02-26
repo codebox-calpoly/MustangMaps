@@ -23,6 +23,7 @@ type Props = {
   onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
+  onPanelLayout?: (height: number) => void;
 };
 
 export function MapFilters({
@@ -34,6 +35,7 @@ export function MapFilters({
   onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
+  onPanelLayout,
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
@@ -42,7 +44,9 @@ export function MapFilters({
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <View style={styles.panel}>
+      <View 
+      style={styles.panel}
+        onLayout={(e) => onPanelLayout?.(e.nativeEvent.layout.height)}>
         <View style={styles.rowSpaceBetween}>
           <Text style={styles.panelTitle}>Map Style</Text>
           <Pressable
