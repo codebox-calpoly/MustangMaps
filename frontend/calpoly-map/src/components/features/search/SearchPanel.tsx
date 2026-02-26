@@ -5,14 +5,17 @@ import React, {
   useState,
   useRef,
 } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Dimensions, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import type { Geometry } from "geojson";
-import type { SharedValue } from "react-native-reanimated";
+import {
+  useAnimatedReaction,
+  type SharedValue,
+} from "react-native-reanimated";
+import { runOnJS } from "react-native-worklets";
 
 import { useMapContext } from "../../../context/MapContext";
 import {
@@ -133,10 +136,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   const handleSearch = useCallback(
     (input: string) => {
       setMainSearchInput(input);
-      if (!input) {
-        setSearchQuery("");
-        setFocused(false);
-      }
+      setSearchQuery(input);
+      setFocused(true);
     },
     [setSearchQuery],
   );
@@ -376,7 +377,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     if (history.length > 0) {
       list.push({ title: "History", data: history, kind: "history" as const });
     }
-    if (focused) {
+    if (focused || searchQuery.trim().length > 0) {
       list.push({
         title: "Results",
         data: resultsAsPlaces,
@@ -385,7 +386,24 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     }
 
     return list;
-  }, [favorites, history, focused, resultsAsPlaces]);
+  }, [favorites, history, focused, resultsAsPlaces, searchQuery]);
+
+  const dismissThreshold = Dimensions.get("window").height * 0.58;
+  const dismissKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
+  useAnimatedReaction(
+    () => bottomSheetPosition.value,
+    (current, previous) => {
+      if (previous == null) {
+        return;
+      }
+      if (previous <= dismissThreshold && current > dismissThreshold) {
+        runOnJS(dismissKeyboard)();
+      }
+    },
+    [dismissKeyboard, dismissThreshold],
+  );
 
   const searchRows = useMemo(() => {
     const rows: SearchRow[] = [];
@@ -504,9 +522,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     );
   };
 
-  const showMainResults = sections.length > 0 && !routingActive;
-  const showRoutingResults = sections.length > 0;
-
   const renderMainSheetHeader = useCallback(
     () => (
       <>
@@ -576,6 +591,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             value={mainSearchInput}
             onFocus={() => {
               openSheet();
+              setFocused(true);
+              setSearchQuery(mainSearchInput);
             }}
             onSubmitEditing={() => commitSearch(mainSearchInput)}
             onBlur={() => commitSearch(mainSearchInput)}
@@ -830,26 +847,26 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         ref={sheetRef}
         index={0}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
         animatedPosition={bottomSheetPosition}
+        enableContentPanningGesture={false}
+        handleStyle={styles.handleStyle}
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
       >
-        {showMainResults ? (
-          <BottomSheetFlatList
-            data={searchRows}
-            keyExtractor={extractSearchRowKey}
-            renderItem={renderSearchRow}
-            keyboardShouldPersistTaps="handled"
-            bounces={false}
-            style={styles.resultsList}
-            contentContainerStyle={styles.resultsListContent}
-            ListHeaderComponent={renderMainSheetHeader()}
-          />
-        ) : (
-          <BottomSheetView style={styles.sheetContent}>
-            {renderMainSheetHeader()}
-          </BottomSheetView>
-        )}
+        <BottomSheetFlatList
+          data={!routingActive ? searchRows : []}
+          keyExtractor={extractSearchRowKey}
+          renderItem={renderSearchRow}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+          style={styles.resultsList}
+          contentContainerStyle={styles.resultsListContent}
+          ListHeaderComponent={
+              <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+            }
+            stickyHeaderIndices={[0]}
+        />
       </BottomSheet>
 
       {/* ROUTING SEARCH SHEET (overlay) */}
@@ -878,35 +895,42 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             blurRoutingInputs();
           }}
         >
-          {showRoutingResults ? (
-            <BottomSheetFlatList
-              data={searchRows}
-              keyExtractor={extractSearchRowKey}
-              renderItem={renderSearchRow}
-              keyboardShouldPersistTaps="handled"
-              bounces={false}
-              style={styles.resultsList}
-              contentContainerStyle={styles.resultsListContent}
-              ListHeaderComponent={renderRoutingSearchHeader()}
-            />
-          ) : (
-            <BottomSheetView style={styles.routingSearchSheetContent}>
-              {renderRoutingSearchHeader()}
-            </BottomSheetView>
-          )}
+          <BottomSheetFlatList
+            data={searchRows}
+            keyExtractor={extractSearchRowKey}
+            renderItem={renderSearchRow}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+            style={styles.resultsList}
+            contentContainerStyle={styles.resultsListContent}
+            ListHeaderComponent={
+              <View style={styles.fixedHeader}>{renderRoutingSearchHeader()}</View>
+            }
+            stickyHeaderIndices={[0]}
+          />
         </BottomSheet>
       )}
     </View>
   );
 }
 
+const screenWidth = Math.round(Dimensions.get("window").width);
 const styles = StyleSheet.create({
-  sheetContent: {
-    flex: 1,
-    minHeight: 0,
+  handleStyle: {
+    position: "absolute",
+    left: - 20,
+    paddingBottom: 30,
+    paddingHorizontal: screenWidth / 2,
+  },
+  fixedHeader: {
     paddingHorizontal: 10,
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+    marginBottom: 6,
+    backgroundColor: "#FFFFFF",
+    zIndex: 1,
   },
   resultsPanel: {
     marginTop: 6,
@@ -920,13 +944,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 8,
     paddingBottom: 24,
-  },
-  routingSearchSheetContent: {
-    flex: 1,
-    minHeight: 0,
-    paddingHorizontal: 10,
-    paddingTop: 8,
-    gap: 8,
   },
   routingSearchHeader: {
     flexDirection: "row",
