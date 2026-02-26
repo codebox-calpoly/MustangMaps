@@ -83,12 +83,22 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
 
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
-  const filter = amenityTypes.length === 0
+  // Expand "bathroom" to also match "toilet" (GeoJSON uses "toilet" as the category)
+  const expandedTypes = useMemo(() => {
+    if (amenityTypes.length === 0) return [];
+    const types = [...amenityTypes];
+    if (types.includes("bathroom") && !types.includes("toilet")) {
+      types.push("toilet");
+    }
+    return types;
+  }, [amenityTypes]);
+
+  const filter = expandedTypes.length === 0
     ? ["has", "category"] // Show all features that have a category property
     : [
         "in",
         ["get", "category"],
-        ["literal", amenityTypes],
+        ["literal", expandedTypes],
       ];
 
   const handlePress = useCallback(
