@@ -1207,6 +1207,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   buildingInfoCard: {
+    marginTop: 24,
     gap: 12,
   },
   buildingInfoHeader: {
