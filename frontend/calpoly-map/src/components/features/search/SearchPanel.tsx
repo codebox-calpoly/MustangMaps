@@ -84,6 +84,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setSearchQuery,
     userLocation,
     selectedBuilding,
+    selectBuilding,
     routeDestination,
     routeStart,
     routeEnd,
@@ -321,6 +322,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       } else {
         setSearchQuery(place.name);
         setMainSearchInput(place.name);
+
+        // Find the matching GeoJSON feature and select it to show a marker
+        if (!isMyLocation) {
+          const matchingFeature = data.find(
+            (f) => f.properties?.name === place.name,
+          );
+          if (matchingFeature) {
+            selectBuilding(
+              matchingFeature as Feature<Geometry, GeoJsonProperties>,
+            );
+          }
+        }
       }
 
       addToHistory(place);
@@ -340,8 +353,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       addToHistory,
       cameraMove,
       closeRoutingSearchSheet,
+      data,
       isValidCoordinate,
       routingActive,
+      selectBuilding,
       setEndValue,
       setRouteEnd,
       setRouteRequested,

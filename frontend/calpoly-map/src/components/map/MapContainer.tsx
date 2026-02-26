@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   MapView,
   Camera,
-  PointAnnotation,
+  CircleLayer,
+  ShapeSource,
   setAccessToken,
   type MapViewRef,
   type CameraRef,
@@ -25,8 +26,10 @@ import {
 } from "../features/map/MapFilters";
 import type {
   Feature,
+  FeatureCollection,
   Geometry,
   GeoJsonProperties,
+  Point,
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
@@ -149,9 +152,20 @@ export function MapContainer({
     [],
   );
 
-  const selectedBuildingCoordinate = useMemo<[number, number] | null>(() => {
+  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
     if (!selectedBuilding) return null;
-    return featureCenter(selectedBuilding);
+    const center = featureCenter(selectedBuilding);
+    if (!center) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: center },
+          properties: {},
+        },
+      ],
+    };
   }, [featureCenter, selectedBuilding]);
 
   const searchPanelHeight = useSharedValue<number>(0);
@@ -460,13 +474,18 @@ export function MapContainer({
           }
           return child;
         })}
-        {selectedBuildingCoordinate && (
-          <PointAnnotation
-            id="selected-building-marker"
-            coordinate={selectedBuildingCoordinate}
-          >
-            <View style={styles.buildingMarker} />
-          </PointAnnotation>
+        {selectedBuildingMarker && (
+          <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
+            <CircleLayer
+              id="selected-building-marker"
+              style={{
+                circleRadius: 10,
+                circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
         )}
       </MapView>
 
@@ -688,18 +707,5 @@ const styles = StyleSheet.create({
   },
   locationButtonActive: {
     backgroundColor: "#0B5FFF",
-  },
-  buildingMarker: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#EF4444",
-    borderWidth: 3,
-    borderColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
   },
 });
