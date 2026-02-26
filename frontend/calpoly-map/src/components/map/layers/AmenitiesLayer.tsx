@@ -19,7 +19,21 @@ const AMENITY_ICONS: Record<string, any> = {
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
-  const { setMapDataStatus, mapDataRetryToken, selectAmenity } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, selectAmenity, selectedBuilding, mapMode } = useMapContext();
+
+  const selectedBuildingName = selectedBuilding?.properties?.name ?? null;
+
+  // Build a FeatureCollection of amenities that belong to the selected building
+  const highlightedAmenities = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!amenityData || !selectedBuildingName || mapMode !== "amenities") return null;
+    const matching = amenityData.features.filter((f) => {
+      const bldg = f.properties?.building;
+      if (!bldg || typeof bldg !== "string") return false;
+      return bldg.includes(selectedBuildingName);
+    });
+    if (matching.length === 0) return null;
+    return { type: "FeatureCollection", features: matching };
+  }, [amenityData, selectedBuildingName, mapMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,11 +150,11 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       {/* Load icon images */}
       <Images images={AMENITY_ICONS} />
 
-      <ShapeSource id="amenities-source" shape={amenityData} onPress={handlePress}>
+      <ShapeSource id="amenities-source" shape={highlightedAmenities ?? amenityData} onPress={handlePress}>
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
-          filter={filter as any}
+          filter={highlightedAmenities ? undefined : (filter as any)}
           style={{
             iconImage: iconImageExpression,
             iconSize: [

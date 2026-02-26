@@ -479,7 +479,7 @@ export function MapContainer({
           }
           return child;
         })}
-        {selectedBuildingMarker && (
+        {selectedBuildingMarker && mapMode !== "amenities" && (
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
