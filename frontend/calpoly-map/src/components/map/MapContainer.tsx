@@ -34,6 +34,7 @@ import type {
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { BuildingPopup } from "./BuildingPopup";
+import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, {
   useAnimatedStyle,
@@ -71,6 +72,9 @@ export function MapContainer({
     selectedBuilding,
     selectBuilding,
     clearSelection,
+    selectedAmenity,
+    amenityLevels,
+    clearAmenitySelection,
     mapMode,
     setMapMode,
     mapStyle,
@@ -433,12 +437,13 @@ export function MapContainer({
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
       }
+      clearAmenitySelection();
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [clearSelection, onMapPress],
+    [clearSelection, clearAmenitySelection, onMapPress],
   );
 
   return (
@@ -537,6 +542,14 @@ export function MapContainer({
         visible={!!selectedBuilding}
         building={selectedBuilding}
         onClose={clearSelection}
+        onNavigate={handleNavigate}
+      />
+
+      <AmenityPopup
+        visible={!!selectedAmenity}
+        amenity={selectedAmenity}
+        levels={amenityLevels}
+        onClose={clearAmenitySelection}
         onNavigate={handleNavigate}
       />
     </View>
