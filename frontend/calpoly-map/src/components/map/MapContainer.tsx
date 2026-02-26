@@ -30,7 +30,6 @@ import type {
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
-import { BuildingPopup } from "./BuildingPopup";
 import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, {
@@ -516,15 +515,10 @@ export function MapContainer({
           cameraMove={handleCameraMove}
           cameraFitRoute={handleCameraFitRoute}
           bottomSheetPosition={searchPanelHeight}
+          onNavigate={handleNavigate}
         />
       )}
 
-      <BuildingPopup
-        visible={!!selectedBuilding}
-        building={selectedBuilding}
-        onClose={clearSelection}
-        onNavigate={handleNavigate}
-      />
       <Animated.View
         style={[styles.zoomControls, controlsAnimatedStyle]}
         pointerEvents="box-none"
