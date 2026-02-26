@@ -738,16 +738,17 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
-    if (
-      routingActive &&
-      !hasAutoFilledStart &&
-      userLocation &&
-      !routeStart &&
-      startValue.length === 0
-    ) {
+    if (!routingActive || hasAutoFilledStart || !userLocation) return;
+
+    if (!routeStart && startValue.length === 0) {
+      // No start set yet — fill in user location
       setRouteStart(userLocation);
       setStartValue("My location");
       setRouteStartIsCurrentLocation(true);
+      setHasAutoFilledStart(true);
+    } else if (routeStartIsCurrentLocation && startValue.length === 0) {
+      // Start coordinate was already set (e.g. by handleNavigate) but display text is empty
+      setStartValue("My location");
       setHasAutoFilledStart(true);
     }
   }, [
@@ -755,7 +756,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     routingActive,
     userLocation,
     routeStart,
-    setHasAutoFilledStart,
+    routeStartIsCurrentLocation,
     setRouteStart,
     startValue,
     setRouteStartIsCurrentLocation,
