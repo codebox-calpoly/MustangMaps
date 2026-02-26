@@ -528,7 +528,6 @@ export function MapContainer({
         </View>
       )}
 
-<<<<<<< tappable-buildings
       {navigationMode ? (
         <NavigationUI />
       ) : (
@@ -544,7 +543,7 @@ export function MapContainer({
         building={selectedBuilding}
         onClose={clearSelection}
         onNavigate={handleNavigate}
-=======
+      />
       <Animated.View
         style={[styles.zoomControls, controlsAnimatedStyle]}
         pointerEvents="box-none"
@@ -573,13 +572,6 @@ export function MapContainer({
           </View>
         </Pressable>
       </Animated.View>
-
-      <SearchPanel
-        cameraMove={handleCameraMove}
-        cameraFitRoute={handleCameraFitRoute}
-        bottomSheetPosition={searchPanelHeight}
->>>>>>> main
-      />
 
       <AmenityPopup
         visible={!!selectedAmenity}
