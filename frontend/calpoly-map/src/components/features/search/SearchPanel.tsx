@@ -96,6 +96,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setRouteDestination,
     setRoutingActive,
     setRouteRequested,
+    routeStartIsCurrentLocation,
     setRouteStartIsCurrentLocation,
     clearRoute,
     setUserLocation,
@@ -531,38 +532,64 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
         {routingActive ? (
           <View style={styles.routeInputs}>
-            <TextInput
-              ref={routeStartInputRef}
-              style={styles.input}
-              placeholder="Starting point"
-              value={startValue}
-              clearButtonMode="always"
-              onFocus={() => openRoutingSearchSheet("start")}
-              onChangeText={(text) => {
-                setStartValue(text);
-                setActiveField("start");
-                setRouteStart(null);
-                setRouteRequested(false);
-                setRouteStartIsCurrentLocation(false);
-              }}
-            />
+            <View style={styles.routeInputRow}>
+              <View style={styles.routeInputFields}>
+                <TextInput
+                  ref={routeStartInputRef}
+                  style={styles.input}
+                  placeholder="Starting point"
+                  value={startValue}
+                  clearButtonMode="always"
+                  onFocus={() => openRoutingSearchSheet("start")}
+                  onChangeText={(text) => {
+                    setStartValue(text);
+                    setActiveField("start");
+                    setRouteStart(null);
+                    setRouteRequested(false);
+                    setRouteStartIsCurrentLocation(false);
+                  }}
+                />
 
-            <TextInput
-              ref={routeEndInputRef}
-              style={styles.input}
-              placeholder="Destination"
-              clearButtonMode="always"
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={endValue}
-              onFocus={() => openRoutingSearchSheet("end")}
-              onChangeText={(text) => {
-                setEndValue(text);
-                setActiveField("end");
-                setRouteEnd(null);
-                setRouteRequested(false);
-              }}
-            />
+                <TextInput
+                  ref={routeEndInputRef}
+                  style={styles.input}
+                  placeholder="Destination"
+                  clearButtonMode="always"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  value={endValue}
+                  onFocus={() => openRoutingSearchSheet("end")}
+                  onChangeText={(text) => {
+                    setEndValue(text);
+                    setActiveField("end");
+                    setRouteEnd(null);
+                    setRouteRequested(false);
+                  }}
+                />
+              </View>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Swap start and destination"
+                onPress={() => {
+                  const prevStart = startValue;
+                  const prevEnd = endValue;
+                  const prevRouteStart = routeStart;
+                  const prevRouteEnd = routeEnd;
+                  const wasCurrentLocation = routeStartIsCurrentLocation;
+
+                  setStartValue(prevEnd);
+                  setEndValue(prevStart);
+                  setRouteStart(prevRouteEnd);
+                  setRouteEnd(prevRouteStart);
+                  setRouteStartIsCurrentLocation(false);
+                  setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
+                }}
+                style={styles.swapButton}
+              >
+                <Text style={styles.swapButtonText}>↕</Text>
+              </Pressable>
+            </View>
 
             <View style={styles.routeActions}>
               <Pressable
@@ -992,6 +1019,30 @@ const styles = StyleSheet.create({
   },
   routeInputs: {
     gap: 8,
+  },
+  routeInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  routeInputFields: {
+    flex: 1,
+    gap: 8,
+  },
+  swapButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  swapButtonText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
   },
   routeActions: {
     flexDirection: "row",
