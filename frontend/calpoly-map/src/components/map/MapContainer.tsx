@@ -455,7 +455,12 @@ export function MapContainer({
         zoomEnabled={mapGesturesEnabled}
         scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
-        onDidFinishLoadingMap={() => setMapReady(true)}
+        onDidFinishLoadingMap={() => {
+          // Hide the base map's building layers so only our custom BuildingLayer renders,
+          // preventing double-shading that makes some buildings appear darker.
+          mapRef.current?.setSourceVisibility(false, "carto", "building");
+          setMapReady(true);
+        }}
         onRegionWillChange={handleRegionChange}
       >
         <UserLocationMarker />
