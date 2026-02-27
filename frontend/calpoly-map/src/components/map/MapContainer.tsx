@@ -35,7 +35,8 @@ import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
-import {
+import Animated, {
+  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 
@@ -169,6 +170,16 @@ export function MapContainer({
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
+
+  // Hide the recenter button when the bottom sheet extends past it
+  const locationButtonStyle = useAnimatedStyle(() => {
+    const buttonTop = 175;
+    const sheetTop = searchPanelHeight.value;
+    return {
+      opacity: sheetTop < buttonTop + 44 ? 0 : 1,
+      pointerEvents: sheetTop < buttonTop + 44 ? "none" as const : "auto" as const,
+    };
+  }, []);
 
   // Show user location button if we have a valid location, and center map on tap.
   function UserLocationButton() {
@@ -537,9 +548,9 @@ export function MapContainer({
       )}
 
       {mapMode !== "routing" && (
-        <View style={styles.locationButtonContainer}>
+        <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
           <UserLocationButton />
-        </View>
+        </Animated.View>
       )}
 
       <AmenityPopup
