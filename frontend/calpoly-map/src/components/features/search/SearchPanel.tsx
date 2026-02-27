@@ -268,6 +268,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       }
       const coord = middle(ring) as [number, number];
       const name = feature.properties?.name ?? "Unknown";
+      const ref = feature.properties?.ref as string | undefined;
 
       return {
         id: buildPlaceId(name, coord),
@@ -275,6 +276,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         coordinate: coord,
         // Search results are transient; keep a stable timestamp to avoid list resets.
         updatedAt: 0,
+        ref,
       };
     },
     [buildPlaceId, getRingCoordinates, middle],
@@ -466,15 +468,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             styles.itemContainer,
           ]}
         >
-          <Text style={styles.itemIcon}>
-            {place.name.charAt(0).toUpperCase()}
-          </Text>
-
           <View style={styles.itemMeta}>
             <Text style={styles.buildingName}>{place.name}</Text>
-            <Text style={styles.subscript}>
-              {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
-            </Text>
+            {place.ref && (
+              <Text style={styles.buildingNumber}>Building {place.ref}</Text>
+            )}
           </View>
 
           <View style={styles.itemActions}>
@@ -1153,8 +1151,12 @@ const styles = StyleSheet.create({
   },
   buildingName: {
     fontSize: 17,
-    marginLeft: 10,
     fontWeight: "600",
+  },
+  buildingNumber: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginTop: 2,
   },
   subscript: {
     fontSize: 14,

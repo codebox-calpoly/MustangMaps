@@ -455,7 +455,8 @@
         "addr:postcode": "93407",
         "addr:street": "Grand",
         "building": "stadium",
-        "name": "Cal Poly Athletic Ticket Office (61)"
+        "name": "Cal Poly Athletic Ticket Office (61)",
+        "ref": "61"
       },
       "geometry": {
         "type": "Polygon",
@@ -1480,7 +1481,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Farm Shop",
-        "ref": "09",
+        "ref": "9",
         "amenity": "agriculture"
       },
       "geometry": {
@@ -1774,7 +1775,7 @@
         "@id": "way/45600385",
         "building": "university",
         "name": "Research Development Center",
-        "ref": "04",
+        "ref": "4",
         "amenity": "academic"
       },
       "geometry": {
@@ -2120,7 +2121,8 @@
         "@id": "way/45637272",
         "building": "university",
         "name": "Beef Unit",
-        "amenity": "academic"
+        "amenity": "academic",
+        "ref": "16"
       },
       "geometry": {
         "type": "Polygon",
@@ -2192,7 +2194,8 @@
       "properties": {
         "@id": "way/45637278",
         "building": "greenhouse",
-        "name": "48- Environmental Horitcultural Science"
+        "name": "48- Environmental Horitcultural Science",
+        "ref": "48"
       },
       "geometry": {
         "type": "Polygon",
@@ -2228,7 +2231,8 @@
       "properties": {
         "@id": "way/45637279",
         "building": "yes",
-        "name": "48- Environmental Horitcultural Science"
+        "name": "48- Environmental Horitcultural Science",
+        "ref": "48"
       },
       "geometry": {
         "type": "Polygon",
@@ -2464,7 +2468,8 @@
       "properties": {
         "@id": "way/45637285",
         "building": "yes",
-        "name": "48- Environmental Horitcultural Science"
+        "name": "48- Environmental Horitcultural Science",
+        "ref": "48"
       },
       "geometry": {
         "type": "Polygon",
@@ -2516,7 +2521,8 @@
       "properties": {
         "@id": "way/45637286",
         "building": "yes",
-        "name": "32- Cal Poly Equine Center"
+        "name": "32- Cal Poly Equine Center",
+        "ref": "32"
       },
       "geometry": {
         "type": "Polygon",
@@ -3064,7 +3070,7 @@
         "building": "residential",
         "name": "Bishop",
         "operator": "California Polytechnic State University",
-        "ref": "170E",
+        "ref": "50",
         "residential": "university",
         "amenity": "maintenance"
       },
@@ -3284,7 +3290,8 @@
         "building": "apartments",
         "name": "San Luis (170G)",
         "operator": "California Polytechnic State University",
-        "residential": "university"
+        "residential": "university",
+        "ref": "170G"
       },
       "geometry": {
         "type": "Polygon",
@@ -4296,7 +4303,8 @@
       "properties": {
         "@id": "way/45637548",
         "building": "yes",
-        "name": "48Q- EHS Environmental Horticultural Science D&P"
+        "name": "48Q- EHS Environmental Horticultural Science D&P",
+        "ref": "48"
       },
       "geometry": {
         "type": "Polygon",
@@ -4676,7 +4684,8 @@
       "properties": {
         "@id": "way/45644093",
         "building": "greenhouse",
-        "name": "Temporary Plant Conservatory"
+        "name": "Temporary Plant Conservatory",
+        "ref": "72"
       },
       "geometry": {
         "type": "Polygon",
@@ -4810,7 +4819,8 @@
         "parking": "multi-storey",
         "supervised": "yes",
         "surface": "paved",
-        "website": "https://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r3lot"
+        "website": "https://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r3lot",
+        "ref": "271"
       },
       "geometry": {
         "type": "Polygon",
@@ -4898,7 +4908,8 @@
         "name": "Foxen (171F)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171F"
       },
       "geometry": {
         "type": "Polygon",
@@ -5191,7 +5202,8 @@
         "parking": "multi-storey",
         "supervised": "yes",
         "surface": "paved",
-        "website": "http://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r4lot"
+        "website": "http://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r4lot",
+        "ref": "371"
       },
       "geometry": {
         "type": "Polygon",
@@ -5275,7 +5287,8 @@
         "name": "Gypsum (171G)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171G"
       },
       "geometry": {
         "type": "Polygon",
@@ -5616,7 +5629,8 @@
         "name": "Dover (171D)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171D"
       },
       "geometry": {
         "type": "Polygon",
@@ -5852,7 +5866,8 @@
         "name": "Estrella (171E)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171E"
       },
       "geometry": {
         "type": "Polygon",
@@ -6175,7 +6190,8 @@
         "building:levels": "5",
         "name": "Corralitos (171C)",
         "residential": "university",
-        "smoking": "no"
+        "smoking": "no",
+        "ref": "171C"
       },
       "geometry": {
         "type": "Polygon",
@@ -6507,7 +6523,8 @@
         "name": "Aliso (171A)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171A"
       },
       "geometry": {
         "type": "Polygon",
@@ -6880,7 +6897,8 @@
         "addr:postcode": "93407",
         "addr:street": "Grand",
         "building": "yes",
-        "name": "161A- Sports Complex Softball Stadium, Lockers"
+        "name": "161A- Sports Complex Softball Stadium, Lockers",
+        "ref": "160"
       },
       "geometry": {
         "type": "Polygon",
@@ -6959,7 +6977,8 @@
         "name": "Huasna (171H)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171H"
       },
       "geometry": {
         "type": "Polygon",
@@ -7490,7 +7509,8 @@
         "name": "Buena Vista (171B)",
         "residential": "university",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "171B"
       },
       "geometry": {
         "type": "Polygon",
@@ -7685,7 +7705,8 @@
         "building:levels": "5",
         "name": "Inyo (171I)",
         "residential": "university",
-        "smoking": "no"
+        "smoking": "no",
+        "ref": "171I"
       },
       "geometry": {
         "type": "Polygon",
@@ -9331,7 +9352,8 @@
       "properties": {
         "@id": "way/865472918",
         "building": "greenhouse",
-        "name": "48- Environmental Horitcultural Science"
+        "name": "48- Environmental Horitcultural Science",
+        "ref": "48"
       },
       "geometry": {
         "type": "Polygon",
@@ -9402,7 +9424,8 @@
       "properties": {
         "@id": "way/960271028",
         "building": "greenhouse",
-        "name": "Cal Poly Plant Conservatory"
+        "name": "Cal Poly Plant Conservatory",
+        "ref": "72"
       },
       "geometry": {
         "type": "Polygon",
@@ -11012,7 +11035,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Farm Shop",
-        "ref": "09",
+        "ref": "9",
         "amenity": "agriculture"
       },
       "geometry": {
@@ -11799,7 +11822,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Engineering West Addition",
-        "ref": "21A",
+        "ref": "13",
         "amenity": "engineering_building"
       },
       "geometry": {
@@ -11984,7 +12007,8 @@
         "phone": "+1 805-756-1314",
         "university-function": "academic school or college",
         "website": "https://arce.calpoly.edu/",
-        "amenity": "engineering_building"
+        "amenity": "engineering_building",
+        "ref": "13"
       },
       "geometry": {
         "type": "Polygon",
@@ -12338,7 +12362,8 @@
         "addr:street": "Grand",
         "building": "dormitory",
         "name": "113A Sierra Madre Hall: Tower 0",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -12428,7 +12453,8 @@
         "name": "113C Sierra Madre Hall: Tower 2",
         "smoking": "no",
         "wheelchair": "no",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -12562,7 +12588,8 @@
         "university-function": "academic school or college",
         "website": "https://planning.calpoly.edu/",
         "wheelchair": "yes",
-        "amenity": "engineering_building"
+        "amenity": "engineering_building",
+        "ref": "13"
       },
       "geometry": {
         "type": "Polygon",
@@ -12666,7 +12693,7 @@
         "building": "university",
         "leisure": "sports_hall",
         "name": "Crandall Gymnasium",
-        "ref": "60",
+        "ref": "46",
         "amenity": "recreation"
       },
       "geometry": {
@@ -12813,7 +12840,7 @@
         "@id": "way/45600385",
         "building": "university",
         "name": "Research Development Center",
-        "ref": "04",
+        "ref": "4",
         "amenity": "academic"
       },
       "geometry": {
@@ -12963,7 +12990,8 @@
         "building:levels": "2",
         "building:use": "education",
         "name": "Mathematics and Science (38)",
-        "amenity": "science_building"
+        "amenity": "science_building",
+        "ref": "38"
       },
       "geometry": {
         "type": "Polygon",
@@ -13073,7 +13101,8 @@
         "building": "university",
         "name": "Alan A. Erhart Agriculture",
         "university-function": "academic school or college",
-        "amenity": "agriculture"
+        "amenity": "agriculture",
+        "ref": "10"
       },
       "geometry": {
         "type": "Polygon",
@@ -13689,7 +13718,7 @@
         "building": "university",
         "description": "By Cal Poly Irrigation Training and Research",
         "name": "Bioresource and Agricultural Engineering",
-        "ref": "08A",
+        "ref": "8",
         "amenity": "engineering_building"
       },
       "geometry": {
@@ -13868,7 +13897,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Corporation Administration",
-        "ref": "15",
+        "ref": "1",
         "amenity": "administrative"
       },
       "geometry": {
@@ -14065,7 +14094,8 @@
         "building": "university",
         "name": "English",
         "university-function": "academic school or college",
-        "amenity": "academic"
+        "amenity": "academic",
+        "ref": "22"
       },
       "geometry": {
         "type": "Polygon",
@@ -14454,7 +14484,8 @@
         "addr:street": "Grand",
         "building": "dormitory",
         "name": "113B Sierra Madre Hall: Tower 1",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -14868,7 +14899,7 @@
         "building": "residential",
         "name": "Bishop",
         "operator": "California Polytechnic State University",
-        "ref": "170E",
+        "ref": "50",
         "residential": "university",
         "amenity": "maintenance"
       },
@@ -15088,7 +15119,8 @@
         "building": "apartments",
         "name": "San Luis (170G)",
         "operator": "California Polytechnic State University",
-        "residential": "university"
+        "residential": "university",
+        "ref": "170G"
       },
       "geometry": {
         "type": "Polygon",
@@ -17462,7 +17494,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Administration",
-        "ref": "01",
+        "ref": "1",
         "amenity": "administrative"
       },
       "geometry": {
@@ -18064,7 +18096,8 @@
         "parking": "multi-storey",
         "supervised": "yes",
         "surface": "paved",
-        "website": "https://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r3lot"
+        "website": "https://afd.calpoly.edu/parking/parkingoncampus/parkinglots/#r3lot",
+        "ref": "271"
       },
       "geometry": {
         "type": "Polygon",
@@ -18333,7 +18366,7 @@
         "addr:street": "Grand",
         "building": "university",
         "name": "Brown Engineering",
-        "ref": "41A",
+        "ref": "13",
         "amenity": "engineering_building"
       },
       "geometry": {
@@ -18477,7 +18510,8 @@
         "building:use": "office",
         "name": "Julian A. McPhee University Union (65)",
         "office": "Cal Poly ASI",
-        "amenity": "student_services"
+        "amenity": "student_services",
+        "ref": "65"
       },
       "geometry": {
         "type": "Polygon",
@@ -18603,7 +18637,7 @@
         "max_level": "2",
         "min_level": "-1",
         "name": "Cotchett Education Building",
-        "ref": "02",
+        "ref": "2",
         "amenity": "academic"
       },
       "geometry": {
@@ -18730,7 +18764,7 @@
         "fax": "+1-805-756-5452",
         "name": "Orfalea College Of Business Building",
         "phone": "+1-805-756-2705",
-        "ref": "03",
+        "ref": "3",
         "website": "https://www.cob.calpoly.edu/",
         "amenity": "business"
       },
@@ -19272,7 +19306,8 @@
         "building": "university",
         "name": "Materials Demonstration Lab",
         "university-function": "academic school or college",
-        "amenity": "academic"
+        "amenity": "academic",
+        "ref": "187"
       },
       "geometry": {
         "type": "Polygon",
@@ -20655,7 +20690,8 @@
         "name": "112 Vista Grande Dining Complex",
         "outdoor_seating": "yes",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "112"
       },
       "geometry": {
         "type": "Polygon",
@@ -20887,7 +20923,8 @@
       "properties": {
         "@id": "way/960271028",
         "building": "greenhouse",
-        "name": "Cal Poly Plant Conservatory"
+        "name": "Cal Poly Plant Conservatory",
+        "ref": "72"
       },
       "geometry": {
         "type": "Polygon",
@@ -21211,6 +21248,7 @@
         "building": "university",
         "building:levels": "4",
         "name": "William and Linda Frost Center for Research and Innovation (181)",
+        "ref": "181",
         "amenity": "academic"
       },
       "geometry": {
@@ -21928,7 +21966,8 @@
         "brand": "Chase",
         "brand:wikidata": "Q524629",
         "name": "Chase",
-        "operator": "Chase"
+        "operator": "Chase",
+        "ref": "115"
       },
       "geometry": {
         "type": "Point",
@@ -25065,7 +25104,8 @@
         "addr:street": "Grand",
         "building": "dormitory",
         "name": "113A Sierra Madre Hall: Tower 0",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -25155,7 +25195,8 @@
         "name": "113C Sierra Madre Hall: Tower 2",
         "smoking": "no",
         "wheelchair": "no",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -25245,7 +25286,8 @@
         "name": "Sierra Madre Hall: Tower 3",
         "smoking": "no",
         "wheelchair": "no",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -25335,7 +25377,8 @@
         "name": "Sierra Madre Hall: Tower 5",
         "smoking": "no",
         "wheelchair": "no",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -25433,7 +25476,8 @@
         "building": "dormitory",
         "name": "113 Sierra Madre Community Center",
         "smoking": "no",
-        "wheelchair": "limited"
+        "wheelchair": "limited",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -25539,7 +25583,8 @@
         "name": "Sierra Madre Hall: Tower 4",
         "smoking": "no",
         "wheelchair": "no",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -26007,7 +26052,8 @@
         "addr:street": "Grand",
         "building": "dormitory",
         "name": "113B Sierra Madre Hall: Tower 1",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "113"
       },
       "geometry": {
         "type": "Polygon",
@@ -26095,7 +26141,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 7",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26175,7 +26222,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 6",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26251,7 +26299,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 8",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26331,7 +26380,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 9",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26403,7 +26453,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 0",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26475,7 +26526,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 1",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26547,7 +26599,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 3",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26619,7 +26672,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 2",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26691,7 +26745,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 5",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -26763,7 +26818,8 @@
         "addr:street": "Grand Avenue",
         "building": "dormitory",
         "name": "Yosemite Hall: Tower 4",
-        "amenity": "dormitory"
+        "amenity": "dormitory",
+        "ref": "114"
       },
       "geometry": {
         "type": "Polygon",
@@ -28654,7 +28710,8 @@
         "name": "112 Vista Grande Dining Complex",
         "outdoor_seating": "yes",
         "smoking": "no",
-        "wheelchair": "yes"
+        "wheelchair": "yes",
+        "ref": "112"
       },
       "geometry": {
         "type": "Polygon",
@@ -29520,7 +29577,8 @@
         "university-function": "academic school or college",
         "website": "https://lib.calpoly.edu/",
         "wheelchair": "yes",
-        "wikidata": "Q7343808"
+        "wikidata": "Q7343808",
+        "ref": "35"
       },
       "geometry": {
         "type": "Polygon",
