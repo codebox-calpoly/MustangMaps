@@ -133,11 +133,20 @@ export function MapFilters({
         {mapMode === "amenities" && (
           <View style={styles.rowWrap}>
             {amenityOptions.map((option) => {
-              const isActive = amenitySet.has(option.id);
+              const isAllOption = option.id === "all";
+              const isActive = isAllOption
+                ? amenityTypeIds.length === 0
+                : amenitySet.has(option.id);
+
               return (
                 <Pressable
                   key={option.id}
                   onPress={() => {
+                    if (isAllOption) {
+                      onAmenityTypesChange([]);
+                      return;
+                    }
+
                     const next = new Set(amenityTypeIds);
                     if (next.has(option.id)) {
                       next.delete(option.id);

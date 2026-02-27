@@ -21,6 +21,7 @@ const BUILDING_OPTIONS: BuildingFilterOption[] = [
 ];
 
 const AMENITY_OPTIONS: AmenityFilterOption[] = [
+  { id: "all", label: "All" },
   { id: "bathroom", label: "Bathrooms" },
   { id: "water_fountain", label: "Water Fountains" },
   { id: "printer", label: "Printers" },
