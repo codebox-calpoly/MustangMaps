@@ -37,7 +37,7 @@ export function MapFilters({
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
+  const { setRoutingActive, clearRoute, clearSelection, mapStyle, setMapStyle } = useMapContext();
   const nextMapStyle = mapStyle === "light" ? "dark" : "light";
 
   return (
@@ -71,6 +71,7 @@ export function MapFilters({
               key={mode}
               onPress={() => {
                 onMapModeChange(mode);
+                clearSelection();
                 if (mode === "routing") {
                   setRoutingActive(true);
                 } else {
