@@ -386,7 +386,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const sections = useMemo(() => {
     const list: SearchSection[] = [];
 
-    if (favorites.length > 0) {
+    if (favorites.length > 0 && (focused || searchQuery.trim().length > 0)) {
       list.push({
         title: "Favorites",
         data: favorites,
