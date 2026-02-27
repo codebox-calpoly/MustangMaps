@@ -547,11 +547,9 @@ export function MapContainer({
         />
       )}
 
-      {mapMode !== "routing" && (
-        <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
-          <UserLocationButton />
-        </Animated.View>
-      )}
+      <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
+        <UserLocationButton />
+      </Animated.View>
 
       <AmenityPopup
         visible={!!selectedAmenity}
