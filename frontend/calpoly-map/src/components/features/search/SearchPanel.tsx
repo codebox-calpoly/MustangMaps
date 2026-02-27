@@ -161,9 +161,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   // Opens the routing search based on which field is selected
   const openRoutingSearchSheet = useCallback(
     (field: "start" | "end") => {
-      const value = field === "start" ? startValue : endValue;
       setActiveField(field);
-      setSearchQuery(value);
+      setSearchQuery("");
       setFocused(true);
       setRoutingSearchSheetOpen(true);
 
@@ -171,7 +170,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         routingSearchSheetRef.current?.snapToIndex(0);
       });
     },
-    [endValue, setSearchQuery, startValue],
+    [setSearchQuery],
   );
 
   const blurRoutingInputs = useCallback(() => {
@@ -197,7 +196,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         setRouteEnd(null);
       }
       setSearchQuery(text);
-      setFocused(Boolean(text));
+      setFocused(true);
       setRouteRequested(false);
     },
     [
@@ -379,6 +378,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       return baseResultsAsPlaces;
     }
     const normalizedQuery = searchQuery.trim().toLowerCase();
+    // In routing mode, always show "My location" at the top
+    if (routingActive) {
+      if (normalizedQuery.length === 0 || "my location".includes(normalizedQuery)) {
+        return [myLocationPlace, ...baseResultsAsPlaces];
+      }
+      return baseResultsAsPlaces;
+    }
+    // In non-routing mode, only show "My location" when the query matches
     if (normalizedQuery.length === 0) {
       return baseResultsAsPlaces;
     }
@@ -386,7 +393,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       return [myLocationPlace, ...baseResultsAsPlaces];
     }
     return baseResultsAsPlaces;
-  }, [baseResultsAsPlaces, myLocationPlace, searchQuery]);
+  }, [baseResultsAsPlaces, myLocationPlace, routingActive, searchQuery]);
 
   const sections = useMemo(() => {
     const list: SearchSection[] = [];
@@ -769,7 +776,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             onPress={closeRoutingSearchSheet}
             style={styles.routingSearchCloseButton}
           >
-            <Text style={styles.routingSearchCloseButtonText}>X</Text>
+            <Text style={styles.routingSearchCloseButtonText}>✕</Text>
           </Pressable>
         </View>
 
@@ -1018,8 +1025,8 @@ const styles = StyleSheet.create({
   },
   fixedHeader: {
     paddingHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 14,
+    paddingBottom: 10,
     backgroundColor: "#FFFFFF",
     zIndex: 1,
   },
@@ -1039,6 +1046,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 10,
   },
   routingSearchPanelTitle: {
     marginLeft: 10,
@@ -1049,19 +1057,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   routingSearchCloseButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
+    backgroundColor: "#F9FAFB",
   },
   routingSearchCloseButtonText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#9CA3AF",
   },
 
   floatingOpenButton: {
@@ -1088,16 +1094,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   routeInputs: {
-    gap: 8,
+    gap: 12,
   },
   routeInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   routeInputFields: {
     flex: 1,
-    gap: 8,
+    gap: 10,
   },
   swapButton: {
     width: 32,
@@ -1237,6 +1243,7 @@ const styles = StyleSheet.create({
   directionHeader: {
     fontSize: 25,
     fontWeight: "900",
+    marginBottom: 6,
   },
   buildingInfoCard: {
     marginTop: 24,

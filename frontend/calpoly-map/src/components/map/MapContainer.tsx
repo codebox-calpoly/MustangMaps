@@ -183,8 +183,8 @@ export function MapContainer({
         style={[styles.locationButton, followUser && styles.locationButtonActive]}
       >
         <View style={styles.locationIcon}>
-          <View style={styles.locationIconInner} />
-          <View style={styles.locationIconOuter} />
+          <View style={styles.locationIconRing} />
+          <View style={[styles.locationIconDot, followUser && styles.locationIconDotActive]} />
         </View>
       </Pressable>
     );
@@ -536,9 +536,11 @@ export function MapContainer({
         />
       )}
 
-      <View style={styles.locationButtonContainer}>
-        <UserLocationButton />
-      </View>
+      {mapMode !== "routing" && (
+        <View style={styles.locationButtonContainer}>
+          <UserLocationButton />
+        </View>
+      )}
 
       <AmenityPopup
         visible={!!selectedAmenity}
@@ -628,42 +630,48 @@ const styles = StyleSheet.create({
   locationButtonContainer: {
     position: "absolute",
     right: 16,
-    top: 145,
+    top: 175,
     zIndex: 3,
   },
   locationButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#111827",
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    elevation: 3,
   },
   locationIcon: {
-    width: 18,
-    height: 18,
+    width: 20,
+    height: 20,
     alignItems: "center",
     justifyContent: "center",
   },
-  locationIconInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 4,
-    backgroundColor: "#ffffffff",
+  locationIconRing: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2.5,
+    borderColor: "#6B7280",
   },
-  locationIconOuter: {
+  locationIconDot: {
     position: "absolute",
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#6B7280",
+  },
+  locationIconDotActive: {
+    backgroundColor: "#2563EB",
   },
   locationButtonActive: {
-    backgroundColor: "#0B5FFF",
+    borderColor: "#2563EB",
   },
 });
