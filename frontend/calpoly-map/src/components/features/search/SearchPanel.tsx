@@ -63,7 +63,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
 
-  const snapPoints = useMemo(() => ["14%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
@@ -104,6 +103,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setUserLocation,
     startNavigation,
   } = useMapContext();
+
+  const snapPoints = useMemo(
+    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    [routingActive],
+  );
+
   const summaryVisible =
     routingActive &&
     Boolean(routeStart && routeEnd && activePath && !routeError);
@@ -833,6 +838,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setSearchQuery("");
       setMainSearchInput("");
       setRouteRequested(false);
+      // Delay snap so the BottomSheet processes the new (smaller) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
     }
   }, [routingActive, setSearchQuery, setRouteRequested]);
 
@@ -850,6 +859,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       sheetRef.current?.snapToIndex(1);
     }
   }, [selectedBuilding, routingActive]);
+
+  // Expand the sheet when routing becomes active so the directions panel is fully visible
+  useEffect(() => {
+    if (routingActive) {
+      // Delay snap so the BottomSheet processes the new (larger) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
+    }
+  }, [routingActive]);
 
   // Ensure route summary is visible by expanding the main sheet when it appears
   useEffect(() => {

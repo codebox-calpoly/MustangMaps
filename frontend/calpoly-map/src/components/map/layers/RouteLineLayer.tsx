@@ -70,7 +70,7 @@ export function RouteLineLayer() {
                 "match",
                 ["get", "kind"],
                 "start",
-                "#10B981",
+                "#2563EB",
                 "end",
                 "#EF4444",
                 "#6B7280",
