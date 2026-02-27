@@ -391,7 +391,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         kind: "favorite" as const,
       });
     }
-    if (history.length > 0) {
+    if (history.length > 0 && (focused || searchQuery.trim().length > 0)) {
       list.push({ title: "History", data: history, kind: "history" as const });
     }
     if (focused || searchQuery.trim().length > 0) {
@@ -935,7 +935,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           keyboardShouldPersistTaps="handled"
           bounces={false}
           style={styles.resultsList}
-          contentContainerStyle={styles.resultsListContent}
+          contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
               <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
             }
