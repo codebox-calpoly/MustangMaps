@@ -10,14 +10,13 @@ interface AmenityPopupProps {
   onNavigate: (amenity: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
-export function AmenityPopup({ visible, amenity, levels, onClose, onNavigate }: AmenityPopupProps) {
+export function AmenityPopup({ visible, amenity, levels, onClose }: AmenityPopupProps) {
   if (!amenity || !visible) return null;
 
   const props = amenity.properties || {};
   const name = props.name || "Unknown Amenity";
   const category = props.category;
   const building = props.building;
-  const notes = props.notes;
 
   return (
     <Modal
@@ -65,30 +64,8 @@ export function AmenityPopup({ visible, amenity, levels, onClose, onNavigate }: 
               </View>
             )}
 
-            {notes && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Notes:</Text>
-                <Text style={styles.value}>{notes}</Text>
-              </View>
-            )}
           </ScrollView>
 
-          <View style={styles.actions}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Directions to ${name}`}
-              onPress={() => {
-                onNavigate(amenity);
-                onClose();
-              }}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                pressed && styles.primaryButtonPressed,
-              ]}
-            >
-              <Text style={styles.primaryButtonText}>Directions</Text>
-            </Pressable>
-          </View>
         </Pressable>
       </Pressable>
     </Modal>
@@ -152,10 +129,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
-  actions: {
-    padding: 16,
-    paddingTop: 0,
-  },
   row: {
     marginBottom: 12,
   },
@@ -188,19 +161,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#2563EB",
-  },
-  primaryButton: {
-    backgroundColor: "#3B82F6",
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  primaryButtonPressed: {
-    backgroundColor: "#2563EB",
-  },
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });

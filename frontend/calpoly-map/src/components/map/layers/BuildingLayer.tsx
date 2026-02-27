@@ -132,9 +132,26 @@ export function BuildingLayer({
       return null;
     }
 
+    // Deduplicate by @id and drop Point features (only Polygon/MultiPolygon
+    // are useful for fill/line layers). Duplicate polygons with the same @id
+    // cause double-rendering at 25% opacity, making some buildings darker.
+    const seen = new Set<string>();
+    const deduped = buildingData.features.filter((feature) => {
+      const geomType = feature.geometry?.type;
+      if (geomType !== "Polygon" && geomType !== "MultiPolygon") {
+        return false;
+      }
+      const id = feature.properties?.["@id"];
+      if (id) {
+        if (seen.has(id)) return false;
+        seen.add(id);
+      }
+      return true;
+    });
+
     return {
       ...buildingData,
-      features: buildingData.features.map((feature) => {
+      features: deduped.map((feature) => {
         const categories = categorizeBuilding(feature.properties);
         return {
           ...feature,
@@ -240,7 +257,6 @@ export function BuildingLayer({
         id="buildings-fill"
         filter={buildingFilter}
         style={{
-          // fillColor: fillColorExpression as any,
           fillColor: "green",
           fillOpacity: 0.25,
         }}
