@@ -345,7 +345,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (routingActive) {
         closeRoutingSearchSheet();
       } else {
-        sheetRef.current?.snapToIndex(0);
+        sheetRef.current?.snapToIndex(1);
       }
     },
     [
@@ -845,6 +845,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     }
     setRouteRequested(Boolean(routeStart && routeEnd));
   }, [routeEnd, routeStart, routingActive, setRouteRequested]);
+
+  // Expand the sheet when a building is selected so the info card isn't cut off
+  useEffect(() => {
+    if (selectedBuilding && !routingActive) {
+      sheetRef.current?.snapToIndex(1);
+    }
+  }, [selectedBuilding, routingActive]);
 
   // Ensure route summary is visible by expanding the main sheet when it appears
   useEffect(() => {
