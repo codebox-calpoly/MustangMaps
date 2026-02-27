@@ -44,7 +44,7 @@ export function MapFilters({
     <View style={styles.container} pointerEvents="box-none">
       <View style={styles.panel}>
         <View style={styles.rowSpaceBetween}>
-          <Text style={styles.panelTitle}>Map Style</Text>
+          <Text style={styles.panelTitle}>Appearance</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Switch to ${nextMapStyle} mode`}

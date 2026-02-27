@@ -654,7 +654,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                   }}
                   style={styles.swapButton}
                 >
-                  <Text style={styles.swapButtonText}>↕</Text>
+                  <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
                 </Pressable>
               </View>
 
@@ -1100,19 +1100,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   swapButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   swapButtonText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 11,
+    lineHeight: 13,
+    fontWeight: "600",
+    color: "#9CA3AF",
+    textAlign: "center",
   },
   routeActions: {
     flexDirection: "row",

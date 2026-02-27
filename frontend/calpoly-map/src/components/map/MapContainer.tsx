@@ -35,8 +35,7 @@ import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
-import Animated, {
-  useAnimatedStyle,
+import {
   useSharedValue,
 } from "react-native-reanimated";
 
@@ -171,34 +170,6 @@ export function MapContainer({
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
 
-  const controlsAnimatedStyle = useAnimatedStyle(() => {
-    const bottom = windowHeight - searchPanelHeight.value - 70;
-    if (searchPanelHeight.value / windowHeight > 0.155) {
-      return { bottom: bottom };
-    } else {
-      return { bottom: -10000 };
-    }
-  }, [windowHeight]);
-
-  const handleZoom = useCallback(
-    async (delta: number) => {
-      const map = mapRef.current;
-      const camera = cameraRef.current;
-      if (!mapReady || !map || !camera) {
-        return;
-      }
-
-      try {
-        const zoom = await map.getZoom();
-        const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
-        camera.zoomTo(nextZoom, 150);
-      } catch {
-        // Ignore transient zoom errors to keep taps safe.
-      }
-    },
-    [mapReady],
-  );
-
   // Show user location button if we have a valid location, and center map on tap.
   function UserLocationButton() {
     if (!userLocation) {
@@ -209,9 +180,9 @@ export function MapContainer({
         accessibilityRole="button"
         accessibilityLabel="Center User Location"
         onPress={toggleFollowUser}
-        style={[styles.zoomButton, followUser && styles.locationButtonActive]}
+        style={[styles.locationButton, followUser && styles.locationButtonActive]}
       >
-        <View style={styles.zoomIcon}>
+        <View style={styles.locationIcon}>
           <View style={styles.locationIconInner} />
           <View style={styles.locationIconOuter} />
         </View>
@@ -565,34 +536,9 @@ export function MapContainer({
         />
       )}
 
-      <Animated.View
-        style={[styles.zoomControls, controlsAnimatedStyle]}
-        pointerEvents="box-none"
-      >
+      <View style={styles.locationButtonContainer}>
         <UserLocationButton />
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom in"
-          onPress={() => handleZoom(1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-            <View style={styles.zoomIconBarVertical} />
-          </View>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom out"
-          onPress={() => handleZoom(-1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-          </View>
-        </Pressable>
-      </Animated.View>
+      </View>
 
       <AmenityPopup
         visible={!!selectedAmenity}
@@ -679,12 +625,13 @@ const styles = StyleSheet.create({
     color: "#374151",
     fontWeight: "600",
   },
-  zoomControls: {
+  locationButtonContainer: {
     position: "absolute",
     right: 16,
-    gap: 10,
+    top: 145,
+    zIndex: 3,
   },
-  zoomButton: {
+  locationButton: {
     width: 44,
     height: 44,
     borderRadius: 10,
@@ -697,27 +644,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
-  zoomIcon: {
+  locationIcon: {
     width: 18,
     height: 18,
     alignItems: "center",
     justifyContent: "center",
-  },
-  zoomIconBarHorizontal: {
-    width: 18,
-    height: 2,
-    backgroundColor: "#F9FAFB",
-  },
-  zoomIconBarVertical: {
-    position: "absolute",
-    width: 2,
-    height: 18,
-    backgroundColor: "#F9FAFB",
-  },
-  locationControls: {
-    position: "absolute",
-    left: 16,
-    gap: 10,
   },
   locationIconInner: {
     width: 10,
