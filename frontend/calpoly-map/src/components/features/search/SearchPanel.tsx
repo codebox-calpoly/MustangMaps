@@ -480,19 +480,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           <View style={styles.itemActions}>
             <Pressable
               onPress={() => toggleFavorite(place)}
-              style={styles.actionChip}
+              style={styles.iconButton}
             >
-              <Text style={styles.actionChipText}>
-                {isFavorite(place.id) ? "Unfav" : "Fav"}
+              <Text style={[styles.heartIcon, isFavorite(place.id) && styles.heartIconActive]}>
+                {isFavorite(place.id) ? "♥" : "♡"}
               </Text>
             </Pressable>
 
             {item.sectionKind === "history" && (
               <Pressable
                 onPress={() => removeFromHistory(place.id)}
-                style={[styles.actionChip, styles.removeChip]}
+                style={styles.iconButton}
               >
-                <Text style={styles.actionChipText}>Remove</Text>
+                <Text style={styles.removeIcon}>✕</Text>
               </Pressable>
             )}
           </View>
@@ -1165,19 +1165,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 6,
   },
-  actionChip: {
-    borderRadius: 12,
-    backgroundColor: "#111827",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+  iconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  removeChip: {
-    backgroundColor: "#B91C1C",
+  heartIcon: {
+    fontSize: 20,
+    color: "#9CA3AF",
   },
-  actionChipText: {
-    color: "#F9FAFB",
-    fontSize: 12,
-    fontWeight: "600",
+  heartIconActive: {
+    color: "#EF4444",
+  },
+  removeIcon: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#9CA3AF",
   },
   sectionHeader: {
     marginTop: 12,
