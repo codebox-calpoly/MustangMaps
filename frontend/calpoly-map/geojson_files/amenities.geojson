@@ -676,6 +676,141 @@
           "type": "Point",
           "coordinates": [-120.658854, 35.300381]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "elevator_001",
+          "category": "elevator",
+          "name": "Bonderson Elevator",
+          "building": "Bonderson Projects Center",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664192, 35.302539]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_017",
+          "category": "water_fountain",
+          "name": "Bonderson Floor 1 Water Fountain",
+          "building": "Bonderson Projects Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664189, 35.302500]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_015",
+          "category": "toilet",
+          "name": "Bonderson Floor 1 Bathroom",
+          "building": "Bonderson Projects Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664212, 35.302466]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_016",
+          "category": "toilet",
+          "name": "ATL Bathroom",
+          "building": "Advanced Technologies Laboratory",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665148, 35.302193]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_018",
+          "category": "water_fountain",
+          "name": "ATL Water Fountain",
+          "building": "Advanced Technologies Laboratory",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665108, 35.302176]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_019",
+          "category": "water_fountain",
+          "name": "Reinhold Aerospace Water Fountain",
+          "building": "Reinhold Aerospace",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666168, 35.302638]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_017",
+          "category": "toilet",
+          "name": "Reinhold Aerospace Floor 1 Bathroom",
+          "building": "Reinhold Aerospace",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666143, 35.302641]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_018",
+          "category": "toilet",
+          "name": "Reinhold Aerospace Floor 2 Bathroom",
+          "building": "Reinhold Aerospace",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666190, 35.302623]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "elevator_002",
+          "category": "elevator",
+          "name": "Reinhold Aerospace Elevator",
+          "building": "Reinhold Aerospace",
+          "level": [1,2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666190, 35.302623]
+        }
       }
     ]
   }
