@@ -39,6 +39,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 // Disable telemetry
 setAccessToken(null);
@@ -95,6 +96,7 @@ export function MapContainer({
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
+  const { favorites } = useSavedPlaces();
   const { latitude, longitude } = useUserLocation();
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
@@ -167,6 +169,29 @@ export function MapContainer({
       ],
     };
   }, [featureCenter, selectedBuilding]);
+
+  // Hide the selected-building marker when that building already exists in favorites.
+  const selectedBuildingIsFavorite = useMemo(() => {
+    if (!selectedBuilding) {
+      return false;
+    }
+    const center = featureCenter(selectedBuilding);
+    if (!center) {
+      return false;
+    }
+
+    const selectedRef = selectedBuilding.properties?.ref;
+
+    if (selectedRef) {
+      const matchedByRef = favorites.some((item) => {
+        const favoriteRef = item.ref
+        return Boolean(favoriteRef) && favoriteRef === selectedRef;
+      });
+      if (matchedByRef) {
+        return true;
+      }
+    }   
+  }, [favorites, selectedBuilding]);
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
@@ -483,7 +508,7 @@ export function MapContainer({
           }
           return child;
         })}
-        {selectedBuildingMarker && mapMode !== "amenities" && (
+        {selectedBuildingMarker && mapMode !== "amenities" && !selectedBuildingIsFavorite && (
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
