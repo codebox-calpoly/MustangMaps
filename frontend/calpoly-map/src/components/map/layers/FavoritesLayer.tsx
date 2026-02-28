@@ -68,6 +68,7 @@ export function FavoritesLayer({
         id="favorites-source"
         shape={favoritePoints}
         onPress={handlePress}
+        hitbox={{ width: 1, height: 1 }}
       >
         <SymbolLayer
           id="favorites-marker-icon"
