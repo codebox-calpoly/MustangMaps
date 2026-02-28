@@ -96,7 +96,7 @@ export function MapContainer({
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
-  const { favorites } = useSavedPlaces();
+  const { favorites, isFavorite } = useSavedPlaces();
   const { latitude, longitude } = useUserLocation();
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
@@ -175,13 +175,15 @@ export function MapContainer({
     if (!selectedBuilding) {
       return false;
     }
+
     const center = featureCenter(selectedBuilding);
     if (!center) {
       return false;
     }
 
-    const selectedRef = selectedBuilding.properties?.ref;
-
+    const name = String(selectedBuilding.properties?.name ?? "Unknown");
+    const selectedRef= selectedBuilding.properties?.ref;
+    // Preferred match path: stable building ref when available.
     if (selectedRef) {
       const matchedByRef = favorites.some((item) => {
         const favoriteRef = item.ref
@@ -190,8 +192,21 @@ export function MapContainer({
       if (matchedByRef) {
         return true;
       }
-    }   
-  }, [favorites, selectedBuilding]);
+    }
+
+    // Fallback for geometry drift between data sources.
+    const [lng, lat] = center;
+    return favorites.some((item) => {
+      if (item.name !== name) {
+        return false;
+      }
+      const [favLng, favLat] = item.coordinate;
+      return (
+        Math.abs(favLng - lng) <= 0.00005 &&
+        Math.abs(favLat - lat) <= 0.00005
+      );
+    });
+  }, [selectedBuilding, favorites, featureCenter, isFavorite]);
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
