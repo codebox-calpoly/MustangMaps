@@ -6,6 +6,7 @@ import {
   SymbolLayer,
 } from "@maplibre/maplibre-react-native";
 import { useSavedPlaces } from "../../../context/SavedPlacesContext";
+import geoData from "../../features/search/test.json";
 
 const FAVORITE_ICONS: Record<string, any> = {
   "favorite-heart": require("../../../../assets/icons/heart.png"),
@@ -51,7 +52,20 @@ export function FavoritesLayer({
   const handlePress = useCallback(
     (event: any) => {
       if (!event.features || event.features.length === 0) return;
-      onBuildingPress?.(event.features[0]);
+      const tapped = event.features[0];
+      const tappedRef = String(tapped?.properties?.ref ?? "");
+      const tappedName = String(tapped?.properties?.name ?? "");
+
+      const matchedFeature = geoData.features.find((feature: any) => {
+        const featureRef = String(feature?.properties?.ref ?? "");
+        const featureName = String(feature?.properties?.name ?? "");
+        if (tappedRef.length > 0 && featureRef.length > 0) {
+          return tappedRef === featureRef;
+        }
+        return tappedName.length > 0 && tappedName === featureName;
+      });
+
+      onBuildingPress?.(matchedFeature ?? tapped);
       return true;
     },
     [onBuildingPress],
