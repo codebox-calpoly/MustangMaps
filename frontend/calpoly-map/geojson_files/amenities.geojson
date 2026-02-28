@@ -811,6 +811,66 @@
           "type": "Point",
           "coordinates": [-120.666190, 35.302623]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_022",
+          "category": "water_fountain",
+          "name": "Engineering 13 Water Fountain Floor 1",
+          "building": "Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665207, 35.301656]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_022",
+          "category": "toilet",
+          "name": "Engineering 13 Bathroom Floor 1 and 2",
+          "building": "Engineering",
+          "level": [1,2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665267, 35.301620]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_023",
+          "category": "water_fountain",
+          "name": "Engineering 4 Water Fountain Floor 1, 2, 3",
+          "building": "Engineering IV",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665039, 35.302908]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_023",
+          "category": "toilet",
+          "name": "Engineering 4 Bathroom Floor 1, 2, 3",
+          "building": "Engineering IV",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664994, 35.302903]
+        }
       }
     ]
   }
