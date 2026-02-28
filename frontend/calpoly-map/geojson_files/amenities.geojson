@@ -871,6 +871,36 @@
           "type": "Point",
           "coordinates": [-120.664994, 35.302903]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_024",
+          "category": "toilet",
+          "name": "Construction Innovation Bathroom Floor 1, 2, 3",
+          "building": "Construction Innovations Center",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662361, 35.299204]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_024",
+          "category": "water_fountain",
+          "name": "Construction Innovation Water Fountain Floor 1, 2, 3",
+          "building": "Construction Innovations Center",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662349, 35.299177]
+        }
       }
     ]
   }
