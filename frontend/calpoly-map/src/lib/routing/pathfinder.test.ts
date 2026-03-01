@@ -111,3 +111,49 @@ test("findPath handles same start and end node", () => {
   assert.equal(result.distance, 0);
   assert.equal(result.segments.length, 0);
 });
+
+test("findPath can restrict to accessible edges only", () => {
+  const graph: PathGraph = {
+    nodes: {
+      A: { id: "A", coordinates: [-120.6595, 35.305] },
+      B: { id: "B", coordinates: [-120.659, 35.3052] },
+      C: { id: "C", coordinates: [-120.6585, 35.3054] },
+    },
+    edges: {
+      AB: {
+        id: "AB",
+        from: "A",
+        to: "B",
+        distance: 80,
+        accessible: false,
+      },
+      BC: {
+        id: "BC",
+        from: "B",
+        to: "C",
+        distance: 80,
+        accessible: true,
+      },
+      AC: {
+        id: "AC",
+        from: "A",
+        to: "C",
+        distance: 250,
+        accessible: true,
+      },
+    },
+  };
+
+  const allEdgesResult = findPath(graph, graph.nodes.A.coordinates, graph.nodes.C.coordinates);
+  assert.ok(allEdgesResult);
+  assert.equal(allEdgesResult.nodes.join(","), "A,B,C");
+
+  const accessibleOnlyResult = findPath(
+    graph,
+    graph.nodes.A.coordinates,
+    graph.nodes.C.coordinates,
+    { onlyAccessible: true },
+  );
+  assert.ok(accessibleOnlyResult);
+  assert.equal(accessibleOnlyResult.nodes.join(","), "A,C");
+});

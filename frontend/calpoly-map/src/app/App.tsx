@@ -64,6 +64,7 @@ function MapScreen({
     routingActive,
     routeRequested,
     routeStartIsCurrentLocation,
+    routeAccessibleOnly,
     setActivePath,
     setRouteError,
   } = useMapContext();
@@ -86,23 +87,29 @@ function MapScreen({
       return;
     }
 
-    let result = findPath(graph, routeStart, routeEnd);
+    let result = findPath(graph, routeStart, routeEnd, {
+      onlyAccessible: routeAccessibleOnly,
+    });
     if (!result) {
       result = findPath(graph, routeStart, routeEnd, {
         snapRadiusMeters: 150,
+        onlyAccessible: routeAccessibleOnly,
       });
     }
     if (!result && routeStartIsCurrentLocation) {
       result = findPath(graph, routeStart, routeEnd, {
         snapRadiusMeters: 300,
+        onlyAccessible: routeAccessibleOnly,
       });
     }
     if (!result) {
       setActivePath(null);
       setRouteError(
-        routeStartIsCurrentLocation
-          ? "Current location isn't on the path network. Choose a start point."
-          : "No path found between those points",
+        routeAccessibleOnly
+          ? "No accessible route found between those points."
+          : routeStartIsCurrentLocation
+            ? "Current location isn't on the path network. Choose a start point."
+            : "No path found between those points",
       );
       return;
     }
@@ -115,6 +122,7 @@ function MapScreen({
     routeEnd,
     routingActive,
     routeRequested,
+    routeAccessibleOnly,
     setActivePath,
     setRouteError,
   ]);
