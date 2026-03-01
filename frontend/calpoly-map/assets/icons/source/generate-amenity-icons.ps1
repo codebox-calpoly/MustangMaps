@@ -89,37 +89,51 @@ function Draw-WaterGlyph {
   $toX = { param([double]$x) [float]($Rect.X + ($x * $sx)) }
   $toY = { param([double]$y) [float]($Rect.Y + ($y * $sy)) }
 
-  $pen = [System.Drawing.Pen]::new($PrimaryColor, [float]($StrokeWidth * $sx))
+  # Stylized figure-at-fountain glyph inspired by standard water-fountain signage.
+  $lineWidth = [float]([Math]::Max(1.7 * $sx, ($StrokeWidth - 0.8) * $sx))
+  $pen = [System.Drawing.Pen]::new($PrimaryColor, $lineWidth)
   $pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
   $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
   $pen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
-
   $brush = [System.Drawing.SolidBrush]::new($PrimaryColor)
+
+  # Person (head + leaning body/arm).
+  $Graphics.FillEllipse($brush, (&$toX 10.1), (&$toY 2.3), [float](4.8 * $sx), [float](4.8 * $sy))
+  $Graphics.DrawLine($pen, (&$toX 12.2), (&$toY 7.5), (&$toX 8.0), (&$toY 10.0))
+  $Graphics.DrawLine($pen, (&$toX 8.0), (&$toY 10.0), (&$toX 8.0), (&$toY 20.0))
+  $Graphics.DrawLine($pen, (&$toX 12.0), (&$toY 10.1), (&$toX 15.0), (&$toY 13.4))
+  $Graphics.DrawLine($pen, (&$toX 15.0), (&$toY 13.4), (&$toX 16.5), (&$toY 15.5))
+
+  # Fountain basin + stand.
   $basin = [System.Drawing.PointF[]]@(
-    [System.Drawing.PointF]::new((&$toX 4), (&$toY 16.5)),
-    [System.Drawing.PointF]::new((&$toX 20), (&$toY 16.5)),
-    [System.Drawing.PointF]::new((&$toX 17.8), (&$toY 20)),
-    [System.Drawing.PointF]::new((&$toX 6.2), (&$toY 20))
+    [System.Drawing.PointF]::new((&$toX 14.0), (&$toY 10.8)),
+    [System.Drawing.PointF]::new((&$toX 21.2), (&$toY 10.8)),
+    [System.Drawing.PointF]::new((&$toX 21.2), (&$toY 16.5)),
+    [System.Drawing.PointF]::new((&$toX 17.8), (&$toY 16.5)),
+    [System.Drawing.PointF]::new((&$toX 14.0), (&$toY 12.8))
   )
   $Graphics.FillPolygon($brush, $basin)
-  $Graphics.DrawLine($pen, (&$toX 12), (&$toY 10.2), (&$toX 12), (&$toY 16.5))
-  $Graphics.DrawLine($pen, (&$toX 7), (&$toY 8), (&$toX 12), (&$toY 8))
-  $Graphics.DrawArc(
-    $pen,
-    (&$toX 2.5),
-    (&$toY 3.8),
-    [float](10.5 * $sx),
-    [float](7.6 * $sy),
-    208,
-    128
+  $Graphics.DrawLine($pen, (&$toX 20.9), (&$toY 16.5), (&$toX 20.9), (&$toY 20.2))
+
+  # Water droplets.
+  $droplets = @(
+    @{ x = 16.6; y = 8.1; r = 1.15 },
+    @{ x = 18.2; y = 7.2; r = 1.05 },
+    @{ x = 19.8; y = 7.5; r = 1.05 },
+    @{ x = 17.7; y = 9.1; r = 0.9 },
+    @{ x = 19.2; y = 9.4; r = 0.9 }
   )
-  $Graphics.FillEllipse(
-    $brush,
-    (&$toX 16.7),
-    (&$toY 8.8),
-    [float](2.8 * $sx),
-    [float](4.0 * $sy)
-  )
+  foreach ($drop in $droplets) {
+    $diamX = [float](2.0 * $drop.r * $sx)
+    $diamY = [float](2.0 * $drop.r * $sy)
+    $Graphics.FillEllipse(
+      $brush,
+      [float]((&$toX $drop.x) - ($diamX / 2.0)),
+      [float]((&$toY $drop.y) - ($diamY / 2.0)),
+      $diamX,
+      $diamY
+    )
+  }
 
   $brush.Dispose()
   $pen.Dispose()

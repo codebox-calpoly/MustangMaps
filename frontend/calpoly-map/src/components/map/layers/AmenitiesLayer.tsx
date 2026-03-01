@@ -16,6 +16,13 @@ const AMENITY_ICONS: Record<string, any> = {
   "printer": require("../../../../assets/icons/printer.png"),
 };
 
+const DISPLAYED_AMENITY_CATEGORIES = [
+  "water_fountain",
+  "bathroom",
+  "toilet",
+  "printer",
+] as const;
+
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
@@ -108,7 +115,11 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
   }, [amenityTypes]);
 
   const filter = expandedTypes.length === 0
-    ? ["has", "category"] // Show all features that have a category property
+    ? [
+        "in",
+        ["get", "category"],
+        ["literal", DISPLAYED_AMENITY_CATEGORIES],
+      ]
     : [
         "in",
         ["get", "category"],
@@ -154,7 +165,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
-          filter={highlightedAmenities ? undefined : (filter as any)}
+          filter={filter as any}
           style={{
             iconImage: iconImageExpression,
             iconSize: [
