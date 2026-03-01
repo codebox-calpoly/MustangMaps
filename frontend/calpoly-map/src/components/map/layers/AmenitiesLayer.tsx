@@ -167,7 +167,8 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
               19, 0.5,   // At zoom 19, 50% size
             ] as any,
             iconAllowOverlap: true,
-            iconIgnorePlacement: false,
+            // Keep amenity icons visible even when points are very close together.
+            iconIgnorePlacement: true,
             iconAnchor: "bottom",
           }}
         />
