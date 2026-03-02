@@ -1,0 +1,550 @@
+[
+  {
+    "number": "1",
+    "name": "Administration"
+  },
+  {
+    "number": "2",
+    "name": "Cotchett Education Building"
+  },
+  {
+    "number": "3",
+    "name": "Business"
+  },
+  {
+    "number": "4",
+    "name": "Research Development Center"
+  },
+  {
+    "number": "5",
+    "name": "Architecture & Environmental Design"
+  },
+  {
+    "number": "6",
+    "name": "Christopher Cohan Performing Arts Center"
+  },
+  {
+    "number": "7",
+    "name": "Advanced Technologies Laboratories"
+  },
+  {
+    "number": "8",
+    "name": "Bioresource and Agricultural Engineering"
+  },
+  {
+    "number": "9",
+    "name": "Farm Shop"
+  },
+  {
+    "number": "10",
+    "name": "Alan A. Erhart Agriculture"
+  },
+  {
+    "number": "11",
+    "name": "Agricultural Sciences"
+  },
+  {
+    "number": "13",
+    "name": "Engineering"
+  },
+  {
+    "number": "14",
+    "name": "Frank E. Pilling Computer Science Building"
+  },
+  {
+    "number": "15",
+    "name": "Cal Poly Corporation Administration"
+  },
+  {
+    "number": "16",
+    "name": "Beef Unit"
+  },
+  {
+    "number": "17",
+    "name": "Crop Science"
+  },
+  {
+    "number": "18",
+    "name": "Dairy Science"
+  },
+  {
+    "number": "18A",
+    "name": "Leprino Foods Dairy Innovation Institute"
+  },
+  {
+    "number": "19",
+    "name": "Dining Complex"
+  },
+  {
+    "number": "20",
+    "name": "Engineering East"
+  },
+  {
+    "number": "21",
+    "name": "Engineering West"
+  },
+  {
+    "number": "22",
+    "name": "English"
+  },
+  {
+    "number": "24",
+    "name": "Food Processing"
+  },
+  {
+    "number": "25",
+    "name": "Faculty Offices East"
+  },
+  {
+    "number": "26",
+    "name": "Graphic Arts"
+  },
+  {
+    "number": "26M",
+    "name": "Graphic Arts Modular"
+  },
+  {
+    "number": "27",
+    "name": "Health Center"
+  },
+  {
+    "number": "28",
+    "name": "Albert B. Smith Alumni and Conference Center"
+  },
+  {
+    "number": "31",
+    "name": "University Housing"
+  },
+  {
+    "number": "32",
+    "name": "Oppenheimer Family Equine Center"
+  },
+  {
+    "number": "33",
+    "name": "Clyde P. Fisher Science Hall"
+  },
+  {
+    "number": "34",
+    "name": "Walter F. Dexter Building"
+  },
+  {
+    "number": "35",
+    "name": "Robert E. Kennedy Library"
+  },
+  {
+    "number": "36",
+    "name": "University Police"
+  },
+  {
+    "number": "38",
+    "name": "Mathematics and Science"
+  },
+  {
+    "number": "40",
+    "name": "Engineering South"
+  },
+  {
+    "number": "41",
+    "name": "Engineering III"
+  },
+  {
+    "number": "42",
+    "name": "Robert A. Mott Athletics Center"
+  },
+  {
+    "number": "42-E",
+    "name": "Tennis Center"
+  },
+  {
+    "number": "43",
+    "name": "Recreation Center"
+  },
+  {
+    "number": "43A",
+    "name": "Kinesiology"
+  },
+  {
+    "number": "44",
+    "name": "Alex and Faye Spanos Theater"
+  },
+  {
+    "number": "45",
+    "name": "H. P. Davidson Music Center"
+  },
+  {
+    "number": "46",
+    "name": "Crandall Gymnasium & Old Natatorium"
+  },
+  {
+    "number": "47",
+    "name": "Faculty Offices North"
+  },
+  {
+    "number": "48",
+    "name": "Environmental Horticultural Science"
+  },
+  {
+    "number": "50",
+    "name": "Mount Bishop Warehouse, Rose Float Lab, Communications Storage"
+  },
+  {
+    "number": "52",
+    "name": "Science"
+  },
+  {
+    "number": "53",
+    "name": "Science North"
+  },
+  {
+    "number": "55",
+    "name": "Beef Cattle Evaluation Center"
+  },
+  {
+    "number": "56",
+    "name": "Swine Unit"
+  },
+  {
+    "number": "57",
+    "name": "Veterinary Hospital"
+  },
+  {
+    "number": "58",
+    "name": "Welding"
+  },
+  {
+    "number": "60",
+    "name": "Crandall Gymnasium & Old Natatorium"
+  },
+  {
+    "number": "61",
+    "name": "Alex G. Spanos Stadium"
+  },
+  {
+    "number": "65",
+    "name": "Julian A. McPhee University Union"
+  },
+  {
+    "number": "70",
+    "name": "Facilities"
+  },
+  {
+    "number": "71",
+    "name": "Fleet Services"
+  },
+  {
+    "number": "72",
+    "name": "Plant Conservatory"
+  },
+  {
+    "number": "73",
+    "name": "Eucalyptus House"
+  },
+  {
+    "number": "80",
+    "name": "Environmental Health & Safety"
+  },
+  {
+    "number": "80M",
+    "name": "Buliding 80 Modular Offices"
+  },
+  {
+    "number": "81",
+    "name": "Hillcrest"
+  },
+  {
+    "number": "82",
+    "name": "Corporation Warehouse"
+  },
+  {
+    "number": "83",
+    "name": "Technology Park"
+  },
+  {
+    "number": "92M",
+    "name": "Poly Grove Modular Offices"
+  },
+  {
+    "number": "100",
+    "name": "Shasta Hall"
+  },
+  {
+    "number": "101",
+    "name": "Diablo Hall"
+  },
+  {
+    "number": "102",
+    "name": "Palomar Hall"
+  },
+  {
+    "number": "103",
+    "name": "Whitney Hall"
+  },
+  {
+    "number": "104",
+    "name": "Lassen Hall"
+  },
+  {
+    "number": "105",
+    "name": "Trinity Hall"
+  },
+  {
+    "number": "106",
+    "name": "Santa Lucia Hall"
+  },
+  {
+    "number": "107",
+    "name": "Muir Hall"
+  },
+  {
+    "number": "108",
+    "name": "Sequoia Hall"
+  },
+  {
+    "number": "109",
+    "name": "Fremont Hall"
+  },
+  {
+    "number": "110",
+    "name": "Tenaya Hall"
+  },
+  {
+    "number": "112",
+    "name": "Vista Grande"
+  },
+  {
+    "number": "113",
+    "name": "Sierra Madre Hall"
+  },
+  {
+    "number": "114",
+    "name": "Yosemite Hall"
+  },
+  {
+    "number": "115",
+    "name": "Chase Hall"
+  },
+  {
+    "number": "116",
+    "name": "Jespersen Hall"
+  },
+  {
+    "number": "117",
+    "name": "Heron Hall"
+  },
+  {
+    "number": "117-T",
+    "name": "Heron Hall Modular"
+  },
+  {
+    "number": "121",
+    "name": "Cheda Ranch"
+  },
+  {
+    "number": "122",
+    "name": "Parker Ranch"
+  },
+  {
+    "number": "123",
+    "name": "Peterson Ranch"
+  },
+  {
+    "number": "124",
+    "name": "Student Services"
+  },
+  {
+    "number": "125",
+    "name": "Serrano Ranch"
+  },
+  {
+    "number": "126",
+    "name": "Chorro Creek Ranch"
+  },
+  {
+    "number": "130",
+    "name": "Grand Avenue Parking Structure"
+  },
+  {
+    "number": "131",
+    "name": "Parking Structure"
+  },
+  {
+    "number": "133",
+    "name": "Orfalea Family and ASI Children's Center"
+  },
+  {
+    "number": "150",
+    "name": "Poultry Science Instructional Center"
+  },
+  {
+    "number": "154",
+    "name": "Animal Nutrition Center"
+  },
+  {
+    "number": "155",
+    "name": "J & G Lau Family Meat Processing Center"
+  },
+  {
+    "number": "156-0",
+    "name": "E. & J. Gallo Winery & Family Building"
+  },
+  {
+    "number": "157-0",
+    "name": "Lohr Family Winery"
+  },
+  {
+    "number": "160",
+    "name": "Sports Complex"
+  },
+  {
+    "number": "160-A",
+    "name": "Dignity Health Baseball Clubhouse"
+  },
+  {
+    "number": "170",
+    "name": "Cerro Vista Room Number Map"
+  },
+  {
+    "number": "170A",
+    "name": "Cerro Morro"
+  },
+  {
+    "number": "170B",
+    "name": "Cerro Cabrillo"
+  },
+  {
+    "number": "170C",
+    "name": "Cerro Hollister"
+  },
+  {
+    "number": "170D",
+    "name": "Cerro Romauldo"
+  },
+  {
+    "number": "170E",
+    "name": "Cerro Bishop"
+  },
+  {
+    "number": "170F",
+    "name": "Cerro Islay"
+  },
+  {
+    "number": "170G",
+    "name": "Cerro San Luis"
+  },
+  {
+    "number": "171",
+    "name": "Poly Canyon Village Room Number Map"
+  },
+  {
+    "number": "171A",
+    "name": "Aliso"
+  },
+  {
+    "number": "171B",
+    "name": "Buena Vista"
+  },
+  {
+    "number": "171C",
+    "name": "Corralitos"
+  },
+  {
+    "number": "171D",
+    "name": "Dover"
+  },
+  {
+    "number": "171E",
+    "name": "Estrella"
+  },
+  {
+    "number": "171F",
+    "name": "Foxen"
+  },
+  {
+    "number": "171G",
+    "name": "Gypsum"
+  },
+  {
+    "number": "171H",
+    "name": "Huasna"
+  },
+  {
+    "number": "171I",
+    "name": "Inyo"
+  },
+  {
+    "number": "172A",
+    "name": "tsɨtkawayu"
+  },
+  {
+    "number": "172B",
+    "name": "elewexe"
+  },
+  {
+    "number": "172C",
+    "name": "tiłhini"
+  },
+  {
+    "number": "172D",
+    "name": "tšɨłkukunɨtš"
+  },
+  {
+    "number": "172E",
+    "name": "nipumuʔ"
+  },
+  {
+    "number": "172F",
+    "name": "tsɨtqawɨ"
+  },
+  {
+    "number": "172G",
+    "name": "tsɨtpxatu"
+  },
+  {
+    "number": "172H",
+    "name": "Welcome Center & yakʔitʸutʸu Hall"
+  },
+  {
+    "number": "180",
+    "name": "Warren J. Baker Center for Science and Mathematics"
+  },
+  {
+    "number": "181",
+    "name": "William and Linda Frost Center for Research and Innovation"
+  },
+  {
+    "number": "186",
+    "name": "Construction Innovations Center"
+  },
+  {
+    "number": "187",
+    "name": "Simpson Strong-Tie Materials Demonstration Lab"
+  },
+  {
+    "number": "192",
+    "name": "Engineering IV"
+  },
+  {
+    "number": "197",
+    "name": "Bonderson Engineering Project Center"
+  },
+  {
+    "number": "228",
+    "name": "Center for Coastal Marine Sciences"
+  },
+  {
+    "number": "271",
+    "name": "Village Drive Parking Structure"
+  },
+  {
+    "number": "371",
+    "name": "Canyon Circle Parking Structure"
+  },
+  {
+    "number": "371B",
+    "name": "Housing Depot"
+  },
+  {
+    "number": "480-0",
+    "name": "Mustang Business Park"
+  }
+]

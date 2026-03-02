@@ -13,6 +13,7 @@ export type SavedPlace = {
   name: string;
   coordinate: [number, number];
   updatedAt: number;
+  ref?: string;
 };
 
 type SavedPlacesState = {

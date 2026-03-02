@@ -10,7 +10,7 @@ import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import type { Geometry } from "geojson";
+import type { Feature, Geometry, GeoJsonProperties } from "geojson";
 import {
   useAnimatedReaction,
   type SharedValue,
@@ -30,6 +30,7 @@ interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
   bottomSheetPosition: SharedValue<number>;
+  onNavigate: (feature: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
 type SectionKind = "favorite" | "history" | "result";
@@ -55,14 +56,13 @@ type SearchRow =
       item: SavedPlace;
     };
 
-export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
 
-  const snapPoints = useMemo(() => ["27%", "35%", "55%", "75%"], []);
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
   const openSheet = useCallback(() => {
@@ -84,6 +84,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setSearchQuery,
     userLocation,
     selectedBuilding,
+    selectBuilding,
     routeDestination,
     routeStart,
     routeEnd,
@@ -97,11 +98,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setRouteDestination,
     setRoutingActive,
     setRouteRequested,
+    routeStartIsCurrentLocation,
     setRouteStartIsCurrentLocation,
     clearRoute,
     setUserLocation,
     startNavigation,
   } = useMapContext();
+
+  const snapPoints = useMemo(
+    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    [routingActive],
+  );
+
   const summaryVisible =
     routingActive &&
     Boolean(routeStart && routeEnd && activePath && !routeError);
@@ -155,9 +163,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   // Opens the routing search based on which field is selected
   const openRoutingSearchSheet = useCallback(
     (field: "start" | "end") => {
-      const value = field === "start" ? startValue : endValue;
       setActiveField(field);
-      setSearchQuery(value);
+      setSearchQuery("");
       setFocused(true);
       setRoutingSearchSheetOpen(true);
 
@@ -165,7 +172,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         routingSearchSheetRef.current?.snapToIndex(0);
       });
     },
-    [endValue, setSearchQuery, startValue],
+    [setSearchQuery],
   );
 
   const blurRoutingInputs = useCallback(() => {
@@ -191,7 +198,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         setRouteEnd(null);
       }
       setSearchQuery(text);
-      setFocused(Boolean(text));
+      setFocused(true);
       setRouteRequested(false);
     },
     [
@@ -267,6 +274,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       }
       const coord = middle(ring) as [number, number];
       const name = feature.properties?.name ?? "Unknown";
+      const ref = feature.properties?.ref as string | undefined;
 
       return {
         id: buildPlaceId(name, coord),
@@ -274,6 +282,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         coordinate: coord,
         // Search results are transient; keep a stable timestamp to avoid list resets.
         updatedAt: 0,
+        ref,
       };
     },
     [buildPlaceId, getRingCoordinates, middle],
@@ -321,6 +330,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       } else {
         setSearchQuery(place.name);
         setMainSearchInput(place.name);
+
+        // Find the matching GeoJSON feature and select it to show a marker
+        if (!isMyLocation) {
+          const matchingFeature = data.find(
+            (f) => f.properties?.name === place.name,
+          );
+          if (matchingFeature) {
+            selectBuilding(
+              matchingFeature as Feature<Geometry, GeoJsonProperties>,
+            );
+          }
+        }
       }
 
       addToHistory(place);
@@ -332,7 +353,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       if (routingActive) {
         closeRoutingSearchSheet();
       } else {
-        sheetRef.current?.snapToIndex(0);
+        sheetRef.current?.snapToIndex(1);
       }
     },
     [
@@ -340,8 +361,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       addToHistory,
       cameraMove,
       closeRoutingSearchSheet,
+      data,
       isValidCoordinate,
       routingActive,
+      selectBuilding,
       setEndValue,
       setRouteEnd,
       setRouteRequested,
@@ -357,6 +380,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       return baseResultsAsPlaces;
     }
     const normalizedQuery = searchQuery.trim().toLowerCase();
+    // In routing mode, always show "My location" at the top
+    if (routingActive) {
+      if (normalizedQuery.length === 0 || "my location".includes(normalizedQuery)) {
+        return [myLocationPlace, ...baseResultsAsPlaces];
+      }
+      return baseResultsAsPlaces;
+    }
+    // In non-routing mode, only show "My location" when the query matches
     if (normalizedQuery.length === 0) {
       return baseResultsAsPlaces;
     }
@@ -364,19 +395,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       return [myLocationPlace, ...baseResultsAsPlaces];
     }
     return baseResultsAsPlaces;
-  }, [baseResultsAsPlaces, myLocationPlace, searchQuery]);
+  }, [baseResultsAsPlaces, myLocationPlace, routingActive, searchQuery]);
 
   const sections = useMemo(() => {
     const list: SearchSection[] = [];
 
-    if (favorites.length > 0) {
+    if (favorites.length > 0 && (focused || searchQuery.trim().length > 0)) {
       list.push({
         title: "Favorites",
         data: favorites,
         kind: "favorite" as const,
       });
     }
-    if (history.length > 0) {
+    if (history.length > 0 && (focused || searchQuery.trim().length > 0)) {
       list.push({ title: "History", data: history, kind: "history" as const });
     }
     if (focused || searchQuery.trim().length > 0) {
@@ -463,10 +494,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             styles.itemContainer,
           ]}
         >
-          <Text style={styles.itemIcon}>
-            {place.name.charAt(0).toUpperCase()}
-          </Text>
-
           <View style={styles.itemMeta}>
             <Text style={[styles.buildingName, isDark && styles.buildingNameDark]}>
               {place.name}
@@ -474,24 +501,28 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             <Text style={[styles.subscript, isDark && styles.subscriptDark]}>
               {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
             </Text>
+            <Text style={styles.buildingName}>{place.name}</Text>
+            {place.ref && (
+              <Text style={styles.buildingNumber}>Building {place.ref}</Text>
+            )}
           </View>
 
           <View style={styles.itemActions}>
             <Pressable
               onPress={() => toggleFavorite(place)}
-              style={styles.actionChip}
+              style={styles.iconButton}
             >
-              <Text style={styles.actionChipText}>
-                {isFavorite(place.id) ? "Unfav" : "Fav"}
+              <Text style={[styles.heartIcon, isFavorite(place.id) && styles.heartIconActive]}>
+                {isFavorite(place.id) ? "♥" : "♡"}
               </Text>
             </Pressable>
 
             {item.sectionKind === "history" && (
               <Pressable
                 onPress={() => removeFromHistory(place.id)}
-                style={[styles.actionChip, styles.removeChip]}
+                style={styles.iconButton}
               >
-                <Text style={styles.actionChipText}>Remove</Text>
+                <Text style={styles.removeIcon}>✕</Text>
               </Pressable>
             )}
           </View>
@@ -539,6 +570,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     );
   };
 
+  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
+  const selectedBuildingSubtitle =
+    String(
+      selectedBuilding?.properties?.["university-function"] ??
+      selectedBuilding?.properties?.amenity ??
+      selectedBuilding?.properties?.building ??
+      "Campus building",
+    );
+
   const renderMainSheetHeader = useCallback(
     () => (
       <>
@@ -562,40 +602,175 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
                 setRouteStart(null);
                 setRouteRequested(false);
                 setRouteStartIsCurrentLocation(false);
+    () => {
+      // When a building is selected and we're not routing, show building info
+      if (selectedBuilding && !routingActive) {
+        return (
+          <View style={styles.buildingInfoCard}>
+            <View style={styles.buildingInfoHeader}>
+              <View style={styles.buildingInfoText}>
+                <Text style={styles.buildingInfoName}>{selectedBuildingName}</Text>
+                <Text style={styles.buildingInfoSubtitle}>{selectedBuildingSubtitle}</Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close building info"
+                onPress={clearSelection}
+                style={styles.buildingInfoClose}
+              >
+                <Text style={styles.buildingInfoCloseText}>✕</Text>
+              </Pressable>
+            </View>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Directions to ${selectedBuildingName}`}
+              onPress={() => {
+                onNavigate(selectedBuilding);
+                clearSelection();
               }}
-            />
+              style={({ pressed }) => [
+                styles.buildingDirectionsButton,
+                pressed && styles.buildingDirectionsButtonPressed,
+              ]}
+            >
+              <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
+            </Pressable>
+          </View>
+        );
+      }
 
             <TextInput
               ref={routeEndInputRef}
               style={[styles.input, isDark && styles.inputDark]}
               placeholder="Destination"
               placeholderTextColor={isDark ? "#E6E8EB" : undefined}
+      return (
+        <>
+          <Text style={styles.directionHeader}>
+            {routingActive ? "Directions" : "Search"}
+          </Text>
+
+          {!routingActive && <View style={styles.inputSpacer} />}
+
+          {routingActive ? (
+            <View style={styles.routeInputs}>
+              <View style={styles.routeInputRow}>
+                <View style={styles.routeInputFields}>
+                  <TextInput
+                    ref={routeStartInputRef}
+                    style={styles.input}
+                    placeholder="Starting point"
+                    value={startValue}
+                    clearButtonMode="always"
+                    onFocus={() => openRoutingSearchSheet("start")}
+                    onChangeText={(text) => {
+                      setStartValue(text);
+                      setActiveField("start");
+                      setRouteStart(null);
+                      setRouteRequested(false);
+                      setRouteStartIsCurrentLocation(false);
+                    }}
+                  />
+
+                  <TextInput
+                    ref={routeEndInputRef}
+                    style={styles.input}
+                    placeholder="Destination"
+                    clearButtonMode="always"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={endValue}
+                    onFocus={() => openRoutingSearchSheet("end")}
+                    onChangeText={(text) => {
+                      setEndValue(text);
+                      setActiveField("end");
+                      setRouteEnd(null);
+                      setRouteRequested(false);
+                    }}
+                  />
+                </View>
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Swap start and destination"
+                  onPress={() => {
+                    const prevStart = startValue;
+                    const prevEnd = endValue;
+                    const prevRouteStart = routeStart;
+                    const prevRouteEnd = routeEnd;
+
+                    setStartValue(prevEnd);
+                    setEndValue(prevStart);
+                    setRouteStart(prevRouteEnd);
+                    setRouteEnd(prevRouteStart);
+                    setRouteStartIsCurrentLocation(false);
+                    setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
+                  }}
+                  style={styles.swapButton}
+                >
+                  <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
+                </Pressable>
+              </View>
+
+              <View style={styles.routeActions}>
+                <Pressable
+                  onPress={() => {
+                    clearRoute();
+                    setStartValue("");
+                    setEndValue("");
+                    setSearchQuery("");
+                    setActiveField("end");
+                    closeRoutingSearchSheet();
+                  }}
+                  style={styles.clearChip}
+                >
+                  <Text style={styles.clearChipText}>Clear</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <BottomSheetTextInput
+              style={styles.input}
+              placeholder="Type Destination Here..."
               clearButtonMode="always"
               autoCapitalize="none"
               autoCorrect={false}
-              value={endValue}
-              onFocus={() => openRoutingSearchSheet("end")}
-              onChangeText={(text) => {
-                setEndValue(text);
-                setActiveField("end");
-                setRouteEnd(null);
-                setRouteRequested(false);
+              onChangeText={handleSearch}
+              value={mainSearchInput}
+              onFocus={() => {
+                openSheet();
+                setFocused(true);
+                setSearchQuery(mainSearchInput);
               }}
+              onSubmitEditing={() => commitSearch(mainSearchInput)}
+              onBlur={() => commitSearch(mainSearchInput)}
+              returnKeyType="search"
             />
+          )}
 
-            <View style={styles.routeActions}>
+          {routeError && (
+            <View style={styles.statusRow}>
+              <Text style={styles.errorText}>{routeError}</Text>
+            </View>
+          )}
+
+          {summaryVisible && (
+            <View style={styles.routeSummaryContainer}>
+              <View style={styles.routeSummaryLeft}>
+                <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
+                <Text style={styles.routeSummaryMeta}>
+                  {formatDistance()} • {formatETA()}
+                </Text>
+              </View>
+
               <Pressable
+                style={styles.goButton}
                 onPress={() => {
-                  clearRoute();
-                  setStartValue("");
-                  setEndValue("");
-                  setSearchQuery("");
-                  setActiveField("end");
-                  closeRoutingSearchSheet();
+                  startNavigation();
                 }}
-                style={styles.clearChip}
               >
-                <Text style={styles.clearChipText}>Clear</Text>
+                <Text style={styles.goButtonText}>GO</Text>
               </Pressable>
             </View>
           </View>
@@ -658,9 +833,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
         )}
       </>
     ),
+          )}
+        </>
+      );
+    },
     [
       activePath,
       clearRoute,
+      clearSelection,
       closeRoutingSearchSheet,
       endValue,
       formatDistance,
@@ -670,12 +850,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       handleSearch,
       isDark,
       mainSearchInput,
+      onNavigate,
       openRoutingSearchSheet,
       openSheet,
       routeEnd,
       routeError,
       routeStart,
       routingActive,
+      selectedBuilding,
+      selectedBuildingName,
+      selectedBuildingSubtitle,
       setRouteEnd,
       setRouteRequested,
       setRouteStart,
@@ -704,6 +888,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
             <Text style={[styles.routingSearchCloseButtonText, isDark && styles.routingSearchCloseButtonTextDark]}>
               X
             </Text>
+            <Text style={styles.routingSearchCloseButtonText}>✕</Text>
           </Pressable>
         </View>
 
@@ -738,16 +923,17 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
-    if (
-      routingActive &&
-      !hasAutoFilledStart &&
-      userLocation &&
-      !routeStart &&
-      startValue.length === 0
-    ) {
+    if (!routingActive || hasAutoFilledStart || !userLocation) return;
+
+    if (!routeStart && startValue.length === 0) {
+      // No start set yet — fill in user location
       setRouteStart(userLocation);
       setStartValue("My location");
       setRouteStartIsCurrentLocation(true);
+      setHasAutoFilledStart(true);
+    } else if (routeStartIsCurrentLocation && startValue.length === 0) {
+      // Start coordinate was already set (e.g. by handleNavigate) but display text is empty
+      setStartValue("My location");
       setHasAutoFilledStart(true);
     }
   }, [
@@ -755,7 +941,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     routingActive,
     userLocation,
     routeStart,
-    setHasAutoFilledStart,
+    routeStartIsCurrentLocation,
     setRouteStart,
     startValue,
     setRouteStartIsCurrentLocation,
@@ -773,6 +959,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
       setSearchQuery("");
       setMainSearchInput("");
       setRouteRequested(false);
+      // Delay snap so the BottomSheet processes the new (smaller) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
     }
   }, [routingActive, setSearchQuery, setRouteRequested]);
 
@@ -783,6 +973,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     }
     setRouteRequested(Boolean(routeStart && routeEnd));
   }, [routeEnd, routeStart, routingActive, setRouteRequested]);
+
+  // Expand the sheet when a building is selected so the info card isn't cut off
+  useEffect(() => {
+    if (selectedBuilding && !routingActive) {
+      sheetRef.current?.snapToIndex(1);
+    }
+  }, [selectedBuilding, routingActive]);
+
+  // Expand the sheet when routing becomes active so the directions panel is fully visible
+  useEffect(() => {
+    if (routingActive) {
+      // Delay snap so the BottomSheet processes the new (larger) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
+    }
+  }, [routingActive]);
 
   // Ensure route summary is visible by expanding the main sheet when it appears
   useEffect(() => {
@@ -816,12 +1023,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     }
   }, [routingActive]);
 
-  useEffect(() => {
-    if (!selectedBuilding || routingActive) {
-      return;
-    }
-    sheetRef.current?.snapToIndex(2);
-  }, [routingActive, selectedBuilding]);
 
   useEffect(() => {
     if (!routingActive || !routeDestination) {
@@ -852,22 +1053,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setSearchQuery,
   ]);
 
-  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
-  const selectedBuildingNumber =
-    String(
-      selectedBuilding?.properties?.ref ??
-      selectedBuilding?.properties?.["building:ref"] ??
-      selectedBuilding?.properties?.["addr:housenumber"] ??
-      "N/A",
-    );
-  const selectedBuildingSubtitle =
-    String(
-      selectedBuilding?.properties?.["university-function"] ??
-      selectedBuilding?.properties?.amenity ??
-      selectedBuilding?.properties?.building ??
-      "Campus building",
-    );
-
   return (
     <View style={{ flex: 1 }}>
       <BottomSheet
@@ -892,6 +1077,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
           style={styles.resultsList}
           // BottomSheet background is themed; list itself stays transparent.
           contentContainerStyle={styles.resultsListContent}
+          contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
               <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
                 {renderMainSheetHeader()}
@@ -958,13 +1144,13 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     paddingHorizontal: screenWidth / 2,
   },
+  inputSpacer: {
+    height: 20,
+  },
   fixedHeader: {
     paddingHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    marginBottom: 6,
+    paddingTop: 14,
+    paddingBottom: 10,
     backgroundColor: "#FFFFFF",
     zIndex: 1,
   },
@@ -988,13 +1174,13 @@ const styles = StyleSheet.create({
   },
   resultsListContent: {
     paddingHorizontal: 10,
-    paddingTop: 8,
     paddingBottom: 24,
   },
   routingSearchHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 10,
   },
   routingSearchPanelTitle: {
     marginLeft: 10,
@@ -1008,23 +1194,21 @@ const styles = StyleSheet.create({
     color: "#F1F3F5",
   },
   routingSearchCloseButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
+    backgroundColor: "#F9FAFB",
   },
   routingSearchCloseButtonDark: {
     backgroundColor: "#2A2F38",
     borderColor: "#2A2F38",
   },
   routingSearchCloseButtonText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#9CA3AF",
   },
   routingSearchCloseButtonTextDark: {
     color: "#E6E8EB",
@@ -1051,6 +1235,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
+    textAlign: "center",
   },
   inputDark: {
     backgroundColor: "#2A2F38",
@@ -1058,7 +1243,30 @@ const styles = StyleSheet.create({
     color: "#E6E8EB",
   },
   routeInputs: {
-    gap: 8,
+    gap: 12,
+  },
+  routeInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  routeInputFields: {
+    flex: 1,
+    gap: 10,
+  },
+  swapButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  swapButtonText: {
+    fontSize: 11,
+    lineHeight: 13,
+    fontWeight: "600",
+    color: "#9CA3AF",
+    textAlign: "center",
   },
   routeActions: {
     flexDirection: "row",
@@ -1119,11 +1327,14 @@ const styles = StyleSheet.create({
   },
   buildingName: {
     fontSize: 17,
-    marginLeft: 10,
     fontWeight: "600",
   },
   buildingNameDark: {
     color: "#F1F3F5",
+  buildingNumber: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginTop: 2,
   },
   subscript: {
     fontSize: 14,
@@ -1137,19 +1348,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 6,
   },
-  actionChip: {
-    borderRadius: 12,
-    backgroundColor: "#111827",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+  iconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  removeChip: {
-    backgroundColor: "#B91C1C",
+  heartIcon: {
+    fontSize: 20,
+    color: "#9CA3AF",
   },
-  actionChipText: {
-    color: "#F9FAFB",
-    fontSize: 12,
-    fontWeight: "600",
+  heartIconActive: {
+    color: "#EF4444",
+  },
+  removeIcon: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#9CA3AF",
   },
   sectionHeader: {
     marginTop: 12,
@@ -1190,6 +1406,46 @@ const styles = StyleSheet.create({
   directionHeader: {
     fontSize: 25,
     fontWeight: "900",
+    marginBottom: 6,
+  },
+  buildingInfoCard: {
+    marginTop: 24,
+    gap: 12,
+  },
+  buildingInfoHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  buildingInfoText: {
+    flex: 1,
+    marginRight: 8,
+  },
+  buildingInfoName: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+  },
+  buildingInfoSubtitle: {
+    fontSize: 13,
+    color: "#6B7280",
+    textTransform: "capitalize",
+    marginTop: 2,
+  },
+  buildingInfoClose: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+  },
+  buildingInfoCloseText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#6B7280",
   },
   directionHeaderDark: {
     color: "#F1F3F5",

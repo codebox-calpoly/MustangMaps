@@ -26,7 +26,7 @@ export default function UserLocationMarker() {
         id="user-marker-circle"
         style={{
           circleRadius: 7,
-          circleColor: "#007AFF",
+          circleColor: "#2563EB",
           circleOpacity: 1,
           circleStrokeWidth: 5,
           circleStrokeColor: "rgba(0,0,0,0.18)",

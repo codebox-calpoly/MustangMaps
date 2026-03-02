@@ -37,7 +37,7 @@ export function MapFilters({
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
+  const { setRoutingActive, clearRoute, clearSelection, mapStyle, setMapStyle } = useMapContext();
   const nextMapStyle = mapStyle === "light" ? "dark" : "light";
 
   return (
@@ -45,6 +45,7 @@ export function MapFilters({
       <View style={[styles.panel, mapStyle === "dark" && styles.panelDark]}>
         <View style={styles.rowSpaceBetween}>
           <Text style={[styles.panelTitle, mapStyle === "dark" && styles.panelTitleDark]}>Map Style</Text>
+          <Text style={styles.panelTitle}>Appearance</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Switch to ${nextMapStyle} mode`}
@@ -71,6 +72,7 @@ export function MapFilters({
               key={mode}
               onPress={() => {
                 onMapModeChange(mode);
+                clearSelection();
                 if (mode === "routing") {
                   setRoutingActive(true);
                 } else {
@@ -139,11 +141,20 @@ export function MapFilters({
         {mapMode === "amenities" && (
           <View style={styles.rowWrap}>
             {amenityOptions.map((option) => {
-              const isActive = amenitySet.has(option.id);
+              const isAllOption = option.id === "all";
+              const isActive = isAllOption
+                ? amenityTypeIds.length === 0
+                : amenitySet.has(option.id);
+
               return (
                 <Pressable
                   key={option.id}
                   onPress={() => {
+                    if (isAllOption) {
+                      onAmenityTypesChange([]);
+                      return;
+                    }
+
                     const next = new Set(amenityTypeIds);
                     if (next.has(option.id)) {
                       next.delete(option.id);
