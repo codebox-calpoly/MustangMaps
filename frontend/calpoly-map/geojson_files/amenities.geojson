@@ -901,6 +901,265 @@
           "type": "Point",
           "coordinates": [-120.662349, 35.299177]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_025",
+          "category": "toilet",
+          "name": "Walter F. Dexter Building Floor 1",
+          "building": "Walter F. Dexter Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663922, 35.30085]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_026",
+          "category": "toilet",
+          "name": "Walter F. Dexter Building Floor 2",
+          "building": "Walter F. Dexter Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.66349, 35.30113]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_027",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 1",
+          "building": "Frank E. Pilling Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661828, 35.299949]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_028",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662334, 35.300264]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_029",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662195, 35.300292]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_030",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662152, 35.299899]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_031",
+          "category": "toilet",
+          "name": "Engineering West Floor 1",
+          "building": "Engineering West Addition",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662651, 35.299736]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_032",
+          "category": "toilet",
+          "name": "Engineering West Floor 3",
+          "building": "Engineering West: City and Regional Planning",
+          "level": 3,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663417, 35.300181]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_033",
+          "category": "toilet",
+          "name": "Engineering West Floor 3",
+          "building": "Engineering West Addition",
+          "level": 3,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662695, 35.299875]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_034",
+          "category": "toilet",
+          "name": "Davidson Music Center Floor 1, 2",
+          "building": "Davidson Music Center",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658106, 35.299417]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_035",
+          "category": "toilet",
+          "name": "Davidson Music Center Floor 2",
+          "building": "Davidson Music Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65784, 35.299191]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_036",
+          "category": "toilet",
+          "name": "Spanos Theatre Main Level",
+          "building": "Spanos Theatre",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657898, 35.299853]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_037",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65709, 35.299703]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_038",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657131, 35.299153]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_039",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657057, 35.299235]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_040",
+          "category": "toilet",
+          "name": "PAC Balcony Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657265, 35.299206]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_041",
+          "category": "toilet",
+          "name": "PAC Balcony Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657012, 35.299316]
+        }
       }
     ]
   }
