@@ -79,6 +79,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const lastFittedRouteRef = useRef<string | null>(null);
 
   const {
+    mapStyle,
     searchQuery,
     setSearchQuery,
     userLocation,
@@ -112,6 +113,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const summaryVisible =
     routingActive &&
     Boolean(routeStart && routeEnd && activePath && !routeError);
+  const isDark = mapStyle === "dark";
 
   const {
     history,
@@ -461,10 +463,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (item.type === "header") {
         return (
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{item.section.title}</Text>
+            <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
+              {item.section.title}
+            </Text>
             {item.section.kind === "history" && (
               <Pressable onPress={clearHistory} style={styles.sectionAction}>
-                <Text style={styles.sectionActionText}>Clear</Text>
+                <Text style={[styles.sectionActionText, isDark && styles.sectionActionTextDark]}>
+                  Clear
+                </Text>
               </Pressable>
             )}
           </View>
@@ -476,11 +482,25 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         <Pressable
           onPress={() => handleSelectPlace(place)}
           style={({ pressed }) => [
-            { backgroundColor: pressed ? "#D2E6FF" : "white" },
+            {
+              backgroundColor: pressed
+                ? isDark
+                  ? "#2A2F38"
+                  : "#D2E6FF"
+                : isDark
+                  ? "#1C1F26"
+                  : "white",
+            },
             styles.itemContainer,
           ]}
         >
           <View style={styles.itemMeta}>
+            <Text style={[styles.buildingName, isDark && styles.buildingNameDark]}>
+              {place.name}
+            </Text>
+            <Text style={[styles.subscript, isDark && styles.subscriptDark]}>
+              {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
+            </Text>
             <Text style={styles.buildingName}>{place.name}</Text>
             {place.ref && (
               <Text style={styles.buildingNumber}>Building {place.ref}</Text>
@@ -512,6 +532,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [
       clearHistory,
       handleSelectPlace,
+      isDark,
       isFavorite,
       removeFromHistory,
       toggleFavorite,
@@ -559,6 +580,28 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     );
 
   const renderMainSheetHeader = useCallback(
+    () => (
+      <>
+        <Text style={[styles.directionHeader, isDark && styles.directionHeaderDark]}>
+          {routingActive ? "Directions" : "Search"}
+        </Text>
+
+        {routingActive ? (
+          <View style={styles.routeInputs}>
+            <TextInput
+              ref={routeStartInputRef}
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Starting point"
+              placeholderTextColor={isDark ? "#E6E8EB" : undefined}
+              value={startValue}
+              clearButtonMode="always"
+              onFocus={() => openRoutingSearchSheet("start")}
+              onChangeText={(text) => {
+                setStartValue(text);
+                setActiveField("start");
+                setRouteStart(null);
+                setRouteRequested(false);
+                setRouteStartIsCurrentLocation(false);
     () => {
       // When a building is selected and we're not routing, show building info
       if (selectedBuilding && !routingActive) {
@@ -597,6 +640,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         );
       }
 
+            <TextInput
+              ref={routeEndInputRef}
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Destination"
+              placeholderTextColor={isDark ? "#E6E8EB" : undefined}
       return (
         <>
           <Text style={styles.directionHeader}>
@@ -725,6 +773,66 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                 <Text style={styles.goButtonText}>GO</Text>
               </Pressable>
             </View>
+          </View>
+        ) : (
+          <BottomSheetTextInput
+            style={[styles.input, isDark && styles.inputDark]}
+            placeholder="Type Destination Here..."
+            placeholderTextColor={isDark ? "#E6E8EB" : undefined}
+            clearButtonMode="always"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onChangeText={handleSearch}
+            value={mainSearchInput}
+            onFocus={() => {
+              openSheet();
+              setFocused(true);
+              setSearchQuery(mainSearchInput);
+            }}
+            onSubmitEditing={() => commitSearch(mainSearchInput)}
+            onBlur={() => commitSearch(mainSearchInput)}
+            returnKeyType="search"
+          />
+        )}
+
+        <View style={styles.statusRow}>
+          <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
+            Start: {routeStart ? "set" : "not set"}
+          </Text>
+          <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
+            End: {routeEnd ? "set" : "not set"}
+          </Text>
+          {activePath && (
+            <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
+              Distance: {Math.round(activePath.distance)}m
+            </Text>
+          )}
+          {routeError && <Text style={styles.errorText}>{routeError}</Text>}
+        </View>
+
+        {summaryVisible && (
+          <View style={[styles.routeSummaryContainer, isDark && styles.routeSummaryContainerDark]}>
+            <View style={styles.routeSummaryLeft}>
+              <Text style={[styles.routeSummaryTime, isDark && styles.routeSummaryTimeDark]}>
+                {formatTime()}
+              </Text>
+              <Text style={[styles.routeSummaryMeta, isDark && styles.routeSummaryMetaDark]}>
+                {formatDistance()} • {formatETA()}
+              </Text>
+            </View>
+
+            <Pressable
+              style={styles.goButton}
+              onPress={() => {
+                startNavigation();
+              }}
+            >
+              <Text style={styles.goButtonText}>GO</Text>
+            </Pressable>
+          </View>
+        )}
+      </>
+    ),
           )}
         </>
       );
@@ -740,6 +848,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       formatTime,
       commitSearch,
       handleSearch,
+      isDark,
       mainSearchInput,
       onNavigate,
       openRoutingSearchSheet,
@@ -766,7 +875,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     () => (
       <>
         <View style={styles.routingSearchHeader}>
-          <Text style={styles.routingSearchPanelTitle}>
+          <Text style={[styles.routingSearchPanelTitle, isDark && styles.routingSearchPanelTitleDark]}>
             Search for{" "}
             {activeField === "start" ? "starting point" : "destination"}
           </Text>
@@ -774,19 +883,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             accessibilityRole="button"
             accessibilityLabel="Close search panel"
             onPress={closeRoutingSearchSheet}
-            style={styles.routingSearchCloseButton}
+            style={[styles.routingSearchCloseButton, isDark && styles.routingSearchCloseButtonDark]}
           >
+            <Text style={[styles.routingSearchCloseButtonText, isDark && styles.routingSearchCloseButtonTextDark]}>
+              X
+            </Text>
             <Text style={styles.routingSearchCloseButtonText}>✕</Text>
           </Pressable>
         </View>
 
         <BottomSheetTextInput
-          style={styles.input}
+          style={[styles.input, isDark && styles.inputDark]}
           placeholder={
             activeField === "start"
               ? "Search starting point"
               : "Search destination"
           }
+          placeholderTextColor={isDark ? "#E6E8EB" : undefined}
           clearButtonMode="always"
           autoCapitalize="none"
           autoCorrect={false}
@@ -802,6 +915,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       closeRoutingSearchSheet,
       endValue,
       handleRoutingSearchChange,
+      isDark,
       routingSearchSheetOpen,
       startValue,
     ],
@@ -949,6 +1063,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         animatedPosition={bottomSheetPosition}
         enableContentPanningGesture={false}
         handleStyle={styles.handleStyle}
+        handleIndicatorStyle={isDark ? styles.handleIndicatorDark : undefined}
+        backgroundStyle={isDark ? styles.sheetBackgroundDark : undefined}
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
       >
@@ -959,9 +1075,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           keyboardShouldPersistTaps="handled"
           bounces={false}
           style={styles.resultsList}
+          // BottomSheet background is themed; list itself stays transparent.
+          contentContainerStyle={styles.resultsListContent}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
-              <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+              <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
+                {renderMainSheetHeader()}
+              </View>
             }
             stickyHeaderIndices={[0]}
         />
@@ -978,6 +1098,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           enableHandlePanningGesture
           enablePanDownToClose
           enableOverDrag={false}
+          handleIndicatorStyle={isDark ? styles.handleIndicatorDark : undefined}
+          backgroundStyle={isDark ? styles.sheetBackgroundDark : undefined}
           keyboardBehavior="extend"
           keyboardBlurBehavior="restore"
           onChange={(index: number) => {
@@ -1002,7 +1124,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             style={styles.resultsList}
             contentContainerStyle={styles.resultsListContent}
             ListHeaderComponent={
-              <View style={styles.fixedHeader}>{renderRoutingSearchHeader()}</View>
+              <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
+                {renderRoutingSearchHeader()}
+              </View>
             }
             stickyHeaderIndices={[0]}
           />
@@ -1030,6 +1154,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     zIndex: 1,
   },
+  fixedHeaderDark: {
+    backgroundColor: "#1C1F26",
+    borderBottomColor: "#2A2F38",
+  },
+  sheetBackgroundDark: {
+    backgroundColor: "#1C1F26",
+  },
+  handleIndicatorDark: {
+    backgroundColor: "#E6E8EB",
+  },
   resultsPanel: {
     marginTop: 6,
     flex: 1,
@@ -1056,6 +1190,9 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.4,
   },
+  routingSearchPanelTitleDark: {
+    color: "#F1F3F5",
+  },
   routingSearchCloseButton: {
     width: 30,
     height: 30,
@@ -1064,10 +1201,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#F9FAFB",
   },
+  routingSearchCloseButtonDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#2A2F38",
+  },
   routingSearchCloseButtonText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#9CA3AF",
+  },
+  routingSearchCloseButtonTextDark: {
+    color: "#E6E8EB",
   },
 
   floatingOpenButton: {
@@ -1092,6 +1236,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     textAlign: "center",
+  },
+  inputDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#2A2F38",
+    color: "#E6E8EB",
   },
   routeInputs: {
     gap: 12,
@@ -1147,6 +1296,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#374151",
   },
+  statusTextDark: {
+    color: "#E6E8EB",
+  },
   errorText: {
     fontSize: 12,
     color: "#B91C1C",
@@ -1177,6 +1329,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "600",
   },
+  buildingNameDark: {
+    color: "#F1F3F5",
   buildingNumber: {
     fontSize: 13,
     color: "#6B7280",
@@ -1186,6 +1340,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 10,
     color: "grey",
+  },
+  subscriptDark: {
+    color: "#E6E8EB",
   },
   itemActions: {
     flexDirection: "row",
@@ -1223,6 +1380,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
   },
+  sectionTitleDark: {
+    color: "#F1F3F5",
+  },
   sectionAction: {
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -1231,6 +1391,9 @@ const styles = StyleSheet.create({
     color: "#1D4ED8",
     fontSize: 12,
     fontWeight: "600",
+  },
+  sectionActionTextDark: {
+    color: "#E6E8EB",
   },
   sheetHeaderRow: {
     marginLeft: 10,
@@ -1283,6 +1446,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#6B7280",
+  },
+  directionHeaderDark: {
+    color: "#F1F3F5",
   },
   buildingPanel: {
     marginTop: 8,
@@ -1380,6 +1546,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  routeSummaryContainerDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#2A2F38",
+  },
   routeSummaryLeft: {
     flexDirection: "column",
     gap: 2,
@@ -1389,9 +1559,15 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#111827",
   },
+  routeSummaryTimeDark: {
+    color: "#F1F3F5",
+  },
   routeSummaryMeta: {
     fontSize: 13,
     color: "#6B7280",
+  },
+  routeSummaryMetaDark: {
+    color: "#E6E8EB",
   },
   goButton: {
     width: 64,
