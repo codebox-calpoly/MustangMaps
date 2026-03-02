@@ -9,7 +9,7 @@ import { useSavedPlaces } from "../../../context/SavedPlacesContext";
 import geoData from "../../features/search/test.json";
 
 const FAVORITE_ICONS: Record<string, any> = {
-  "favorite-heart": require("../../../../assets/icons/heart.png"),
+  "favorite-star": require("../../../../assets/icons/star.png"),
 };
 
 export function FavoritesLayer({
@@ -87,19 +87,19 @@ export function FavoritesLayer({
         <SymbolLayer
           id="favorites-marker-icon"
           style={{
-            iconImage: "favorite-heart",
+            iconImage: "favorite-star",
             iconSize: [
               "interpolate",
               ["linear"],
               ["zoom"],
               13,
-              0.08,
+              0.05,
               15,
-              0.1,
+              0.07,
               17,
-              0.12,
+              0.09,
               19,
-              0.14,
+              0.11,
             ] as any,
             iconAllowOverlap: true,
             iconIgnorePlacement: true,
