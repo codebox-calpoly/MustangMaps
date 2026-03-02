@@ -10,6 +10,25 @@ type Coord = [number, number];
 
 type LineGeometry = LineString | MultiLineString;
 
+function parseAccessible(value: unknown): boolean {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["yes", "true", "1"].includes(normalized)) {
+      return true;
+    }
+    if (["no", "false", "0"].includes(normalized)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function coordKey(coord: Coord) {
   const [lon, lat] = coord;
   return `${lon.toFixed(6)},${lat.toFixed(6)}`;
@@ -37,6 +56,7 @@ function addEdge(
   toId: string,
   fromCoord: Coord,
   toCoord: Coord,
+  accessible: boolean,
   counter: number,
 ) {
   const id = `edge-${counter}`;
@@ -46,6 +66,7 @@ function addEdge(
     to: toId,
     distance: haversineDistanceMeters(fromCoord, toCoord),
     coordinates: [fromCoord, toCoord],
+    accessible,
   };
   return id;
 }
@@ -60,6 +81,7 @@ export function buildPathGraphFromGeoJSON(
 
   for (const feature of collection.features) {
     const geometry = feature.geometry as LineGeometry | null;
+    const accessible = parseAccessible(feature.properties?.accessible);
     if (!geometry) {
       continue;
     }
@@ -74,7 +96,15 @@ export function buildPathGraphFromGeoJSON(
         }
         const fromId = addNode(nodes, nodeIds, fromCoord);
         const toId = addNode(nodes, nodeIds, toCoord);
-        addEdge(edges, fromId, toId, fromCoord, toCoord, edgeCounter);
+        addEdge(
+          edges,
+          fromId,
+          toId,
+          fromCoord,
+          toCoord,
+          accessible,
+          edgeCounter,
+        );
         edgeCounter += 1;
       }
     }
@@ -90,7 +120,15 @@ export function buildPathGraphFromGeoJSON(
           }
           const fromId = addNode(nodes, nodeIds, fromCoord);
           const toId = addNode(nodes, nodeIds, toCoord);
-          addEdge(edges, fromId, toId, fromCoord, toCoord, edgeCounter);
+          addEdge(
+            edges,
+            fromId,
+            toId,
+            fromCoord,
+            toCoord,
+            accessible,
+            edgeCounter,
+          );
           edgeCounter += 1;
         }
       }

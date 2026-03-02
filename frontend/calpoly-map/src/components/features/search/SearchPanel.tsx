@@ -100,6 +100,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setRouteRequested,
     routeStartIsCurrentLocation,
     setRouteStartIsCurrentLocation,
+    routeAccessibleOnly,
+    setRouteAccessibleOnly,
     clearRoute,
     setUserLocation,
     startNavigation,
@@ -715,6 +717,37 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
               <View style={styles.routeActions}>
                 <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: routeAccessibleOnly }}
+                  accessibilityLabel="Accessible Routes Only"
+                  onPress={() => {
+                    const next = !routeAccessibleOnly;
+                    setRouteAccessibleOnly(next);
+                    setRouteRequested(Boolean(routeStart && routeEnd));
+                  }}
+                  style={({ pressed }) => [
+                    styles.accessibleToggle,
+                    routeAccessibleOnly && styles.accessibleToggleActive,
+                    pressed && styles.accessibleTogglePressed,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.accessibleCheckbox,
+                      routeAccessibleOnly && styles.accessibleCheckboxActive,
+                    ]}
+                  >
+                    {routeAccessibleOnly && (
+                      <Text style={styles.accessibleCheckmark}>✓</Text>
+                    )}
+                  </View>
+                  <Text style={styles.accessibleToggleText}>
+                    Accessible Routes Only
+                  </Text>
+                  <Text style={styles.accessibleToggleIcon}>♿</Text>
+                </Pressable>
+
+                <Pressable
                   onPress={() => {
                     clearRoute();
                     setStartValue("");
@@ -856,6 +889,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       routeEnd,
       routeError,
       routeStart,
+      routeAccessibleOnly,
       routingActive,
       selectedBuilding,
       selectedBuildingName,
@@ -863,6 +897,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setRouteEnd,
       setRouteRequested,
       setRouteStart,
+      setRouteAccessibleOnly,
       setRouteStartIsCurrentLocation,
       setSearchQuery,
       startNavigation,
@@ -1271,7 +1306,56 @@ const styles = StyleSheet.create({
   routeActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  accessibleToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#F9FAFB",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    gap: 8,
+  },
+  accessibleToggleActive: {
+    borderColor: "#15803D",
+    backgroundColor: "#ECFDF3",
+  },
+  accessibleTogglePressed: {
+    opacity: 0.85,
+  },
+  accessibleCheckbox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#9CA3AF",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  accessibleCheckboxActive: {
+    borderColor: "#15803D",
+    backgroundColor: "#16A34A",
+  },
+  accessibleCheckmark: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 14,
+  },
+  accessibleToggleText: {
+    color: "#111827",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  accessibleToggleIcon: {
+    color: "#374151",
+    fontSize: 13,
+    fontWeight: "700",
   },
   clearChip: {
     borderRadius: 999,
