@@ -37,6 +37,12 @@
       "filename": "printer.png",
       "fillColor": "#D97706",
       "glyph": "printer"
+    },
+    {
+      "id": "elevator",
+      "filename": "elevator.png",
+      "fillColor": "#7C3AED",
+      "glyph": "elevator"
     }
   ]
 }

@@ -9,6 +9,7 @@ The generator overwrites these files:
 - `../water-fountain.png`
 - `../bathroom.png`
 - `../printer.png`
+- `../elevator.png`
 
 ## Visual Spec
 
@@ -19,6 +20,7 @@ The generator overwrites these files:
   - Water fountain glyph
   - Bathroom glyph
   - Printer glyph
+  - Elevator glyph
 
 ## Regenerate Icons
 
@@ -40,6 +42,7 @@ If you move this script, keep `icon-spec.json` next to it or pass custom paths:
    - `water-fountain.png`
    - `bathroom.png`
    - `printer.png`
+   - `elevator.png`
 2. Confirm non-empty rendered bounds (not fully transparent).
 3. In app, open **Amenities** mode and verify each category maps to the correct icon.
 4. Verify legibility at map zoom levels `13`, `15`, `17`, `19`.

@@ -217,6 +217,54 @@ function Draw-PrinterGlyph {
   $primaryBrush.Dispose()
 }
 
+function Draw-ElevatorGlyph {
+  param(
+    [System.Drawing.Graphics]$Graphics,
+    [System.Drawing.RectangleF]$Rect,
+    [System.Drawing.Color]$PrimaryColor,
+    [double]$StrokeWidth
+  )
+
+  $sx = $Rect.Width / 24.0
+  $sy = $Rect.Height / 24.0
+  $toX = { param([double]$x) [float]($Rect.X + ($x * $sx)) }
+  $toY = { param([double]$y) [float]($Rect.Y + ($y * $sy)) }
+
+  $lineWidth = [float]([Math]::Max(1.5 * $sx, ($StrokeWidth - 1.0) * $sx))
+  $pen = [System.Drawing.Pen]::new($PrimaryColor, $lineWidth)
+  $pen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+  $pen.LineJoin = [System.Drawing.Drawing2D.LineJoin]::Round
+  $brush = [System.Drawing.SolidBrush]::new($PrimaryColor)
+
+  # Elevator shaft + center split doors.
+  $Graphics.DrawRectangle(
+    $pen,
+    (&$toX 5.2),
+    (&$toY 4.4),
+    [float](13.6 * $sx),
+    [float](15.8 * $sy)
+  )
+  $Graphics.DrawLine($pen, (&$toX 12), (&$toY 4.4), (&$toX 12), (&$toY 20.2))
+
+  # Direction arrows.
+  $upArrow = [System.Drawing.PointF[]]@(
+    [System.Drawing.PointF]::new((&$toX 12), (&$toY 1.9)),
+    [System.Drawing.PointF]::new((&$toX 9.4), (&$toY 4.8)),
+    [System.Drawing.PointF]::new((&$toX 14.6), (&$toY 4.8))
+  )
+  $downArrow = [System.Drawing.PointF[]]@(
+    [System.Drawing.PointF]::new((&$toX 12), (&$toY 22.3)),
+    [System.Drawing.PointF]::new((&$toX 9.4), (&$toY 19.4)),
+    [System.Drawing.PointF]::new((&$toX 14.6), (&$toY 19.4))
+  )
+  $Graphics.FillPolygon($brush, $upArrow)
+  $Graphics.FillPolygon($brush, $downArrow)
+
+  $brush.Dispose()
+  $pen.Dispose()
+}
+
 $resolvedSpecPath = (Resolve-Path $SpecPath).Path
 $resolvedOutputDir = (Resolve-Path $OutputDir).Path
 
@@ -258,6 +306,9 @@ foreach ($icon in $spec.icons) {
       }
       "printer" {
         Draw-PrinterGlyph -Graphics $graphics -Rect $glyphRect -PrimaryColor $glyphPrimary -DetailColor $glyphDetail
+      }
+      "elevator" {
+        Draw-ElevatorGlyph -Graphics $graphics -Rect $glyphRect -PrimaryColor $glyphPrimary -StrokeWidth $glyphSpec.strokeWidth
       }
       default {
         throw "Unsupported glyph type '$($icon.glyph)' in spec."
