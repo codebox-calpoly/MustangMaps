@@ -36,6 +36,7 @@ interface MapContextValue {
   routingActive: boolean;
   routeRequested: boolean;
   routeStartIsCurrentLocation: boolean;
+  routeAccessibleOnly: boolean;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   selectAmenity: (amenity: Feature<Geometry, GeoJsonProperties>, levels: number[]) => void;
@@ -55,6 +56,7 @@ interface MapContextValue {
   setAmenityTypeIds: (ids: string[]) => void;
   setRouteRequested: (requested: boolean) => void;
   setRouteStartIsCurrentLocation: (value: boolean) => void;
+  setRouteAccessibleOnly: (value: boolean) => void;
   setMapDataStatus: (
     key: string,
     status: { loading?: boolean; error?: string | null },
@@ -98,6 +100,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeRequested, setRouteRequested] = useState(false);
   const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
     useState(false);
+  const [routeAccessibleOnly, setRouteAccessibleOnly] = useState(false);
 
   // navigation mode state
   const [navigationMode, setNavigationMode] = useState(false);
@@ -197,6 +200,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteError(null);
     setRouteRequested(false);
     setRouteStartIsCurrentLocation(false);
+    setRouteAccessibleOnly(false);
   }, []);
 
   const value = useMemo(
@@ -222,6 +226,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routingActive,
       routeRequested,
       routeStartIsCurrentLocation,
+      routeAccessibleOnly,
       selectBuilding,
       clearSelection,
       selectAmenity,
@@ -241,6 +246,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
+      setRouteAccessibleOnly,
       setMapDataStatus,
       retryMapData,
       clearRoute,
@@ -272,6 +278,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routingActive,
       routeRequested,
       routeStartIsCurrentLocation,
+      routeAccessibleOnly,
       selectBuilding,
       clearSelection,
       selectAmenity,
@@ -289,6 +296,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setAmenityTypeIds,
       setRouteRequested,
       setRouteStartIsCurrentLocation,
+      setRouteAccessibleOnly,
       setMapDataStatus,
       retryMapData,
       clearRoute,
