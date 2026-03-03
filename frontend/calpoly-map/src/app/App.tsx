@@ -25,6 +25,7 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
   { id: "bathroom", label: "Bathrooms" },
   { id: "water_fountain", label: "Water Fountains" },
   { id: "printer", label: "Printers" },
+  { id: "elevator", label: "Elevators" },
 ];
 
 export default function App() {

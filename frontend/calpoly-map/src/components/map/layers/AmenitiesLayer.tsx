@@ -14,6 +14,7 @@ const AMENITY_ICONS: Record<string, any> = {
   "water-fountain": require("../../../../assets/icons/water-fountain.png"),
   "bathroom": require("../../../../assets/icons/bathroom.png"),
   "printer": require("../../../../assets/icons/printer.png"),
+  "elevator": require("../../../../assets/icons/elevator.png"),
 };
 
 const DISPLAYED_AMENITY_CATEGORIES = [
@@ -21,6 +22,8 @@ const DISPLAYED_AMENITY_CATEGORIES = [
   "bathroom",
   "toilet",
   "printer",
+  "elevator",
+  "lift",
 ] as const;
 
 // Main component to render the amenities layer on the map
@@ -98,6 +101,8 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       "bathroom", "bathroom",
       "toilet", "bathroom",
       "printer", "printer",
+      "elevator", "elevator",
+      "lift", "elevator",
       "water-fountain" // default
     ] as any;
   }, []);
@@ -110,6 +115,9 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     const types = [...amenityTypes];
     if (types.includes("bathroom") && !types.includes("toilet")) {
       types.push("toilet");
+    }
+    if (types.includes("elevator") && !types.includes("lift")) {
+      types.push("lift");
     }
     return types;
   }, [amenityTypes]);
