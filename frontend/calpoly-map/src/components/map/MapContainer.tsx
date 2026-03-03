@@ -89,6 +89,7 @@ export function MapContainer({
     setRouteStartIsCurrentLocation,
     setRouteDestination,
     setRoutingActive,
+    setUserLocation,
     navigationMode,
   } = useMapContext();
   const mapStyleUrl =
@@ -100,6 +101,13 @@ export function MapContainer({
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
   const [followUser, setFollowUser] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (latitude == null || longitude == null) {
+      return;
+    }
+    setUserLocation([longitude, latitude]);
+  }, [latitude, longitude, setUserLocation]);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -490,16 +498,18 @@ export function MapContainer({
         )}
       </MapView>
 
-      <MapFilters
-        mapMode={mapMode}
-        onMapModeChange={setMapMode}
-        buildingTypeIds={buildingTypeIds}
-        onBuildingTypesChange={setBuildingTypeIds}
-        amenityTypeIds={amenityTypeIds}
-        onAmenityTypesChange={setAmenityTypeIds}
-        buildingOptions={buildingOptions}
-        amenityOptions={amenityOptions}
-      />
+      {!navigationMode && (
+        <MapFilters
+          mapMode={mapMode}
+          onMapModeChange={setMapMode}
+          buildingTypeIds={buildingTypeIds}
+          onBuildingTypesChange={setBuildingTypeIds}
+          amenityTypeIds={amenityTypeIds}
+          onAmenityTypesChange={setAmenityTypeIds}
+          buildingOptions={buildingOptions}
+          amenityOptions={amenityOptions}
+        />
+      )}
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">

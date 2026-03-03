@@ -10,9 +10,36 @@ import * as Location from "expo-location";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
 import type { PathfinderResult } from "../lib/routing/pathfinder";
+import {
+  buildDirectionsFromPath,
+  type DirectionStep,
+} from "../lib/routing/directions";
 
 type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
+
+const STEP_REACHED_THRESHOLD_METERS = 18;
+const STEP_PROGRESS_SNAP_METERS = 60;
+
+function distanceBetweenCoordinatesMeters(
+  from: Coordinates,
+  to: Coordinates,
+) {
+  const toRadians = Math.PI / 180;
+  const lat1 = from[1] * toRadians;
+  const lat2 = to[1] * toRadians;
+  const latDelta = (to[1] - from[1]) * toRadians;
+  const lonDelta = (to[0] - from[0]) * toRadians;
+
+  const a =
+    Math.sin(latDelta / 2) * Math.sin(latDelta / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(lonDelta / 2) *
+      Math.sin(lonDelta / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return 6_371_000 * c;
+}
 
 interface MapContextValue {
   mapMode: "buildings" | "amenities" | "routing";
@@ -62,7 +89,7 @@ interface MapContextValue {
   retryMapData: () => void;
   clearRoute: () => void;
   navigationMode: boolean;
-  navSteps: any[];
+  navSteps: DirectionStep[];
   activeStepIndex: number;
   startNavigation: () => void;
   exitNavigation: () => void;
@@ -101,7 +128,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 
   // navigation mode state
   const [navigationMode, setNavigationMode] = useState(false);
-  const [navSteps, setNavSteps] = useState<any[]>([]);
+  const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
   useEffect(() => {
@@ -173,11 +200,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const startNavigation = useCallback(() => {
     if (!activePath) return;
 
-    // TODO: replace stub with real directions once directions.ts is available
-    const steps = [
-      { instruction: "Head straight for 120 m", distance: 120 },
-      { instruction: "Turn left and continue for 40 m", distance: 40 },
-    ];
+    const steps = buildDirectionsFromPath(activePath);
 
     setNavSteps(steps);
     setActiveStepIndex(0);
@@ -189,6 +212,57 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setNavSteps([]);
     setActiveStepIndex(0);
   }, []);
+
+  useEffect(() => {
+    if (!navigationMode || navSteps.length === 0 || !userLocation) {
+      return;
+    }
+
+    const finalStepIndex = navSteps.length - 1;
+    if (activeStepIndex >= finalStepIndex) {
+      return;
+    }
+
+    let nextStepIndex = activeStepIndex;
+    while (nextStepIndex < finalStepIndex) {
+      const step = navSteps[nextStepIndex];
+      const distanceToStepEnd = distanceBetweenCoordinatesMeters(
+        userLocation,
+        step.to,
+      );
+      if (distanceToStepEnd > STEP_REACHED_THRESHOLD_METERS) {
+        break;
+      }
+      nextStepIndex += 1;
+    }
+
+    if (nextStepIndex === activeStepIndex) {
+      let nearestForwardIndex = activeStepIndex;
+      let nearestForwardDistance = Number.POSITIVE_INFINITY;
+
+      for (let index = activeStepIndex; index <= finalStepIndex; index += 1) {
+        const distanceToStepEnd = distanceBetweenCoordinatesMeters(
+          userLocation,
+          navSteps[index].to,
+        );
+        if (distanceToStepEnd < nearestForwardDistance) {
+          nearestForwardDistance = distanceToStepEnd;
+          nearestForwardIndex = index;
+        }
+      }
+
+      if (
+        nearestForwardIndex > activeStepIndex &&
+        nearestForwardDistance <= STEP_PROGRESS_SNAP_METERS
+      ) {
+        nextStepIndex = nearestForwardIndex;
+      }
+    }
+
+    if (nextStepIndex !== activeStepIndex) {
+      setActiveStepIndex(nextStepIndex);
+    }
+  }, [activeStepIndex, navSteps, navigationMode, userLocation]);
 
   const clearRoute = useCallback(() => {
     setRouteStart(null);
