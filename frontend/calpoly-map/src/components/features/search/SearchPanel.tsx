@@ -503,7 +503,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             <Text style={[styles.subscript, isDark && styles.subscriptDark]}>
               {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
             </Text>
-            <Text style={styles.buildingName}>{place.name}</Text>
             {place.ref && (
               <Text style={styles.buildingNumber}>Building {place.ref}</Text>
             )}
@@ -588,26 +587,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           {routingActive ? "Directions" : "Search"}
         </Text>
 
-        {routingActive ? (
-          <View style={styles.routeInputs}>
-            <TextInput
-              ref={routeStartInputRef}
-              style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Starting point"
-              placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-              value={startValue}
-              clearButtonMode="always"
-              onFocus={() => openRoutingSearchSheet("start")}
-              onChangeText={(text) => {
-                setStartValue(text);
-                setActiveField("start");
-                setRouteStart(null);
-                setRouteRequested(false);
-                setRouteStartIsCurrentLocation(false);
-    () => {
-      // When a building is selected and we're not routing, show building info
-      if (selectedBuilding && !routingActive) {
-        return (
+        {!routingActive && <View style={styles.inputSpacer} />}
+
+        {selectedBuilding && !routingActive ? (
           <View style={styles.buildingInfoCard}>
             <View style={styles.buildingInfoHeader}>
               <View style={styles.buildingInfoText}>
@@ -639,171 +621,110 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
             </Pressable>
           </View>
-        );
-      }
-
-            <TextInput
-              ref={routeEndInputRef}
-              style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Destination"
-              placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-      return (
-        <>
-          <Text style={styles.directionHeader}>
-            {routingActive ? "Directions" : "Search"}
-          </Text>
-
-          {!routingActive && <View style={styles.inputSpacer} />}
-
-          {routingActive ? (
-            <View style={styles.routeInputs}>
-              <View style={styles.routeInputRow}>
-                <View style={styles.routeInputFields}>
-                  <TextInput
-                    ref={routeStartInputRef}
-                    style={styles.input}
-                    placeholder="Starting point"
-                    value={startValue}
-                    clearButtonMode="always"
-                    onFocus={() => openRoutingSearchSheet("start")}
-                    onChangeText={(text) => {
-                      setStartValue(text);
-                      setActiveField("start");
-                      setRouteStart(null);
-                      setRouteRequested(false);
-                      setRouteStartIsCurrentLocation(false);
-                    }}
-                  />
-
-                  <TextInput
-                    ref={routeEndInputRef}
-                    style={styles.input}
-                    placeholder="Destination"
-                    clearButtonMode="always"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={endValue}
-                    onFocus={() => openRoutingSearchSheet("end")}
-                    onChangeText={(text) => {
-                      setEndValue(text);
-                      setActiveField("end");
-                      setRouteEnd(null);
-                      setRouteRequested(false);
-                    }}
-                  />
-                </View>
-
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Swap start and destination"
-                  onPress={() => {
-                    const prevStart = startValue;
-                    const prevEnd = endValue;
-                    const prevRouteStart = routeStart;
-                    const prevRouteEnd = routeEnd;
-
-                    setStartValue(prevEnd);
-                    setEndValue(prevStart);
-                    setRouteStart(prevRouteEnd);
-                    setRouteEnd(prevRouteStart);
+        ) : routingActive ? (
+          <View style={styles.routeInputs}>
+            <View style={styles.routeInputRow}>
+              <View style={styles.routeInputFields}>
+                <TextInput
+                  ref={routeStartInputRef}
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Starting point"
+                  placeholderTextColor={isDark ? "#E6E8EB" : undefined}
+                  value={startValue}
+                  clearButtonMode="always"
+                  onFocus={() => openRoutingSearchSheet("start")}
+                  onChangeText={(text) => {
+                    setStartValue(text);
+                    setActiveField("start");
+                    setRouteStart(null);
+                    setRouteRequested(false);
                     setRouteStartIsCurrentLocation(false);
-                    setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
                   }}
-                  style={styles.swapButton}
-                >
-                  <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
-                </Pressable>
-              </View>
+                />
 
-              <View style={styles.routeActions}>
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: routeAccessibleOnly }}
-                  accessibilityLabel="Accessible Routes Only"
-                  onPress={() => {
-                    const next = !routeAccessibleOnly;
-                    setRouteAccessibleOnly(next);
-                    setRouteRequested(Boolean(routeStart && routeEnd));
-                  }}
-                  style={({ pressed }) => [
-                    styles.accessibleToggle,
-                    routeAccessibleOnly && styles.accessibleToggleActive,
-                    pressed && styles.accessibleTogglePressed,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.accessibleCheckbox,
-                      routeAccessibleOnly && styles.accessibleCheckboxActive,
-                    ]}
-                  >
-                    {routeAccessibleOnly && (
-                      <Text style={styles.accessibleCheckmark}>✓</Text>
-                    )}
-                  </View>
-                  <Text style={styles.accessibleToggleText}>
-                    Accessible Routes Only
-                  </Text>
-                  <Text style={styles.accessibleToggleIcon}>♿</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={() => {
-                    clearRoute();
-                    setStartValue("");
-                    setEndValue("");
-                    setSearchQuery("");
+                <TextInput
+                  ref={routeEndInputRef}
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Destination"
+                  placeholderTextColor={isDark ? "#E6E8EB" : undefined}
+                  clearButtonMode="always"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  value={endValue}
+                  onFocus={() => openRoutingSearchSheet("end")}
+                  onChangeText={(text) => {
+                    setEndValue(text);
                     setActiveField("end");
-                    closeRoutingSearchSheet();
+                    setRouteEnd(null);
+                    setRouteRequested(false);
                   }}
-                  style={styles.clearChip}
-                >
-                  <Text style={styles.clearChipText}>Clear</Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : (
-            <BottomSheetTextInput
-              style={styles.input}
-              placeholder="Type Destination Here..."
-              clearButtonMode="always"
-              autoCapitalize="none"
-              autoCorrect={false}
-              onChangeText={handleSearch}
-              value={mainSearchInput}
-              onFocus={() => {
-                openSheet();
-                setFocused(true);
-                setSearchQuery(mainSearchInput);
-              }}
-              onSubmitEditing={() => commitSearch(mainSearchInput)}
-              onBlur={() => commitSearch(mainSearchInput)}
-              returnKeyType="search"
-            />
-          )}
-
-          {routeError && (
-            <View style={styles.statusRow}>
-              <Text style={styles.errorText}>{routeError}</Text>
-            </View>
-          )}
-
-          {summaryVisible && (
-            <View style={styles.routeSummaryContainer}>
-              <View style={styles.routeSummaryLeft}>
-                <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
-                <Text style={styles.routeSummaryMeta}>
-                  {formatDistance()} • {formatETA()}
-                </Text>
+                />
               </View>
 
               <Pressable
-                style={styles.goButton}
+                accessibilityRole="button"
+                accessibilityLabel="Swap start and destination"
                 onPress={() => {
-                  startNavigation();
+                  const prevStart = startValue;
+                  const prevEnd = endValue;
+                  const prevRouteStart = routeStart;
+                  const prevRouteEnd = routeEnd;
+
+                  setStartValue(prevEnd);
+                  setEndValue(prevStart);
+                  setRouteStart(prevRouteEnd);
+                  setRouteEnd(prevRouteStart);
+                  setRouteStartIsCurrentLocation(false);
+                  setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
                 }}
+                style={styles.swapButton}
               >
-                <Text style={styles.goButtonText}>GO</Text>
+                <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.routeActions}>
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: routeAccessibleOnly }}
+                accessibilityLabel="Accessible Routes Only"
+                onPress={() => {
+                  const next = !routeAccessibleOnly;
+                  setRouteAccessibleOnly(next);
+                  setRouteRequested(Boolean(routeStart && routeEnd));
+                }}
+                style={({ pressed }) => [
+                  styles.accessibleToggle,
+                  routeAccessibleOnly && styles.accessibleToggleActive,
+                  pressed && styles.accessibleTogglePressed,
+                ]}
+              >
+                <View
+                  style={[
+                    styles.accessibleCheckbox,
+                    routeAccessibleOnly && styles.accessibleCheckboxActive,
+                  ]}
+                >
+                  {routeAccessibleOnly && (
+                    <Text style={styles.accessibleCheckmark}>✓</Text>
+                  )}
+                </View>
+                <Text style={styles.accessibleToggleText}>Accessible Routes Only</Text>
+                <Text style={styles.accessibleToggleIcon}>♿</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  clearRoute();
+                  setStartValue("");
+                  setEndValue("");
+                  setSearchQuery("");
+                  setActiveField("end");
+                  closeRoutingSearchSheet();
+                }}
+                style={styles.clearChip}
+              >
+                <Text style={styles.clearChipText}>Clear</Text>
               </Pressable>
             </View>
           </View>
@@ -866,10 +787,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         )}
       </>
     ),
-          )}
-        </>
-      );
-    },
     [
       activePath,
       clearRoute,
@@ -921,9 +838,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             style={[styles.routingSearchCloseButton, isDark && styles.routingSearchCloseButtonDark]}
           >
             <Text style={[styles.routingSearchCloseButtonText, isDark && styles.routingSearchCloseButtonTextDark]}>
-              X
+              ✕
             </Text>
-            <Text style={styles.routingSearchCloseButtonText}>✕</Text>
           </Pressable>
         </View>
 
@@ -1111,7 +1027,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           bounces={false}
           style={styles.resultsList}
           // BottomSheet background is themed; list itself stays transparent.
-          contentContainerStyle={styles.resultsListContent}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
               <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
@@ -1415,6 +1330,7 @@ const styles = StyleSheet.create({
   },
   buildingNameDark: {
     color: "#F1F3F5",
+  },
   buildingNumber: {
     fontSize: 13,
     color: "#6B7280",

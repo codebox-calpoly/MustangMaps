@@ -247,7 +247,6 @@ export function BuildingLayer({
       onPress={(event) => {
         if (event.features && event.features.length > 0) {
           const feature = event.features[0];
-          console.log('Building tapped:', feature.properties?.name);
           onBuildingPress?.(feature);
         }
         return true;
