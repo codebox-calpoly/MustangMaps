@@ -76,7 +76,7 @@ function getPrimaryInstruction(step?: DirectionStep) {
 }
 
 export function NavigationUI() {
-  const { exitNavigation, navSteps, activeStepIndex, userLocation } = useMapContext();
+  const { exitNavigation, navSteps, activeStepIndex, userLocation, isRerouting } = useMapContext();
   const insets = useSafeAreaInsets();
   const [topBarHeight, setTopBarHeight] = useState(0);
 
@@ -220,6 +220,12 @@ export function NavigationUI() {
           </Text>
         )}
       </View>
+
+      {isRerouting && (
+        <View style={styles.reroutingBanner} pointerEvents="none">
+          <Text style={styles.reroutingText}>Rerouting...</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -373,6 +379,20 @@ const styles = StyleSheet.create({
   exitButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
+    fontWeight: "700",
+  },
+  reroutingBanner: {
+    position: "absolute",
+    top: "50%",
+    alignSelf: "center",
+    backgroundColor: "rgba(17, 24, 39, 0.88)",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  reroutingText: {
+    color: "#F9FAFB",
+    fontSize: 15,
     fontWeight: "700",
   },
 });

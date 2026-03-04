@@ -153,6 +153,7 @@ interface MapContextValue {
   exitNavigation: () => void;
   graph: PathGraph | null;
   setGraph: (graph: PathGraph | null) => void;
+  isRerouting: boolean;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -193,7 +194,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [navigationMode, setNavigationMode] = useState(false);
   const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [isRerouting, setIsRerouting] = useState(false);
   const lastRerouteTimeRef = useRef(0);
+  const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Keep routeStart in sync with live location when starting from current position
   useEffect(() => {
@@ -318,6 +321,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Don't reroute if user has reached the arrive step
+    const finalStepIdx = navSteps.length - 1;
+    if (finalStepIdx >= 0 && activeStepIndex >= finalStepIdx) {
+      return;
+    }
+
     const deviation = minDistanceToPath(
       userLocation,
       activePath.path as [number, number][],
@@ -332,6 +341,10 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
     lastRerouteTimeRef.current = now;
 
+    setIsRerouting(true);
+    // Clear any previous dismiss timer
+    if (rerouteTimerRef.current) clearTimeout(rerouteTimerRef.current);
+
     let result = findPath(graph, userLocation, routeEnd);
     if (!result) {
       result = findPath(graph, userLocation, routeEnd, {
@@ -339,6 +352,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       });
     }
     if (!result) {
+      setIsRerouting(false);
       return; // keep current route — user may return to path
     }
 
@@ -346,7 +360,32 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     const newSteps = buildDirectionsFromPath(result);
     setNavSteps(newSteps);
     setActiveStepIndex(0);
-  }, [activePath, graph, navigationMode, routeEnd, userLocation]);
+
+    // Dismiss rerouting indicator after 2 seconds
+    rerouteTimerRef.current = setTimeout(() => {
+      setIsRerouting(false);
+    }, 2000);
+  }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeEnd, userLocation]);
+
+  // Auto-exit navigation when user reaches the destination (arrive step)
+  useEffect(() => {
+    if (!navigationMode || navSteps.length === 0 || !userLocation) {
+      return;
+    }
+
+    const lastStep = navSteps[navSteps.length - 1];
+    if (lastStep.maneuver !== "arrive") {
+      return;
+    }
+
+    const distToDestination = distanceBetweenCoordinatesMeters(
+      userLocation,
+      lastStep.to,
+    );
+    if (distToDestination <= STEP_REACHED_THRESHOLD_METERS) {
+      exitNavigation();
+    }
+  }, [exitNavigation, navigationMode, navSteps, userLocation]);
 
   const clearRoute = useCallback(() => {
     setRouteStart(null);
@@ -409,6 +448,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       exitNavigation,
       graph,
       setGraph,
+      isRerouting,
     }),
     [
       mapMode,
@@ -458,6 +498,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       startNavigation,
       exitNavigation,
       graph,
+      isRerouting,
     ],
   );
 
