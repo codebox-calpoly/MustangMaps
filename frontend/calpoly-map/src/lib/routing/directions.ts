@@ -218,7 +218,17 @@ export function buildDirectionsFromSegments(
     options?.tinyStepMaxMeters ?? DEFAULT_TINY_STEP_MAX_METERS;
 
   const rawSteps: StepAccumulator[] = [createAccumulator(segments[0], "head")];
+
+  // Initialise previousBearing from the first non-tiny segment so that a
+  // noisy 2-3 m starting segment (graph jitter near the snap point) doesn't
+  // corrupt the classification of the first real turn.
   let previousBearing = segments[0].bearing;
+  for (let i = 0; i < segments.length; i += 1) {
+    if (segments[i].distance > tinyStepMaxMeters) {
+      previousBearing = segments[i].bearing;
+      break;
+    }
+  }
 
   for (let i = 1; i < segments.length; i += 1) {
     const segment = segments[i];
@@ -246,6 +256,14 @@ export function buildDirectionsFromSegments(
   }
 
   const compacted = mergeTinySteps(rawSteps, tinyStepMaxMeters);
+
+  // The first step must always be "head" — the user has no prior travel
+  // direction to "turn" from.  Tiny-step merging can absorb the original
+  // head into a subsequent turn step; force it back.
+  if (compacted.length > 0 && compacted[0].maneuver !== "head") {
+    compacted[0].maneuver = "head";
+  }
+
   return compacted.map((step) => {
     const bearing = movementBearing(step);
     const direction = bearingToCompassDirection(bearing);

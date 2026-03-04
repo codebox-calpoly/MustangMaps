@@ -66,6 +66,25 @@ test("buildDirectionsFromSegments merges tiny steps", () => {
   assert.equal(steps[1].maneuver, "turn-left");
 });
 
+test("tiny starting segment does not corrupt first turn classification", () => {
+  // Tiny 3m start pointing northwest (315°), then 66m south (180°), then 30m east (90°).
+  // Without the fix the first "head" merges into "turn-left" (classified
+  // against the noisy 315° bearing) and the user sees "Turn Left" step-1.
+  // Expected: head(69m south) → turn-left(30m east).
+  const segments: RouteSegment[] = [
+    segment([0, 0], [0.00001, 0.00001], 3, 315),
+    segment([0.00001, 0.00001], [0.00001, -0.0005], 66, 180),
+    segment([0.00001, -0.0005], [0.0003, -0.0005], 30, 90),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.equal(steps[0].maneuver, "head");
+  assert.ok(steps[0].distance >= 60, `expected head step ≥60m, got ${steps[0].distance}`);
+  const turnStep = steps.find((s) => s.maneuver === "turn-left" || s.maneuver === "turn-right");
+  assert.ok(turnStep, "expected a turn step");
+  assert.equal(turnStep.maneuver, "turn-left");
+});
+
 test("tiny zigzag before junction does not invert turn direction", () => {
   // Heading south (180°), tiny 3m zigzag nearly north (350°), then east (90°).
   // Without the fix, previousBearing becomes 350° from the zigzag, making the
