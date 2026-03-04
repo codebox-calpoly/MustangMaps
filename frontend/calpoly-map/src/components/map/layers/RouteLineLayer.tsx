@@ -51,8 +51,6 @@ export function RouteLineLayer() {
     routeStart,
     routeEnd,
     navigationMode,
-    navSteps,
-    activeStepIndex,
     userLocation,
   } = useMapContext();
 
@@ -64,27 +62,15 @@ export function RouteLineLayer() {
     let coordinates = activePath.path;
 
     // During navigation, continuously trim the walked portion of the path
-    if (navigationMode && navSteps.length > 0 && userLocation) {
+    if (navigationMode && userLocation) {
       const path = activePath.path;
 
-      // Determine the earliest path index to search from (current step's start)
-      // so we never snap backward to an already-completed portion.
-      const clampedIndex = Math.min(activeStepIndex, navSteps.length - 1);
-      const currentStepFrom = navSteps[clampedIndex].from;
-      let searchStart = 0;
-      for (let i = 0; i < path.length; i++) {
-        if (path[i][0] === currentStepFrom[0] && path[i][1] === currentStepFrom[1]) {
-          searchStart = i;
-          break;
-        }
-      }
-
       // Find the path segment closest to the user's current location
-      let bestSegIdx = searchStart;
+      let bestSegIdx = 0;
       let bestDistSq = Number.POSITIVE_INFINITY;
-      let bestProjected: Coord = path[searchStart];
+      let bestProjected: Coord = path[0];
 
-      for (let i = searchStart; i < path.length - 1; i++) {
+      for (let i = 0; i < path.length - 1; i++) {
         const { projected } = projectOntoSegment(userLocation as Coord, path[i], path[i + 1]);
         const dSq = flatDistSq(userLocation as Coord, projected);
         if (dSq < bestDistSq) {
@@ -133,7 +119,7 @@ export function RouteLineLayer() {
         },
       ],
     };
-  }, [activePath, navigationMode, navSteps, activeStepIndex, userLocation]);
+  }, [activePath, navigationMode, userLocation]);
 
   // Hide start/end dots during navigation (user location marker is sufficient)
   const pointCollection = useMemo<FeatureCollection<Point> | null>(() => {
