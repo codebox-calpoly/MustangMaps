@@ -151,6 +151,15 @@ export function NavigationUI() {
 
   const currentStep = navSteps[clampedStepIndex];
 
+  const currentStepRemainingDistance = useMemo(() => {
+    if (!currentStep) return 0;
+    if (!userLocation) return Math.max(0, currentStep.distance);
+    return Math.min(
+      Math.max(0, currentStep.distance),
+      distanceBetweenCoordinatesMeters(userLocation, currentStep.to),
+    );
+  }, [currentStep, userLocation]);
+
   const remainingDistanceMeters = useMemo(() => {
     if (navSteps.length === 0) {
       return 0;
@@ -209,7 +218,7 @@ export function NavigationUI() {
           </View>
           <View style={styles.topTextColumn}>
             <Text style={styles.topDistance}>
-              {formatStepDistance(currentStep?.distance ?? 0)}
+              {formatStepDistance(currentStepRemainingDistance)}
             </Text>
             <Text style={styles.topInstruction}>
               {getPrimaryInstruction(currentStep)}

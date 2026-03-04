@@ -24,8 +24,8 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 18;
 const STEP_PROGRESS_SNAP_METERS = 60;
-const DEVIATION_THRESHOLD_METERS = 30;
-const REROUTE_COOLDOWN_MS = 5000;
+const DEVIATION_THRESHOLD_METERS = 15;
+const REROUTE_COOLDOWN_MS = 2000;
 
 function distanceBetweenCoordinatesMeters(
   from: Coordinates,
