@@ -13,7 +13,6 @@ interface DirectionListProps {
 interface StepListItem {
   id: string;
   index: number;
-  stepNumber: number;
   step: DirectionStep;
 }
 
@@ -27,18 +26,18 @@ function formatStepDistance(distanceMeters: number) {
   return `${Math.max(1, Math.round(distanceMeters))} m`;
 }
 
-function getManeuverLabel(step: DirectionStep) {
+function getManeuverSymbol(step: DirectionStep) {
   switch (step.maneuver) {
     case "turn-left":
-      return "Turn left";
+      return "L";
     case "turn-right":
-      return "Turn right";
+      return "R";
     case "arrive":
-      return "Arrive";
+      return "A";
     case "head":
-      return "Head out";
+      return "C";
     default:
-      return "Continue";
+      return "C";
   }
 }
 
@@ -51,15 +50,11 @@ export function DirectionList({
   const data = useMemo<StepListItem[]>(
     () => {
       const remainingSteps = steps.slice(Math.max(0, activeStepIndex));
-      return remainingSteps.map((step, index) => {
-        const stepNumber = activeStepIndex + index + 1;
-        return {
-          id: `${stepNumber}-${step.from[0]}:${step.from[1]}-${step.to[0]}:${step.to[1]}`,
-          index,
-          stepNumber,
-          step,
-        };
-      });
+      return remainingSteps.map((step, index) => ({
+        id: `${activeStepIndex + index}-${step.from[0]}:${step.from[1]}-${step.to[0]}:${step.to[1]}`,
+        index,
+        step,
+      }));
     },
     [activeStepIndex, steps],
   );
@@ -106,15 +101,11 @@ export function DirectionList({
                   isCurrent && styles.stepIndexTextActive,
                 ]}
               >
-                {item.stepNumber}
+                {getManeuverSymbol(item.step)}
               </Text>
             </View>
             <View style={styles.stepBody}>
-              <Text
-                style={[
-                  styles.stepInstruction,
-                ]}
-              >
+              <Text style={styles.stepInstruction}>
                 {item.step.instruction}
               </Text>
               <Text style={styles.stepMeta}>
@@ -122,8 +113,7 @@ export function DirectionList({
                   isCurrent && activeStepRemainingDistance != null
                     ? activeStepRemainingDistance
                     : item.step.distance,
-                )}{" "}
-                | {getManeuverLabel(item.step)}
+                )}
               </Text>
             </View>
           </View>

@@ -277,9 +277,9 @@ export function NavigationUI() {
             <Text style={styles.topInstruction}>
               {getPrimaryInstruction(currentStep)}
             </Text>
-            {navSteps.length > 0 && (
+            {currentStep && (
               <Text style={styles.topSubtext}>
-                Step {clampedStepIndex + 1} of {navSteps.length}
+                {currentStep.instruction}
               </Text>
             )}
           </View>
