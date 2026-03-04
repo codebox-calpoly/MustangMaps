@@ -45,16 +45,16 @@ interface SearchSection {
 
 type SearchRow =
   | {
-    id: string;
-    type: "header";
-    section: SearchSection;
-  }
+      id: string;
+      type: "header";
+      section: SearchSection;
+    }
   | {
-    id: string;
-    type: "item";
-    sectionKind: SectionKind;
-    item: SavedPlace;
-  };
+      id: string;
+      type: "item";
+      sectionKind: SectionKind;
+      item: SavedPlace;
+    };
 
 export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
   // Bottom sheet controls
@@ -79,7 +79,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const lastFittedRouteRef = useRef<string | null>(null);
 
   const {
-    mapStyle,
     searchQuery,
     setSearchQuery,
     userLocation,
@@ -115,7 +114,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const summaryVisible =
     routingActive &&
     Boolean(routeStart && routeEnd && activePath && !routeError);
-  const isDark = mapStyle === "dark";
 
   const {
     history,
@@ -213,65 +211,26 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     ],
   );
 
-  const normalizeSearchText = (value: string) => value.toLowerCase().trim();
-
-
-  // splits "building name (38)"" into building name and building number
-  const parseBuildingLabel = (rawName: string, rawRef?: string) => {
-    const normalizedName = rawName.replace(/\s+/g, " ").trim();
-    const trailingParenMatch = normalizedName.match(/\(([^()]+)\)\s*$/);
-
-    const parsedRef = trailingParenMatch?.[1]?.trim();
-    const displayName =
-      trailingParenMatch && trailingParenMatch.index !== undefined
-        ? normalizedName.slice(0, trailingParenMatch.index).trim()
-        : normalizedName;
-
-    const buildingRef = rawRef?.trim() || parsedRef || undefined;
-
-    return {
-      displayName: displayName || normalizedName,
-      buildingRef,
-    };
-  };
-
-
   const data = geoData.features;
 
   // data filters off a regex match with input in search bar
   const filteredData = useMemo(() => {
-    const sorted = [...data].sort((a, b) => {
-      const nameA = String(a.properties?.name ?? "");
-      const nameB = String(b.properties?.name ?? "");
+    const filteredData = data.filter((item) => {
+      const name = item.properties?.name;
+      if (!name) {
+        return false;
+      }
+      const match = name.toLowerCase().match(searchQuery.toLowerCase());
+      return match && match.length > 0;
+    });
+
+    // sort and return results
+    return filteredData.sort((a, b) => {
+      const nameA = a.properties?.name ?? "";
+      const nameB = b.properties?.name ?? "";
       return nameA.localeCompare(nameB);
     });
-
-    const query = normalizeSearchText(searchQuery);
-    if (!query) return sorted;
-
-    return sorted.filter((item) => {
-      const rawName = String(item.properties?.name ?? "");
-      if (!rawName) return false;
-
-      const rawRef =
-        typeof item.properties?.ref === "string"
-          ? item.properties.ref
-          : undefined;
-
-      const { displayName, buildingRef } = parseBuildingLabel(rawName, rawRef);
-
-      const nameMatch = normalizeSearchText(displayName).includes(query);
-      const rawNameMatch = normalizeSearchText(rawName).includes(query);
-
-      const normalizedRef = normalizeSearchText(buildingRef ?? "");
-      const refMatch =
-        normalizedRef.length > 0 &&
-        (normalizedRef.includes(query) || `building ${normalizedRef}`.includes(query));
-
-      return nameMatch || rawNameMatch || refMatch;
-    });
   }, [data, searchQuery]);
-
 
   const buildPlaceId = useCallback((name: string, coord: number[]) => {
     const [lng, lat] = coord;
@@ -313,27 +272,21 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (!ring || ring.length === 0) {
         return null;
       }
-
       const coord = middle(ring) as [number, number];
-      const rawName = String(feature.properties?.name ?? "Unknown");
-      const rawRef =
-        typeof feature.properties?.ref === "string"
-          ? feature.properties.ref
-          : undefined;
-
-      const { displayName, buildingRef } = parseBuildingLabel(rawName, rawRef);
+      const name = feature.properties?.name ?? "Unknown";
+      const ref = feature.properties?.ref as string | undefined;
 
       return {
-        id: buildPlaceId(displayName, coord),
-        name: displayName,
+        id: buildPlaceId(name, coord),
+        name,
         coordinate: coord,
+        // Search results are transient; keep a stable timestamp to avoid list resets.
         updatedAt: 0,
-        ref: buildingRef,
+        ref,
       };
     },
     [buildPlaceId, getRingCoordinates, middle],
   );
-
 
   // If user location is valid, create a "My location" place to show in results
   const myLocationPlace = useMemo<SavedPlace | null>(() => {
@@ -380,18 +333,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
         // Find the matching GeoJSON feature and select it to show a marker
         if (!isMyLocation) {
-          const matchingFeature = data.find((f) => {
-            const rawName = String(f.properties?.name ?? "");
-            const rawRef =
-              typeof f.properties?.ref === "string" ? f.properties.ref : undefined;
-            const { displayName, buildingRef } = parseBuildingLabel(rawName, rawRef);
-
-            // Match by normalized display name, and by building ref when available.
-            if (displayName !== place.name) return false;
-            if (place.ref && buildingRef) return place.ref === buildingRef;
-            return true;
-          });
-
+          const matchingFeature = data.find(
+            (f) => f.properties?.name === place.name,
+          );
           if (matchingFeature) {
             selectBuilding(
               matchingFeature as Feature<Geometry, GeoJsonProperties>,
@@ -519,14 +463,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (item.type === "header") {
         return (
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
-              {item.section.title}
-            </Text>
+            <Text style={styles.sectionTitle}>{item.section.title}</Text>
             {item.section.kind === "history" && (
               <Pressable onPress={clearHistory} style={styles.sectionAction}>
-                <Text style={[styles.sectionActionText, isDark && styles.sectionActionTextDark]}>
-                  Clear
-                </Text>
+                <Text style={styles.sectionActionText}>Clear</Text>
               </Pressable>
             )}
           </View>
@@ -538,25 +478,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         <Pressable
           onPress={() => handleSelectPlace(place)}
           style={({ pressed }) => [
-            {
-              backgroundColor: pressed
-                ? isDark
-                  ? "#2A2F38"
-                  : "#D2E6FF"
-                : isDark
-                  ? "#1C1F26"
-                  : "white",
-            },
+            { backgroundColor: pressed ? "#D2E6FF" : "white" },
             styles.itemContainer,
           ]}
         >
           <View style={styles.itemMeta}>
-            <Text style={[styles.buildingName, isDark && styles.buildingNameDark]}>
-              {place.name}
-            </Text>
-            <Text style={[styles.subscript, isDark && styles.subscriptDark]}>
-              {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
-            </Text>
             <Text style={styles.buildingName}>{place.name}</Text>
             {place.ref && (
               <Text style={styles.buildingNumber}>Building {place.ref}</Text>
@@ -588,7 +514,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [
       clearHistory,
       handleSelectPlace,
-      isDark,
       isFavorite,
       removeFromHistory,
       toggleFavorite,
@@ -637,186 +562,159 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const renderMainSheetHeader = useCallback(
     () => {
-      <>
-        <Text style={[styles.directionHeader, isDark && styles.directionHeaderDark]}>
-          {routingActive ? "Directions" : "Search"}
-        </Text>
+      // When a building is selected and we're not routing, show building info
+      if (selectedBuilding && !routingActive) {
+        return (
+          <View style={styles.buildingInfoCard}>
+            <View style={styles.buildingInfoHeader}>
+              <View style={styles.buildingInfoText}>
+                <Text style={styles.buildingInfoName}>{selectedBuildingName}</Text>
+                <Text style={styles.buildingInfoSubtitle}>{selectedBuildingSubtitle}</Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close building info"
+                onPress={clearSelection}
+                style={styles.buildingInfoClose}
+              >
+                <Text style={styles.buildingInfoCloseText}>✕</Text>
+              </Pressable>
+            </View>
 
-        {routingActive ? (
-          <View style={styles.routeInputs}>
-            <TextInput
-              ref={routeStartInputRef}
-              style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Starting point"
-              placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-              value={startValue}
-              clearButtonMode="always"
-              onFocus={() => openRoutingSearchSheet("start")}
-              onChangeText={(text) => {
-                setStartValue(text);
-                setActiveField("start");
-                setRouteStart(null);
-                setRouteRequested(false);
-                setRouteStartIsCurrentLocation(false);
-                () => {
-                  // When a building is selected and we're not routing, show building info
-                  if (selectedBuilding && !routingActive) {
-                    return (
-                      <View style={styles.buildingInfoCard}>
-                        <View style={styles.buildingInfoHeader}>
-                          <View style={styles.buildingInfoText}>
-                            <Text style={styles.buildingInfoName}>{selectedBuildingName}</Text>
-                            <Text style={styles.buildingInfoSubtitle}>{selectedBuildingSubtitle}</Text>
-                          </View>
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Close building info"
-                            onPress={clearSelection}
-                            style={styles.buildingInfoClose}
-                          >
-                            <Text style={styles.buildingInfoCloseText}>✕</Text>
-                          </Pressable>
-                        </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Directions to ${selectedBuildingName}`}
+              onPress={() => {
+                onNavigate(selectedBuilding);
+                clearSelection();
+              }}
+              style={({ pressed }) => [
+                styles.buildingDirectionsButton,
+                pressed && styles.buildingDirectionsButtonPressed,
+              ]}
+            >
+              <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
+            </Pressable>
+          </View>
+        );
+      }
 
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel={`Directions to ${selectedBuildingName}`}
-                          onPress={() => {
-                            onNavigate(selectedBuilding);
-                            clearSelection();
-                          }}
-                          style={({ pressed }) => [
-                            styles.buildingDirectionsButton,
-                            pressed && styles.buildingDirectionsButtonPressed,
-                          ]}
-                        >
-                          <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
-                        </Pressable>
-                      </View>
-                    );
-                  }
+      return (
+        <>
+          <Text style={styles.directionHeader}>
+            {routingActive ? "Directions" : "Search"}
+          </Text>
+
+          {!routingActive && <View style={styles.inputSpacer} />}
+
+          {routingActive ? (
+            <View style={styles.routeInputs}>
+              <View style={styles.routeInputRow}>
+                <View style={styles.routeInputFields}>
+                  <TextInput
+                    ref={routeStartInputRef}
+                    style={styles.input}
+                    placeholder="Starting point"
+                    value={startValue}
+                    clearButtonMode="always"
+                    onFocus={() => openRoutingSearchSheet("start")}
+                    onChangeText={(text) => {
+                      setStartValue(text);
+                      setActiveField("start");
+                      setRouteStart(null);
+                      setRouteRequested(false);
+                      setRouteStartIsCurrentLocation(false);
+                    }}
+                  />
 
                   <TextInput
                     ref={routeEndInputRef}
-                    style={[styles.input, isDark && styles.inputDark]}
+                    style={styles.input}
                     placeholder="Destination"
-                    placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-                    return (
-                      <>
-                        <Text style={styles.directionHeader}>
-                          {routingActive ? "Directions" : "Search"}
-                        </Text>
+                    clearButtonMode="always"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={endValue}
+                    onFocus={() => openRoutingSearchSheet("end")}
+                    onChangeText={(text) => {
+                      setEndValue(text);
+                      setActiveField("end");
+                      setRouteEnd(null);
+                      setRouteRequested(false);
+                    }}
+                  />
+                </View>
 
-                        {!routingActive && <View style={styles.inputSpacer} />}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Swap start and destination"
+                  onPress={() => {
+                    const prevStart = startValue;
+                    const prevEnd = endValue;
+                    const prevRouteStart = routeStart;
+                    const prevRouteEnd = routeEnd;
 
-                        {routingActive ? {
-                          < View style={styles.routeInputs}>
-                        <View style={styles.routeInputRow}>
-                          <View style={styles.routeInputFields}>
-                            <TextInput
-                              ref={routeStartInputRef}
-                              style={styles.input}
-                              placeholder="Starting point"
-                              value={startValue}
-                              clearButtonMode="always"
-                              onFocus={() => openRoutingSearchSheet("start")}
-                              onChangeText={(text) => {
-                                setStartValue(text);
-                                setActiveField("start");
-                                setRouteStart(null);
-                                setRouteRequested(false);
-                                setRouteStartIsCurrentLocation(false);
-                              }}
-                            />
+                    setStartValue(prevEnd);
+                    setEndValue(prevStart);
+                    setRouteStart(prevRouteEnd);
+                    setRouteEnd(prevRouteStart);
+                    setRouteStartIsCurrentLocation(false);
+                    setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
+                  }}
+                  style={styles.swapButton}
+                >
+                  <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
+                </Pressable>
+              </View>
 
-                            <TextInput
-                              ref={routeEndInputRef}
-                              style={styles.input}
-                              placeholder="Destination"
-                              clearButtonMode="always"
-                              autoCapitalize="none"
-                              autoCorrect={false}
-                              value={endValue}
-                              onFocus={() => openRoutingSearchSheet("end")}
-                              onChangeText={(text) => {
-                                setEndValue(text);
-                                setActiveField("end");
-                                setRouteEnd(null);
-                                setRouteRequested(false);
-                              }}
-                            />
-                          </View>
+              <View style={styles.routeActions}>
+                <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: routeAccessibleOnly }}
+                  accessibilityLabel="Accessible Routes Only"
+                  onPress={() => {
+                    const next = !routeAccessibleOnly;
+                    setRouteAccessibleOnly(next);
+                    setRouteRequested(Boolean(routeStart && routeEnd));
+                  }}
+                  style={({ pressed }) => [
+                    styles.accessibleToggle,
+                    routeAccessibleOnly && styles.accessibleToggleActive,
+                    pressed && styles.accessibleTogglePressed,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.accessibleCheckbox,
+                      routeAccessibleOnly && styles.accessibleCheckboxActive,
+                    ]}
+                  >
+                    {routeAccessibleOnly && (
+                      <Text style={styles.accessibleCheckmark}>✓</Text>
+                    )}
+                  </View>
+                  <Text style={styles.accessibleToggleText}>
+                    Accessible Routes Only
+                  </Text>
+                  <Text style={styles.accessibleToggleIcon}>♿</Text>
+                </Pressable>
 
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Swap start and destination"
-                            onPress={() => {
-                              const prevStart = startValue;
-                              const prevEnd = endValue;
-                              const prevRouteStart = routeStart;
-                              const prevRouteEnd = routeEnd;
-
-                              setStartValue(prevEnd);
-                              setEndValue(prevStart);
-                              setRouteStart(prevRouteEnd);
-                              setRouteEnd(prevRouteStart);
-                              setRouteStartIsCurrentLocation(false);
-                              setRouteRequested(Boolean(prevRouteEnd && prevRouteStart));
-                            }}
-                            style={styles.swapButton}
-                          >
-                            <Text style={styles.swapButtonText}>{"↑\n↓"}</Text>
-                          </Pressable>
-                        </View>
-
-                        <View style={styles.routeActions}>
-                          <Pressable
-                            accessibilityRole="checkbox"
-                            accessibilityState={{ checked: routeAccessibleOnly }}
-                            accessibilityLabel="Accessible Routes Only"
-                            onPress={() => {
-                              const next = !routeAccessibleOnly;
-                              setRouteAccessibleOnly(next);
-                              setRouteRequested(Boolean(routeStart && routeEnd));
-                            }}
-                            style={({ pressed }) => [
-                              styles.accessibleToggle,
-                              routeAccessibleOnly && styles.accessibleToggleActive,
-                              pressed && styles.accessibleTogglePressed,
-                            ]}
-                          >
-                            <View
-                              style={[
-                                styles.accessibleCheckbox,
-                                routeAccessibleOnly && styles.accessibleCheckboxActive,
-                              ]}
-                            >
-                              {routeAccessibleOnly && (
-                                <Text style={styles.accessibleCheckmark}>✓</Text>
-                              )}
-                            </View>
-                            <Text style={styles.accessibleToggleText}>
-                              Accessible Routes Only
-                            </Text>
-                            <Text style={styles.accessibleToggleIcon}>♿</Text>
-                          </Pressable>
-
-                          <Pressable
-                            onPress={() => {
-                              clearRoute();
-                              setStartValue("");
-                              setEndValue("");
-                              setSearchQuery("");
-                              setActiveField("end");
-                              closeRoutingSearchSheet();
-                            }}
-                            style={styles.clearChip}
-                          >
-                            <Text style={styles.clearChipText}>Clear</Text>
-                          </Pressable>
-                        </View>
-                      </View >
-                        ) : (
+                <Pressable
+                  onPress={() => {
+                    clearRoute();
+                    setStartValue("");
+                    setEndValue("");
+                    setSearchQuery("");
+                    setActiveField("end");
+                    closeRoutingSearchSheet();
+                  }}
+                  style={styles.clearChip}
+                >
+                  <Text style={styles.clearChipText}>Clear</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
             <BottomSheetTextInput
               style={styles.input}
               placeholder="Type Destination Here..."
@@ -834,396 +732,319 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               onBlur={() => commitSearch(mainSearchInput)}
               returnKeyType="search"
             />
-                        )}
-
-            {routeError && (
-              <View style={styles.statusRow}>
-                <Text style={styles.errorText}>{routeError}</Text>
-              </View>
-            )}
-
-            {summaryVisible && (
-              <View style={styles.routeSummaryContainer}>
-                <View style={styles.routeSummaryLeft}>
-                  <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
-                  <Text style={styles.routeSummaryMeta}>
-                    {formatDistance()} • {formatETA()}
-                  </Text>
-                </View>
-
-                <Pressable
-                  style={styles.goButton}
-                  onPress={() => {
-                    startNavigation();
-                  }}
-                >
-                  <Text style={styles.goButtonText}>GO</Text>
-                </Pressable>
-              </View>
-          </View >
-        ) : (
-          <BottomSheetTextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Type Destination Here..."
-            placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-            clearButtonMode="always"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onChangeText={handleSearch}
-            value={mainSearchInput}
-            onFocus={() => {
-              openSheet();
-              setFocused(true);
-              setSearchQuery(mainSearchInput);
-            }}
-            onSubmitEditing={() => commitSearch(mainSearchInput)}
-            onBlur={() => commitSearch(mainSearchInput)}
-            returnKeyType="search"
-          />
-        )}
-
-        <View style={styles.statusRow}>
-          <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
-            Start: {routeStart ? "set" : "not set"}
-          </Text>
-          <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
-            End: {routeEnd ? "set" : "not set"}
-          </Text>
-          {activePath && (
-            <Text style={[styles.statusText, isDark && styles.statusTextDark]}>
-              Distance: {Math.round(activePath.distance)}m
-            </Text>
           )}
-          {routeError && <Text style={styles.errorText}>{routeError}</Text>}
-        </View>
 
-        {summaryVisible && (
-          <View style={[styles.routeSummaryContainer, isDark && styles.routeSummaryContainerDark]}>
-            <View style={styles.routeSummaryLeft}>
-              <Text style={[styles.routeSummaryTime, isDark && styles.routeSummaryTimeDark]}>
-                {formatTime()}
-              </Text>
-              <Text style={[styles.routeSummaryMeta, isDark && styles.routeSummaryMetaDark]}>
-                {formatDistance()} • {formatETA()}
-              </Text>
+          {routeError && (
+            <View style={styles.statusRow}>
+              <Text style={styles.errorText}>{routeError}</Text>
             </View>
+          )}
 
-            <Pressable
-              style={styles.goButton}
-              onPress={() => {
-                startNavigation();
-              }}
-            >
-              <Text style={styles.goButtonText}>GO</Text>
-            </Pressable>
-          </View>
-        )}
-      </>
-        ),
-          )
-}
-      </>
-    );
-},
-[
-  activePath,
-  clearRoute,
-  clearSelection,
-  closeRoutingSearchSheet,
-  endValue,
-  formatDistance,
-  formatETA,
-  formatTime,
-  commitSearch,
-  handleSearch,
-  isDark,
-  mainSearchInput,
-  onNavigate,
-  openRoutingSearchSheet,
-  openSheet,
-  routeEnd,
-  routeError,
-  routeStart,
-  routeAccessibleOnly,
-  routingActive,
-  selectedBuilding,
-  selectedBuildingName,
-  selectedBuildingSubtitle,
-  setRouteEnd,
-  setRouteRequested,
-  setRouteStart,
-  setRouteAccessibleOnly,
-  setRouteStartIsCurrentLocation,
-  setSearchQuery,
-  startNavigation,
-  startValue,
-  summaryVisible,
-],
+          {summaryVisible && (
+            <View style={styles.routeSummaryContainer}>
+              <View style={styles.routeSummaryLeft}>
+                <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
+                <Text style={styles.routeSummaryMeta}>
+                  {formatDistance()} • {formatETA()}
+                </Text>
+              </View>
+
+              <Pressable
+                style={styles.goButton}
+                onPress={() => {
+                  startNavigation();
+                }}
+              >
+                <Text style={styles.goButtonText}>GO</Text>
+              </Pressable>
+            </View>
+          )}
+        </>
+      );
+    },
+    [
+      activePath,
+      clearRoute,
+      clearSelection,
+      closeRoutingSearchSheet,
+      endValue,
+      formatDistance,
+      formatETA,
+      formatTime,
+      commitSearch,
+      handleSearch,
+      mainSearchInput,
+      onNavigate,
+      openRoutingSearchSheet,
+      openSheet,
+      routeEnd,
+      routeError,
+      routeStart,
+      routeAccessibleOnly,
+      routingActive,
+      selectedBuilding,
+      selectedBuildingName,
+      selectedBuildingSubtitle,
+      setRouteEnd,
+      setRouteRequested,
+      setRouteStart,
+      setRouteAccessibleOnly,
+      setRouteStartIsCurrentLocation,
+      setSearchQuery,
+      startNavigation,
+      startValue,
+      summaryVisible,
+    ],
   );
 
-const renderRoutingSearchHeader = useCallback(
-  () => (
-    <>
-      <View style={styles.routingSearchHeader}>
-        <Text style={[styles.routingSearchPanelTitle, isDark && styles.routingSearchPanelTitleDark]}>
-          Search for{" "}
-          {activeField === "start" ? "starting point" : "destination"}
-        </Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close search panel"
-          onPress={closeRoutingSearchSheet}
-          style={[styles.routingSearchCloseButton, isDark && styles.routingSearchCloseButtonDark]}
-        >
-          <Text style={[styles.routingSearchCloseButtonText, isDark && styles.routingSearchCloseButtonTextDark]}>
-            X
+  const renderRoutingSearchHeader = useCallback(
+    () => (
+      <>
+        <View style={styles.routingSearchHeader}>
+          <Text style={styles.routingSearchPanelTitle}>
+            Search for{" "}
+            {activeField === "start" ? "starting point" : "destination"}
           </Text>
-          <Text style={styles.routingSearchCloseButtonText}>✕</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close search panel"
+            onPress={closeRoutingSearchSheet}
+            style={styles.routingSearchCloseButton}
+          >
+            <Text style={styles.routingSearchCloseButtonText}>✕</Text>
+          </Pressable>
+        </View>
 
-      <BottomSheetTextInput
-        style={[styles.input, isDark && styles.inputDark]}
-        placeholder={
-          activeField === "start"
-            ? "Search starting point"
-            : "Search destination"
-        }
-        placeholderTextColor={isDark ? "#E6E8EB" : undefined}
-        clearButtonMode="always"
-        autoCapitalize="none"
-        autoCorrect={false}
-        value={activeField === "start" ? startValue : endValue}
-        onChangeText={handleRoutingSearchChange}
-        autoFocus={routingSearchSheetOpen}
-        selectTextOnFocus={false}
-      />
-    </>
-  ),
-  [
-    activeField,
-    closeRoutingSearchSheet,
-    endValue,
-    handleRoutingSearchChange,
-    isDark,
-    routingSearchSheetOpen,
+        <BottomSheetTextInput
+          style={styles.input}
+          placeholder={
+            activeField === "start"
+              ? "Search starting point"
+              : "Search destination"
+          }
+          clearButtonMode="always"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={activeField === "start" ? startValue : endValue}
+          onChangeText={handleRoutingSearchChange}
+          autoFocus={routingSearchSheetOpen}
+          selectTextOnFocus={false}
+        />
+      </>
+    ),
+    [
+      activeField,
+      closeRoutingSearchSheet,
+      endValue,
+      handleRoutingSearchChange,
+      routingSearchSheetOpen,
+      startValue,
+    ],
+  );
+
+  // Auto-fill start as "My location" when routing becomes active
+  useEffect(() => {
+    if (!routingActive || hasAutoFilledStart || !userLocation) return;
+
+    if (!routeStart && startValue.length === 0) {
+      // No start set yet — fill in user location
+      setRouteStart(userLocation);
+      setStartValue("My location");
+      setRouteStartIsCurrentLocation(true);
+      setHasAutoFilledStart(true);
+    } else if (routeStartIsCurrentLocation && startValue.length === 0) {
+      // Start coordinate was already set (e.g. by handleNavigate) but display text is empty
+      setStartValue("My location");
+      setHasAutoFilledStart(true);
+    }
+  }, [
+    hasAutoFilledStart,
+    routingActive,
+    userLocation,
+    routeStart,
+    routeStartIsCurrentLocation,
+    setRouteStart,
     startValue,
-  ],
-);
+    setRouteStartIsCurrentLocation,
+  ]);
 
-// Auto-fill start as "My location" when routing becomes active
-useEffect(() => {
-  if (!routingActive || hasAutoFilledStart || !userLocation) return;
+  // Reset routing UI when routing is turned off
+  useEffect(() => {
+    if (!routingActive) {
+      setStartValue("");
+      setEndValue("");
+      setActiveField("end");
+      setFocused(false);
+      setRoutingSearchSheetOpen(false);
+      setHasAutoFilledStart(false);
+      setSearchQuery("");
+      setMainSearchInput("");
+      setRouteRequested(false);
+      // Delay snap so the BottomSheet processes the new (smaller) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
+    }
+  }, [routingActive, setSearchQuery, setRouteRequested]);
 
-  if (!routeStart && startValue.length === 0) {
-    // No start set yet — fill in user location
-    setRouteStart(userLocation);
-    setStartValue("My location");
-    setRouteStartIsCurrentLocation(true);
-    setHasAutoFilledStart(true);
-  } else if (routeStartIsCurrentLocation && startValue.length === 0) {
-    // Start coordinate was already set (e.g. by handleNavigate) but display text is empty
-    setStartValue("My location");
-    setHasAutoFilledStart(true);
-  }
-}, [
-  hasAutoFilledStart,
-  routingActive,
-  userLocation,
-  routeStart,
-  routeStartIsCurrentLocation,
-  setRouteStart,
-  startValue,
-  setRouteStartIsCurrentLocation,
-]);
+  // Trigger route calculation when both start and end are set and routing is active
+  useEffect(() => {
+    if (!routingActive) {
+      return;
+    }
+    setRouteRequested(Boolean(routeStart && routeEnd));
+  }, [routeEnd, routeStart, routingActive, setRouteRequested]);
 
-// Reset routing UI when routing is turned off
-useEffect(() => {
-  if (!routingActive) {
-    setStartValue("");
-    setEndValue("");
-    setActiveField("end");
+  // Expand the sheet when a building is selected so the info card isn't cut off
+  useEffect(() => {
+    if (selectedBuilding && !routingActive) {
+      sheetRef.current?.snapToIndex(1);
+    }
+  }, [selectedBuilding, routingActive]);
+
+  // Expand the sheet when routing becomes active so the directions panel is fully visible
+  useEffect(() => {
+    if (routingActive) {
+      // Delay snap so the BottomSheet processes the new (larger) snapPoints first
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(0);
+      });
+    }
+  }, [routingActive]);
+
+  // Ensure route summary is visible by expanding the main sheet when it appears
+  useEffect(() => {
+    if (!summaryVisible || routingSearchSheetOpen) {
+      return;
+    }
+    sheetRef.current?.snapToIndex(2);
+  }, [summaryVisible, routingSearchSheetOpen]);
+
+  // Fit the camera to both route endpoints when a valid route is ready.
+  useEffect(() => {
+    if (
+      !summaryVisible ||
+      !isValidCoordinate(routeStart) ||
+      !isValidCoordinate(routeEnd)
+    ) {
+      return;
+    }
+
+    const routeKey = `${routeStart[0].toFixed(6)}:${routeStart[1].toFixed(6)}:${routeEnd[0].toFixed(6)}:${routeEnd[1].toFixed(6)}`;
+    if (lastFittedRouteRef.current === routeKey) {
+      return;
+    }
+    lastFittedRouteRef.current = routeKey;
+    cameraFitRoute(routeStart, routeEnd);
+  }, [cameraFitRoute, isValidCoordinate, routeEnd, routeStart, summaryVisible]);
+
+  useEffect(() => {
+    if (!routingActive) {
+      lastFittedRouteRef.current = null;
+    }
+  }, [routingActive]);
+
+
+  useEffect(() => {
+    if (!routingActive || !routeDestination) {
+      return;
+    }
+
+    const destination = placeFromFeature(routeDestination);
+    if (!destination || !isValidCoordinate(destination.coordinate)) {
+      setRouteDestination(null);
+      return;
+    }
+
+    setRouteEnd(destination.coordinate);
+    setEndValue(destination.name);
+    setRouteRequested(Boolean(routeStart && destination.coordinate));
     setFocused(false);
-    setRoutingSearchSheetOpen(false);
-    setHasAutoFilledStart(false);
     setSearchQuery("");
-    setMainSearchInput("");
-    setRouteRequested(false);
-    // Delay snap so the BottomSheet processes the new (smaller) snapPoints first
-    requestAnimationFrame(() => {
-      sheetRef.current?.snapToIndex(0);
-    });
-  }
-}, [routingActive, setSearchQuery, setRouteRequested]);
-
-// Trigger route calculation when both start and end are set and routing is active
-useEffect(() => {
-  if (!routingActive) {
-    return;
-  }
-  setRouteRequested(Boolean(routeStart && routeEnd));
-}, [routeEnd, routeStart, routingActive, setRouteRequested]);
-
-// Expand the sheet when a building is selected so the info card isn't cut off
-useEffect(() => {
-  if (selectedBuilding && !routingActive) {
-    sheetRef.current?.snapToIndex(1);
-  }
-}, [selectedBuilding, routingActive]);
-
-// Expand the sheet when routing becomes active so the directions panel is fully visible
-useEffect(() => {
-  if (routingActive) {
-    // Delay snap so the BottomSheet processes the new (larger) snapPoints first
-    requestAnimationFrame(() => {
-      sheetRef.current?.snapToIndex(0);
-    });
-  }
-}, [routingActive]);
-
-// Ensure route summary is visible by expanding the main sheet when it appears
-useEffect(() => {
-  if (!summaryVisible || routingSearchSheetOpen) {
-    return;
-  }
-  sheetRef.current?.snapToIndex(2);
-}, [summaryVisible, routingSearchSheetOpen]);
-
-// Fit the camera to both route endpoints when a valid route is ready.
-useEffect(() => {
-  if (
-    !summaryVisible ||
-    !isValidCoordinate(routeStart) ||
-    !isValidCoordinate(routeEnd)
-  ) {
-    return;
-  }
-
-  const routeKey = `${routeStart[0].toFixed(6)}:${routeStart[1].toFixed(6)}:${routeEnd[0].toFixed(6)}:${routeEnd[1].toFixed(6)}`;
-  if (lastFittedRouteRef.current === routeKey) {
-    return;
-  }
-  lastFittedRouteRef.current = routeKey;
-  cameraFitRoute(routeStart, routeEnd);
-}, [cameraFitRoute, isValidCoordinate, routeEnd, routeStart, summaryVisible]);
-
-useEffect(() => {
-  if (!routingActive) {
-    lastFittedRouteRef.current = null;
-  }
-}, [routingActive]);
-
-
-useEffect(() => {
-  if (!routingActive || !routeDestination) {
-    return;
-  }
-
-  const destination = placeFromFeature(routeDestination);
-  if (!destination || !isValidCoordinate(destination.coordinate)) {
     setRouteDestination(null);
-    return;
-  }
+  }, [
+    isValidCoordinate,
+    placeFromFeature,
+    routeDestination,
+    routeStart,
+    routingActive,
+    setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
+    setSearchQuery,
+  ]);
 
-  setRouteEnd(destination.coordinate);
-  setEndValue(destination.name);
-  setRouteRequested(Boolean(routeStart && destination.coordinate));
-  setFocused(false);
-  setSearchQuery("");
-  setRouteDestination(null);
-}, [
-  isValidCoordinate,
-  placeFromFeature,
-  routeDestination,
-  routeStart,
-  routingActive,
-  setRouteDestination,
-  setRouteEnd,
-  setRouteRequested,
-  setSearchQuery,
-]);
-
-return (
-  <View style={{ flex: 1 }}>
-    <BottomSheet
-      ref={sheetRef}
-      index={0}
-      snapPoints={snapPoints}
-      enableDynamicSizing={false}
-      animatedPosition={bottomSheetPosition}
-      enableContentPanningGesture={false}
-      handleStyle={styles.handleStyle}
-      handleIndicatorStyle={isDark ? styles.handleIndicatorDark : undefined}
-      backgroundStyle={isDark ? styles.sheetBackgroundDark : undefined}
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="restore"
-    >
-      <BottomSheetFlatList
-        data={!routingActive ? searchRows : []}
-        keyExtractor={extractSearchRowKey}
-        renderItem={renderSearchRow}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-        style={styles.resultsList}
-        // BottomSheet background is themed; list itself stays transparent.
-        contentContainerStyle={styles.resultsListContent}
-        contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
-        ListHeaderComponent={
-          <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
-            {renderMainSheetHeader()}
-          </View>
-        }
-        stickyHeaderIndices={[0]}
-      />
-    </BottomSheet>
-
-    {/* ROUTING SEARCH SHEET (overlay) */}
-    {routingActive && (
+  return (
+    <View style={{ flex: 1 }}>
       <BottomSheet
-        ref={routingSearchSheetRef}
-        index={-1}
-        snapPoints={routingSearchSnapPoints}
+        ref={sheetRef}
+        index={0}
+        snapPoints={snapPoints}
         enableDynamicSizing={false}
-        enableContentPanningGesture
-        enableHandlePanningGesture
-        enablePanDownToClose
-        enableOverDrag={false}
-        handleIndicatorStyle={isDark ? styles.handleIndicatorDark : undefined}
-        backgroundStyle={isDark ? styles.sheetBackgroundDark : undefined}
+        animatedPosition={bottomSheetPosition}
+        enableContentPanningGesture={false}
+        handleStyle={styles.handleStyle}
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
-        onChange={(index: number) => {
-          if (index < 0) {
-            setRoutingSearchSheetOpen(false);
-            setFocused(false);
-            blurRoutingInputs();
-          }
-        }}
-        onClose={() => {
-          setRoutingSearchSheetOpen(false);
-          setFocused(false);
-          blurRoutingInputs();
-        }}
       >
         <BottomSheetFlatList
-          data={searchRows}
+          data={!routingActive ? searchRows : []}
           keyExtractor={extractSearchRowKey}
           renderItem={renderSearchRow}
           keyboardShouldPersistTaps="handled"
           bounces={false}
           style={styles.resultsList}
-          contentContainerStyle={styles.resultsListContent}
+          contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
-            <View style={[styles.fixedHeader, isDark && styles.fixedHeaderDark]}>
-              {renderRoutingSearchHeader()}
-            </View>
-          }
-          stickyHeaderIndices={[0]}
+              <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+            }
+            stickyHeaderIndices={[0]}
         />
       </BottomSheet>
-    )}
-  </View>
-);
+
+      {/* ROUTING SEARCH SHEET (overlay) */}
+      {routingActive && (
+        <BottomSheet
+          ref={routingSearchSheetRef}
+          index={-1}
+          snapPoints={routingSearchSnapPoints}
+          enableDynamicSizing={false}
+          enableContentPanningGesture
+          enableHandlePanningGesture
+          enablePanDownToClose
+          enableOverDrag={false}
+          keyboardBehavior="extend"
+          keyboardBlurBehavior="restore"
+          onChange={(index: number) => {
+            if (index < 0) {
+              setRoutingSearchSheetOpen(false);
+              setFocused(false);
+              blurRoutingInputs();
+            }
+          }}
+          onClose={() => {
+            setRoutingSearchSheetOpen(false);
+            setFocused(false);
+            blurRoutingInputs();
+          }}
+        >
+          <BottomSheetFlatList
+            data={searchRows}
+            keyExtractor={extractSearchRowKey}
+            renderItem={renderSearchRow}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+            style={styles.resultsList}
+            contentContainerStyle={styles.resultsListContent}
+            ListHeaderComponent={
+              <View style={styles.fixedHeader}>{renderRoutingSearchHeader()}</View>
+            }
+            stickyHeaderIndices={[0]}
+          />
+        </BottomSheet>
+      )}
+    </View>
+  );
 }
 
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -1243,16 +1064,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     backgroundColor: "#FFFFFF",
     zIndex: 1,
-  },
-  fixedHeaderDark: {
-    backgroundColor: "#1C1F26",
-    borderBottomColor: "#2A2F38",
-  },
-  sheetBackgroundDark: {
-    backgroundColor: "#1C1F26",
-  },
-  handleIndicatorDark: {
-    backgroundColor: "#E6E8EB",
   },
   resultsPanel: {
     marginTop: 6,
@@ -1280,9 +1091,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.4,
   },
-  routingSearchPanelTitleDark: {
-    color: "#F1F3F5",
-  },
   routingSearchCloseButton: {
     width: 30,
     height: 30,
@@ -1291,17 +1099,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#F9FAFB",
   },
-  routingSearchCloseButtonDark: {
-    backgroundColor: "#2A2F38",
-    borderColor: "#2A2F38",
-  },
   routingSearchCloseButtonText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#9CA3AF",
-  },
-  routingSearchCloseButtonTextDark: {
-    color: "#E6E8EB",
   },
 
   floatingOpenButton: {
@@ -1326,11 +1127,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     textAlign: "center",
-  },
-  inputDark: {
-    backgroundColor: "#2A2F38",
-    borderColor: "#2A2F38",
-    color: "#E6E8EB",
   },
   routeInputs: {
     gap: 12,
@@ -1435,9 +1231,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#374151",
   },
-  statusTextDark: {
-    color: "#E6E8EB",
-  },
   errorText: {
     fontSize: 12,
     color: "#B91C1C",
@@ -1468,9 +1261,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "600",
   },
-  buildingNameDark: {
-    color: "#F1F3F5",
-  },
   buildingNumber: {
     fontSize: 13,
     color: "#6B7280",
@@ -1480,9 +1270,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 10,
     color: "grey",
-  },
-  subscriptDark: {
-    color: "#E6E8EB",
   },
   itemActions: {
     flexDirection: "row",
@@ -1520,9 +1307,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
   },
-  sectionTitleDark: {
-    color: "#F1F3F5",
-  },
   sectionAction: {
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -1531,9 +1315,6 @@ const styles = StyleSheet.create({
     color: "#1D4ED8",
     fontSize: 12,
     fontWeight: "600",
-  },
-  sectionActionTextDark: {
-    color: "#E6E8EB",
   },
   sheetHeaderRow: {
     marginLeft: 10,
@@ -1586,9 +1367,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#6B7280",
-  },
-  directionHeaderDark: {
-    color: "#F1F3F5",
   },
   buildingPanel: {
     marginTop: 8,
@@ -1686,10 +1464,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  routeSummaryContainerDark: {
-    backgroundColor: "#2A2F38",
-    borderColor: "#2A2F38",
-  },
   routeSummaryLeft: {
     flexDirection: "column",
     gap: 2,
@@ -1699,15 +1473,9 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#111827",
   },
-  routeSummaryTimeDark: {
-    color: "#F1F3F5",
-  },
   routeSummaryMeta: {
     fontSize: 13,
     color: "#6B7280",
-  },
-  routeSummaryMetaDark: {
-    color: "#E6E8EB",
   },
   goButton: {
     width: 64,
