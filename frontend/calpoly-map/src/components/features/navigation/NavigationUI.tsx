@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -6,9 +6,17 @@ import { useMapContext } from "../../../context/MapContext";
 import { DirectionList } from "./DirectionList";
 import type { DirectionStep } from "../../../lib/routing/directions";
 
-const WALKING_SPEED_METERS_PER_SECOND = 1.3;
+const DEFAULT_WALKING_SPEED_MPS = 1.3;
+const MIN_WALKING_SPEED_MPS = 0.3; // Below this treat user as stopped
+const SPEED_WINDOW_MS = 30_000; // Rolling window for speed calculation
+const MIN_DISTANCE_FOR_SPEED_M = 5; // Ignore GPS jitter below this
 
 type Coordinates = [number, number];
+
+interface LocationSample {
+  coords: Coordinates;
+  timestamp: number;
+}
 
 function distanceBetweenCoordinatesMeters(from: Coordinates, to: Coordinates) {
   const toRadians = Math.PI / 180;
@@ -42,16 +50,16 @@ function formatDistanceMiles(distanceMeters: number) {
   return `${miles.toFixed(1)} mi`;
 }
 
-function formatRemainingMinutes(distanceMeters: number) {
+function formatRemainingMinutes(distanceMeters: number, speed: number) {
   if (distanceMeters <= 0) {
     return "0 min";
   }
-  const minutes = distanceMeters / WALKING_SPEED_METERS_PER_SECOND / 60;
+  const minutes = distanceMeters / speed / 60;
   return `${Math.max(1, Math.round(minutes))} min`;
 }
 
-function formatArrivalTime(distanceMeters: number) {
-  const seconds = Math.max(0, distanceMeters / WALKING_SPEED_METERS_PER_SECOND);
+function formatArrivalTime(distanceMeters: number, speed: number) {
+  const seconds = Math.max(0, distanceMeters / speed);
   const arrivalDate = new Date(Date.now() + seconds * 1000);
   return `${arrivalDate.toLocaleTimeString([], {
     hour: "numeric",
@@ -82,11 +90,55 @@ export function NavigationUI() {
 
   // Force a re-render every 30s so the arrival time stays current even when
   // the user is standing still (Date.now() advances but nothing else changes).
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 30_000);
     return () => clearInterval(id);
   }, []);
+
+  // Track GPS samples to compute the user's actual walking speed
+  const locationSamplesRef = useRef<LocationSample[]>([]);
+
+  useEffect(() => {
+    if (!userLocation) return;
+    locationSamplesRef.current.push({ coords: userLocation, timestamp: Date.now() });
+  }, [userLocation]);
+
+  const effectiveSpeed = useMemo(() => {
+    const now = Date.now();
+    const cutoff = now - SPEED_WINDOW_MS;
+    const samples = locationSamplesRef.current;
+
+    // Prune stale samples
+    while (samples.length > 0 && samples[0].timestamp < cutoff) {
+      samples.shift();
+    }
+
+    if (samples.length < 2) return DEFAULT_WALKING_SPEED_MPS;
+
+    const oldest = samples[0];
+    const newest = samples[samples.length - 1];
+    const elapsedSeconds = (newest.timestamp - oldest.timestamp) / 1000;
+    if (elapsedSeconds < 3) return DEFAULT_WALKING_SPEED_MPS;
+
+    let totalDistance = 0;
+    for (let i = 1; i < samples.length; i++) {
+      totalDistance += distanceBetweenCoordinatesMeters(
+        samples[i - 1].coords,
+        samples[i].coords,
+      );
+    }
+
+    if (totalDistance < MIN_DISTANCE_FOR_SPEED_M) return DEFAULT_WALKING_SPEED_MPS;
+
+    const speed = totalDistance / elapsedSeconds;
+    // If speed is extremely low the user is effectively stopped — use the
+    // default so the ETA doesn't balloon to unrealistic values.
+    if (speed < MIN_WALKING_SPEED_MPS) return DEFAULT_WALKING_SPEED_MPS;
+
+    return speed;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation, tick]);
 
   const snapPoints = useMemo(() => ["16%", "52%"], []);
 
@@ -181,11 +233,11 @@ export function NavigationUI() {
         <View style={styles.summaryPanel}>
           <View style={styles.summaryMain}>
             <Text style={styles.summaryMinutes}>
-              {formatRemainingMinutes(remainingDistanceMeters)}
+              {formatRemainingMinutes(remainingDistanceMeters, effectiveSpeed)}
             </Text>
             <Text style={styles.summaryMeta}>
               {formatDistanceMiles(totalDistanceMeters)} |{" "}
-              {formatArrivalTime(remainingDistanceMeters)}
+              {formatArrivalTime(remainingDistanceMeters, effectiveSpeed)}
             </Text>
           </View>
 
