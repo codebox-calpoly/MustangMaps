@@ -6,6 +6,7 @@ import type { DirectionStep } from "../../../lib/routing/directions";
 interface DirectionListProps {
   steps: DirectionStep[];
   activeStepIndex: number;
+  activeStepRemainingDistance?: number;
   bottomInset?: number;
 }
 
@@ -44,6 +45,7 @@ function getManeuverLabel(step: DirectionStep) {
 export function DirectionList({
   steps,
   activeStepIndex,
+  activeStepRemainingDistance,
   bottomInset = 0,
 }: DirectionListProps) {
   const data = useMemo<StepListItem[]>(
@@ -116,8 +118,12 @@ export function DirectionList({
                 {item.step.instruction}
               </Text>
               <Text style={styles.stepMeta}>
-                {formatStepDistance(item.step.distance)} |{" "}
-                {getManeuverLabel(item.step)}
+                {formatStepDistance(
+                  isCurrent && activeStepRemainingDistance != null
+                    ? activeStepRemainingDistance
+                    : item.step.distance,
+                )}{" "}
+                | {getManeuverLabel(item.step)}
               </Text>
             </View>
           </View>

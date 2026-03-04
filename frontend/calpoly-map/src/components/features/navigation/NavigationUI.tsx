@@ -101,6 +101,17 @@ export function NavigationUI() {
   const locationSamplesRef = useRef<LocationSample[]>([]);
   const smoothedSpeedRef = useRef(DEFAULT_WALKING_SPEED_MPS);
 
+  // Reset speed data after a reroute so stale samples from the old route
+  // don't corrupt the ETA on the new one.
+  const navStepsIdRef = useRef(navSteps);
+  useEffect(() => {
+    if (navSteps !== navStepsIdRef.current) {
+      navStepsIdRef.current = navSteps;
+      locationSamplesRef.current = [];
+      smoothedSpeedRef.current = DEFAULT_WALKING_SPEED_MPS;
+    }
+  }, [navSteps]);
+
   useEffect(() => {
     if (!userLocation) return;
     locationSamplesRef.current.push({ coords: userLocation, timestamp: Date.now() });
@@ -194,16 +205,6 @@ export function NavigationUI() {
     return futureStepsDistance + currentStepRemaining;
   }, [clampedStepIndex, navSteps, userLocation]);
 
-  const totalDistanceMeters = useMemo(() => {
-    if (navSteps.length === 0) {
-      return 0;
-    }
-    return navSteps.reduce(
-      (total, step) => total + Math.max(0, step.distance),
-      0,
-    );
-  }, [navSteps]);
-
   return (
     <View style={styles.container}>
       <View
@@ -256,7 +257,7 @@ export function NavigationUI() {
               {formatRemainingMinutes(remainingDistanceMeters, effectiveSpeed)}
             </Text>
             <Text style={styles.summaryMeta}>
-              {formatDistanceMiles(totalDistanceMeters)} |{" "}
+              {formatDistanceMiles(remainingDistanceMeters)} |{" "}
               {formatArrivalTime(remainingDistanceMeters, effectiveSpeed)}
             </Text>
           </View>
@@ -282,6 +283,7 @@ export function NavigationUI() {
           <DirectionList
             steps={navSteps}
             activeStepIndex={clampedStepIndex}
+            activeStepRemainingDistance={currentStepRemainingDistance}
             bottomInset={insets.bottom}
           />
         </View>
@@ -296,7 +298,7 @@ export function NavigationUI() {
       >
         {currentStep && (
           <Text numberOfLines={1} style={styles.currentInstructionText}>
-            {currentStep.instruction}
+            {getPrimaryInstruction(currentStep)} — {formatStepDistance(currentStepRemainingDistance)}
           </Text>
         )}
       </View>
