@@ -45,7 +45,7 @@ export function MapFilters({
       <View style={[styles.panel, mapStyle === "dark" && styles.panelDark]}>
         <View style={styles.rowSpaceBetween}>
           <Text style={[styles.panelTitle, mapStyle === "dark" && styles.panelTitleDark]}>Map Style</Text>
-          <Text style={styles.panelTitle}>Appearance</Text>
+          <Text style={[styles.panelTitle, mapStyle === "dark" && styles.panelTitleDark]}>Appearance</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Switch to ${nextMapStyle} mode`}

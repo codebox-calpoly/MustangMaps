@@ -4,10 +4,9 @@ import { CircleLayer, ShapeSource } from "@maplibre/maplibre-react-native";
 import { useUserLocation } from "../../../context/UserLocationContext";
 
 export default function UserLocationMarker() {
-  const { latitude, longitude, errorMsg } = useUserLocation();
+  const { latitude, longitude } = useUserLocation();
 
   if (latitude == null || longitude == null) {
-    console.log("UserLocationMarker:", errorMsg);
     return null;
   }
 

@@ -123,6 +123,7 @@ function MapScreen({
     routingActive,
     routeRequested,
     routeAccessibleOnly,
+    routeStartIsCurrentLocation,
     setActivePath,
     setRouteError,
   ]);

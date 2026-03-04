@@ -3,21 +3,22 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
 export function NavigationUI() {
-  const { exitNavigation, navSteps, activeStepIndex } = useMapContext();
+  const { exitNavigation, navSteps, activeStepIndex, mapStyle } = useMapContext();
+  const isDark = mapStyle === "dark";
 
   return (
     <View style={styles.container}>
-      <View style={styles.topBar}>
-        <Text style={styles.title}>Navigation Mode</Text>
+      <View style={[styles.topBar, isDark && styles.topBarDark]}>
+        <Text style={[styles.title, isDark && styles.titleDark]}>Navigation Mode</Text>
         {navSteps.length > 0 && (
-          <Text style={styles.step}>
+          <Text style={[styles.step, isDark && styles.stepDark]}>
             Step {activeStepIndex + 1}/{navSteps.length}:{" "}
             {navSteps[activeStepIndex]?.instruction}
           </Text>
         )}
       </View>
 
-      <View style={styles.bottomPanel}>
+      <View style={[styles.bottomPanel, isDark && styles.bottomPanelDark]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Exit navigation"
@@ -56,15 +57,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
+  topBarDark: {
+    backgroundColor: "#1C1F26",
+  },
   title: {
     fontSize: 16,
     fontWeight: "700",
     color: "#111827",
   },
+  titleDark: {
+    color: "#F1F3F5",
+  },
   step: {
     fontSize: 14,
     color: "#374151",
     marginTop: 6,
+  },
+  stepDark: {
+    color: "#CBD5E1",
   },
   bottomPanel: {
     marginBottom: 48,
@@ -78,6 +88,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
     alignItems: "center",
+  },
+  bottomPanelDark: {
+    backgroundColor: "#1C1F26",
   },
   exitButton: {
     paddingHorizontal: 24,
