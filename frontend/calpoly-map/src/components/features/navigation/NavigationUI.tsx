@@ -76,7 +76,7 @@ function getPrimaryInstruction(step?: DirectionStep) {
 }
 
 export function NavigationUI() {
-  const { exitNavigation, navSteps, activeStepIndex } = useMapContext();
+  const { exitNavigation, navSteps, activeStepIndex, userLocation } = useMapContext();
   const insets = useSafeAreaInsets();
   const [topBarHeight, setTopBarHeight] = useState(0);
 
@@ -95,10 +95,24 @@ export function NavigationUI() {
     if (navSteps.length === 0) {
       return 0;
     }
-    return navSteps
-      .slice(clampedStepIndex)
+    // Sum distances of all future steps (after current)
+    const futureStepsDistance = navSteps
+      .slice(clampedStepIndex + 1)
       .reduce((total, step) => total + Math.max(0, step.distance), 0);
-  }, [clampedStepIndex, navSteps]);
+
+    // For the current step, use actual distance from user to step endpoint
+    // instead of the full step distance
+    const current = navSteps[clampedStepIndex];
+    let currentStepRemaining = Math.max(0, current.distance);
+    if (userLocation && current) {
+      currentStepRemaining = Math.min(
+        currentStepRemaining,
+        distanceBetweenCoordinatesMeters(userLocation, current.to),
+      );
+    }
+
+    return futureStepsDistance + currentStepRemaining;
+  }, [clampedStepIndex, navSteps, userLocation]);
 
   const totalDistanceMeters = useMemo(() => {
     if (navSteps.length === 0) {
