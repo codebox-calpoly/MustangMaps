@@ -11,6 +11,7 @@ import {
 import {
   ActivityIndicator,
   Dimensions,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -91,6 +92,8 @@ export function MapContainer({
     setRoutingActive,
     setUserLocation,
     navigationMode,
+    hasArrived,
+    dismissArrival,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -590,6 +593,32 @@ export function MapContainer({
         onClose={clearAmenitySelection}
         onNavigate={handleNavigate}
       />
+
+      <Modal
+        visible={hasArrived}
+        transparent
+        animationType="fade"
+        onRequestClose={dismissArrival}
+      >
+        <View style={styles.arrivalOverlay}>
+          <View style={styles.arrivalCard}>
+            <Text style={styles.arrivalTitle}>You have arrived!</Text>
+            <Text style={styles.arrivalSubtitle}>
+              You have reached your destination.
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={dismissArrival}
+              style={({ pressed }) => [
+                styles.arrivalButton,
+                pressed && styles.arrivalButtonPressed,
+              ]}
+            >
+              <Text style={styles.arrivalButtonText}>Done</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -723,5 +752,50 @@ const styles = StyleSheet.create({
   },
   locationButtonActive: {
     backgroundColor: "#0B5FFF",
+  },
+  arrivalOverlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  arrivalCard: {
+    width: 280,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    paddingVertical: 28,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  arrivalTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#111827",
+  },
+  arrivalSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+  },
+  arrivalButton: {
+    marginTop: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    backgroundColor: "#2563EB",
+  },
+  arrivalButtonPressed: {
+    backgroundColor: "#1D4ED8",
+  },
+  arrivalButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });

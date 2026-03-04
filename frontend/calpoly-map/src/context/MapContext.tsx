@@ -154,6 +154,8 @@ interface MapContextValue {
   graph: PathGraph | null;
   setGraph: (graph: PathGraph | null) => void;
   isRerouting: boolean;
+  hasArrived: boolean;
+  dismissArrival: () => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -195,6 +197,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [isRerouting, setIsRerouting] = useState(false);
+  const [hasArrived, setHasArrived] = useState(false);
   const lastRerouteTimeRef = useRef(0);
   const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -384,6 +387,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     );
     if (distToDestination <= STEP_REACHED_THRESHOLD_METERS) {
       exitNavigation();
+      setHasArrived(true);
     }
   }, [exitNavigation, navigationMode, navSteps, userLocation]);
 
@@ -394,6 +398,19 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteError(null);
     setRouteRequested(false);
     setRouteStartIsCurrentLocation(false);
+  }, []);
+
+  const dismissArrival = useCallback(() => {
+    setHasArrived(false);
+    setRouteStart(null);
+    setRouteEnd(null);
+    setActivePath(null);
+    setRouteError(null);
+    setRouteRequested(false);
+    setRouteStartIsCurrentLocation(false);
+    setRouteDestination(null);
+    setActiveRoute(null);
+    setMapMode("buildings");
   }, []);
 
   const value = useMemo(
@@ -449,6 +466,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       graph,
       setGraph,
       isRerouting,
+      hasArrived,
+      dismissArrival,
     }),
     [
       mapMode,
@@ -499,6 +518,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       exitNavigation,
       graph,
       isRerouting,
+      hasArrived,
+      dismissArrival,
     ],
   );
 
