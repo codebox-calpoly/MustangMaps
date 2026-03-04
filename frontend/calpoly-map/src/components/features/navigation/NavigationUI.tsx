@@ -8,6 +8,25 @@ import type { DirectionStep } from "../../../lib/routing/directions";
 
 const WALKING_SPEED_METERS_PER_SECOND = 1.3;
 
+type Coordinates = [number, number];
+
+function distanceBetweenCoordinatesMeters(from: Coordinates, to: Coordinates) {
+  const toRadians = Math.PI / 180;
+  const lat1 = from[1] * toRadians;
+  const lat2 = to[1] * toRadians;
+  const latDelta = (to[1] - from[1]) * toRadians;
+  const lonDelta = (to[0] - from[0]) * toRadians;
+
+  const a =
+    Math.sin(latDelta / 2) * Math.sin(latDelta / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(lonDelta / 2) *
+      Math.sin(lonDelta / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return 6_371_000 * c;
+}
+
 function formatStepDistance(distanceMeters: number) {
   if (distanceMeters <= 0) {
     return "0 m";

@@ -130,6 +130,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
+  // Keep routeStart in sync with live location when starting from current position
+  useEffect(() => {
+    if (routeStartIsCurrentLocation && userLocation && !navigationMode) {
+      setRouteStart(userLocation);
+    }
+  }, [routeStartIsCurrentLocation, userLocation, navigationMode]);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
