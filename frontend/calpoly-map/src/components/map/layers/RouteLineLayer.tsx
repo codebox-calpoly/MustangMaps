@@ -4,12 +4,53 @@ import { CircleLayer, LineLayer, ShapeSource } from "@maplibre/maplibre-react-na
 import { useMapContext } from "../../../context/MapContext";
 
 export function RouteLineLayer() {
-  const { activePath, routeStart, routeEnd } = useMapContext();
+  const {
+    activePath,
+    routeStart,
+    routeEnd,
+    navigationMode,
+    navSteps,
+    activeStepIndex,
+    userLocation,
+  } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
     if (!activePath || activePath.path.length < 2) {
       return null;
     }
+
+    let coordinates = activePath.path;
+
+    // During navigation, trim the path to only show the remaining portion
+    if (navigationMode && navSteps.length > 0) {
+      const clampedIndex = Math.min(activeStepIndex, navSteps.length - 1);
+      const currentStep = navSteps[clampedIndex];
+
+      // Find where the current step's `from` appears in the full path
+      // so we slice from that point onward
+      const fromCoord = currentStep.from;
+      let startIdx = 0;
+      for (let i = 0; i < activePath.path.length; i++) {
+        const pt = activePath.path[i];
+        if (pt[0] === fromCoord[0] && pt[1] === fromCoord[1]) {
+          startIdx = i;
+          break;
+        }
+      }
+
+      // Prepend user's current location for a seamless line from the blue dot
+      const remaining = activePath.path.slice(startIdx);
+      if (userLocation && remaining.length > 0) {
+        coordinates = [userLocation, ...remaining];
+      } else {
+        coordinates = remaining;
+      }
+    }
+
+    if (coordinates.length < 2) {
+      return null;
+    }
+
     return {
       type: "FeatureCollection",
       features: [
@@ -17,15 +58,19 @@ export function RouteLineLayer() {
           type: "Feature",
           geometry: {
             type: "LineString",
-            coordinates: activePath.path,
+            coordinates,
           },
           properties: {},
         },
       ],
     };
-  }, [activePath]);
+  }, [activePath, navigationMode, navSteps, activeStepIndex, userLocation]);
 
+  // Hide start/end dots during navigation (user location marker is sufficient)
   const pointCollection = useMemo<FeatureCollection<Point> | null>(() => {
+    if (navigationMode) {
+      return null;
+    }
     if (!routeStart && !routeEnd) {
       return null;
     }
@@ -45,7 +90,7 @@ export function RouteLineLayer() {
       });
     }
     return { type: "FeatureCollection", features };
-  }, [routeStart, routeEnd]);
+  }, [navigationMode, routeStart, routeEnd]);
 
   return (
     <>
