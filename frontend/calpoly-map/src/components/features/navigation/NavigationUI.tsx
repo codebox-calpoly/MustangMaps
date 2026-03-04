@@ -8,8 +8,9 @@ import type { DirectionStep } from "../../../lib/routing/directions";
 
 const DEFAULT_WALKING_SPEED_MPS = 1.3;
 const MIN_WALKING_SPEED_MPS = 0.3; // Below this treat user as stopped
-const SPEED_WINDOW_MS = 30_000; // Rolling window for speed calculation
+const SPEED_WINDOW_MS = 15_000; // Rolling window for speed calculation
 const MIN_DISTANCE_FOR_SPEED_M = 5; // Ignore GPS jitter below this
+const SPEED_SMOOTHING = 0.25; // EMA factor: 0 = ignore new, 1 = no smoothing
 
 type Coordinates = [number, number];
 
@@ -98,6 +99,7 @@ export function NavigationUI() {
 
   // Track GPS samples to compute the user's actual walking speed
   const locationSamplesRef = useRef<LocationSample[]>([]);
+  const smoothedSpeedRef = useRef(DEFAULT_WALKING_SPEED_MPS);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -114,29 +116,38 @@ export function NavigationUI() {
       samples.shift();
     }
 
-    if (samples.length < 2) return DEFAULT_WALKING_SPEED_MPS;
+    let rawSpeed = DEFAULT_WALKING_SPEED_MPS;
 
-    const oldest = samples[0];
-    const newest = samples[samples.length - 1];
-    const elapsedSeconds = (newest.timestamp - oldest.timestamp) / 1000;
-    if (elapsedSeconds < 3) return DEFAULT_WALKING_SPEED_MPS;
+    if (samples.length >= 2) {
+      const oldest = samples[0];
+      const newest = samples[samples.length - 1];
+      const elapsedSeconds = (newest.timestamp - oldest.timestamp) / 1000;
 
-    let totalDistance = 0;
-    for (let i = 1; i < samples.length; i++) {
-      totalDistance += distanceBetweenCoordinatesMeters(
-        samples[i - 1].coords,
-        samples[i].coords,
-      );
+      if (elapsedSeconds >= 3) {
+        let totalDistance = 0;
+        for (let i = 1; i < samples.length; i++) {
+          totalDistance += distanceBetweenCoordinatesMeters(
+            samples[i - 1].coords,
+            samples[i].coords,
+          );
+        }
+
+        if (totalDistance >= MIN_DISTANCE_FOR_SPEED_M) {
+          const measured = totalDistance / elapsedSeconds;
+          if (measured >= MIN_WALKING_SPEED_MPS) {
+            rawSpeed = measured;
+          }
+        }
+      }
     }
 
-    if (totalDistance < MIN_DISTANCE_FOR_SPEED_M) return DEFAULT_WALKING_SPEED_MPS;
+    // Exponential moving average so the ETA doesn't jump wildly between
+    // GPS updates.  SPEED_SMOOTHING controls how fast we adapt (lower =
+    // smoother).
+    smoothedSpeedRef.current =
+      SPEED_SMOOTHING * rawSpeed + (1 - SPEED_SMOOTHING) * smoothedSpeedRef.current;
 
-    const speed = totalDistance / elapsedSeconds;
-    // If speed is extremely low the user is effectively stopped — use the
-    // default so the ETA doesn't balloon to unrealistic values.
-    if (speed < MIN_WALKING_SPEED_MPS) return DEFAULT_WALKING_SPEED_MPS;
-
-    return speed;
+    return smoothedSpeedRef.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLocation, tick]);
 
