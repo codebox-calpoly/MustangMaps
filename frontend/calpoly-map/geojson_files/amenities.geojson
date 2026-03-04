@@ -245,6 +245,21 @@
       {
         "type": "Feature",
         "properties": {
+          "id": "elevator_001",
+          "category": "elevator",
+          "name": "Kennedy Library Elevator (Test)",
+          "building": "Robert E. Kennedy Library",
+          "level": 1,
+          "notes": "Temporary test elevator marker near west side of library footprint"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664230, 35.301825]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
           "id": "printer_001",
           "category": "printer",
           "name": "Example Printer",

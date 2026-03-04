@@ -1,0 +1,48 @@
+{
+  "canvasSize": 64,
+  "badge": {
+    "x": 10,
+    "y": 6,
+    "width": 44,
+    "height": 40,
+    "radius": 12,
+    "tip": {
+      "leftX": 23,
+      "rightX": 41,
+      "tipY": 58
+    },
+    "strokeColor": "#FFFFFF",
+    "strokeWidth": 3
+  },
+  "glyph": {
+    "primaryColor": "#FFFFFF",
+    "detailColor": "#0F172A",
+    "strokeWidth": 2.8
+  },
+  "icons": [
+    {
+      "id": "water-fountain",
+      "filename": "water-fountain.png",
+      "fillColor": "#0891B2",
+      "glyph": "water"
+    },
+    {
+      "id": "bathroom",
+      "filename": "bathroom.png",
+      "fillColor": "#2563EB",
+      "glyph": "bathroom"
+    },
+    {
+      "id": "printer",
+      "filename": "printer.png",
+      "fillColor": "#D97706",
+      "glyph": "printer"
+    },
+    {
+      "id": "elevator",
+      "filename": "elevator.png",
+      "fillColor": "#7C3AED",
+      "glyph": "elevator"
+    }
+  ]
+}

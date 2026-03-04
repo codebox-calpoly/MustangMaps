@@ -14,7 +14,17 @@ const AMENITY_ICONS: Record<string, any> = {
   "water-fountain": require("../../../../assets/icons/water-fountain.png"),
   "bathroom": require("../../../../assets/icons/bathroom.png"),
   "printer": require("../../../../assets/icons/printer.png"),
+  "elevator": require("../../../../assets/icons/elevator.png"),
 };
+
+const DISPLAYED_AMENITY_CATEGORIES = [
+  "water_fountain",
+  "bathroom",
+  "toilet",
+  "printer",
+  "elevator",
+  "lift",
+] as const;
 
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
@@ -91,6 +101,8 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       "bathroom", "bathroom",
       "toilet", "bathroom",
       "printer", "printer",
+      "elevator", "elevator",
+      "lift", "elevator",
       "water-fountain" // default
     ] as any;
   }, []);
@@ -104,11 +116,18 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     if (types.includes("bathroom") && !types.includes("toilet")) {
       types.push("toilet");
     }
+    if (types.includes("elevator") && !types.includes("lift")) {
+      types.push("lift");
+    }
     return types;
   }, [amenityTypes]);
 
   const filter = expandedTypes.length === 0
-    ? ["has", "category"] // Show all features that have a category property
+    ? [
+        "in",
+        ["get", "category"],
+        ["literal", DISPLAYED_AMENITY_CATEGORIES],
+      ]
     : [
         "in",
         ["get", "category"],
@@ -154,7 +173,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
-          filter={highlightedAmenities ? undefined : (filter as any)}
+          filter={filter as any}
           style={{
             iconImage: iconImageExpression,
             iconSize: [
@@ -167,7 +186,8 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
               19, 0.5,   // At zoom 19, 50% size
             ] as any,
             iconAllowOverlap: true,
-            iconIgnorePlacement: false,
+            // Keep amenity icons visible even when points are very close together.
+            iconIgnorePlacement: true,
             iconAnchor: "bottom",
           }}
         />
