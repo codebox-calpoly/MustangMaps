@@ -233,7 +233,16 @@ export function buildDirectionsFromSegments(
     } else {
       rawSteps.push(createAccumulator(segment, maneuver));
     }
-    previousBearing = segment.bearing;
+    // Skip previousBearing update for tiny segments that represent graph
+    // zigzags (near-reversals) rather than legitimate short turns.  A tiny
+    // segment whose bearing deviates more than 100° from the current travel
+    // direction is almost certainly noise in the path graph and would
+    // corrupt the turn classification of the next real segment.
+    const isTiny = segment.distance <= tinyStepMaxMeters;
+    const bearingJump = Math.abs(signedBearingDelta(previousBearing, segment.bearing));
+    if (!(isTiny && bearingJump > 100)) {
+      previousBearing = segment.bearing;
+    }
   }
 
   const compacted = mergeTinySteps(rawSteps, tinyStepMaxMeters);
