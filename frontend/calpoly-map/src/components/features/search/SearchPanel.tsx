@@ -24,7 +24,7 @@ import {
 } from "../../../context/SavedPlacesContext";
 import { useUserLocation } from "../../../context/UserLocationContext";
 
-import geoData from "./test.json";
+import geoData from "../../../geojson_files/buildings.json";
 
 interface Props {
   cameraMove: (coordinates: number[]) => void;
@@ -222,19 +222,25 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const data = geoData.features;
 
-  // data filters off a regex match with input in search bar
+  // data filters off a regex match with input in search bar (matches name or building number)
   const filteredData = useMemo(() => {
-    const filteredData = data.filter((item) => {
-      const name = item.properties?.name;
+    const query = searchQuery.toLowerCase().trim();
+    // Extract numbers from query for building number matching (e.g. "building 100" -> "100")
+    const numbersInQuery = query.match(/\d+/g) ?? [];
+    const filtered = data.filter((item: any) => {
+      const name: string | undefined = item.properties?.name;
+      const ref: string | undefined = item.properties?.ref;
       if (!name) {
         return false;
       }
-      const match = name.toLowerCase().match(searchQuery.toLowerCase());
-      return match && match.length > 0;
+      const nameMatch = name.toLowerCase().includes(query);
+      const refExact = ref ? ref === query : false;
+      const refFromNumbers = ref ? numbersInQuery.some((n) => ref === n) : false;
+      return nameMatch || refExact || refFromNumbers;
     });
 
     // sort and return results
-    return filteredData.sort((a, b) => {
+    return filtered.sort((a: any, b: any) => {
       const nameA = a.properties?.name ?? "";
       const nameB = b.properties?.name ?? "";
       return nameA.localeCompare(nameB);
@@ -311,13 +317,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     };
   }, [isValidCoordinate, userLocation]);
 
-  const baseResultsAsPlaces = useMemo(
-    () =>
-      filteredData
-        .map(placeFromFeature)
-        .filter((place): place is SavedPlace => Boolean(place)),
-    [filteredData, placeFromFeature],
-  );
+  const baseResultsAsPlaces = useMemo(() => {
+    const seen = new Set<string>();
+    return filteredData
+      .map(placeFromFeature)
+      .filter((place: any): place is SavedPlace => {
+        if (!place || seen.has(place.id)) return false;
+        seen.add(place.id);
+        return true;
+      });
+  }, [filteredData, placeFromFeature]);
 
   const handleSelectPlace = useCallback(
     (place: SavedPlace) => {
@@ -343,7 +352,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         // Find the matching GeoJSON feature and select it to show a marker
         if (!isMyLocation) {
           const matchingFeature = data.find(
-            (f) => f.properties?.name === place.name,
+            (f: any) => f.properties?.name === place.name,
           );
           if (matchingFeature) {
             selectBuilding(
