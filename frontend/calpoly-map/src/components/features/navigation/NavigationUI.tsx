@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -79,6 +79,14 @@ export function NavigationUI() {
   const { exitNavigation, navSteps, activeStepIndex, userLocation, isRerouting } = useMapContext();
   const insets = useSafeAreaInsets();
   const [topBarHeight, setTopBarHeight] = useState(0);
+
+  // Force a re-render every 30s so the arrival time stays current even when
+  // the user is standing still (Date.now() advances but nothing else changes).
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const snapPoints = useMemo(() => ["16%", "52%"], []);
 
