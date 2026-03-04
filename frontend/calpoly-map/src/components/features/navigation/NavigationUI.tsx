@@ -46,6 +46,48 @@ function formatStepDistance(distanceMeters: number) {
   return `${Math.max(1, Math.round(distanceMeters))} m`;
 }
 
+/**
+ * Compute remaining distance along a path from the user's current position
+ * to a target coordinate.  Returns null if the target isn't found in the
+ * path so the caller can fall back to haversine.
+ */
+function remainingDistanceAlongPath(
+  userLoc: Coordinates,
+  target: Coordinates,
+  path: [number, number][],
+): number | null {
+  // Locate target in the path (search from end since targets are usually ahead)
+  let targetIdx = -1;
+  for (let i = path.length - 1; i >= 0; i--) {
+    if (path[i][0] === target[0] && path[i][1] === target[1]) {
+      targetIdx = i;
+      break;
+    }
+  }
+  if (targetIdx < 0) return null;
+
+  // Find the path point nearest to the user (only up to targetIdx)
+  let nearestIdx = 0;
+  let nearestDist = Number.POSITIVE_INFINITY;
+  for (let i = 0; i <= targetIdx; i++) {
+    const d = distanceBetweenCoordinatesMeters(userLoc, path[i] as Coordinates);
+    if (d < nearestDist) {
+      nearestDist = d;
+      nearestIdx = i;
+    }
+  }
+
+  // Sum path‑segment distances from nearestIdx → targetIdx
+  let remaining = 0;
+  for (let i = nearestIdx; i < targetIdx; i++) {
+    remaining += distanceBetweenCoordinatesMeters(
+      path[i] as Coordinates,
+      path[i + 1] as Coordinates,
+    );
+  }
+  return remaining;
+}
+
 function formatDistanceMiles(distanceMeters: number) {
   const miles = distanceMeters * 0.000621371;
   return `${miles.toFixed(1)} mi`;
@@ -85,7 +127,7 @@ function getPrimaryInstruction(step?: DirectionStep) {
 }
 
 export function NavigationUI() {
-  const { exitNavigation, navSteps, activeStepIndex, userLocation, isRerouting } = useMapContext();
+  const { exitNavigation, navSteps, activeStepIndex, userLocation, isRerouting, activePath } = useMapContext();
   const insets = useSafeAreaInsets();
   const [topBarHeight, setTopBarHeight] = useState(0);
 
@@ -176,11 +218,21 @@ export function NavigationUI() {
   const currentStepRemainingDistance = useMemo(() => {
     if (!currentStep) return 0;
     if (!userLocation) return Math.max(0, currentStep.distance);
+
+    const pathCoords = activePath?.path;
+    if (pathCoords && pathCoords.length >= 2) {
+      const along = remainingDistanceAlongPath(userLocation, currentStep.to, pathCoords);
+      if (along != null) {
+        return Math.min(Math.max(0, currentStep.distance), along);
+      }
+    }
+
+    // Fallback: straight-line distance
     return Math.min(
       Math.max(0, currentStep.distance),
       distanceBetweenCoordinatesMeters(userLocation, currentStep.to),
     );
-  }, [currentStep, userLocation]);
+  }, [activePath, currentStep, userLocation]);
 
   const remainingDistanceMeters = useMemo(() => {
     if (navSteps.length === 0) {
@@ -191,19 +243,9 @@ export function NavigationUI() {
       .slice(clampedStepIndex + 1)
       .reduce((total, step) => total + Math.max(0, step.distance), 0);
 
-    // For the current step, use actual distance from user to step endpoint
-    // instead of the full step distance
-    const current = navSteps[clampedStepIndex];
-    let currentStepRemaining = Math.max(0, current.distance);
-    if (userLocation && current) {
-      currentStepRemaining = Math.min(
-        currentStepRemaining,
-        distanceBetweenCoordinatesMeters(userLocation, current.to),
-      );
-    }
-
-    return futureStepsDistance + currentStepRemaining;
-  }, [clampedStepIndex, navSteps, userLocation]);
+    // For the current step, use path-based remaining distance
+    return futureStepsDistance + currentStepRemainingDistance;
+  }, [clampedStepIndex, currentStepRemainingDistance, navSteps]);
 
   return (
     <View style={styles.container}>
