@@ -65,8 +65,9 @@ function MapScreen({
     routeStartIsCurrentLocation,
     setActivePath,
     setRouteError,
+    setGraph,
   } = useMapContext();
-  const { graph, error } = usePathGraph();
+  const { graph: loadedGraph, error } = usePathGraph();
 
   useEffect(() => {
     if (error) {
@@ -74,10 +75,15 @@ function MapScreen({
     }
   }, [error, setRouteError]);
 
+  // Push the loaded graph into MapContext so rerouting can access it
   useEffect(() => {
-    if (!routingActive || !routeRequested || !routeStart || !routeEnd || !graph) {
+    setGraph(loadedGraph);
+  }, [loadedGraph, setGraph]);
+
+  useEffect(() => {
+    if (!routingActive || !routeRequested || !routeStart || !routeEnd || !loadedGraph) {
       setActivePath(null);
-      if (routingActive && routeRequested && routeStart && routeEnd && !graph) {
+      if (routingActive && routeRequested && routeStart && routeEnd && !loadedGraph) {
         setRouteError("Loading paths data...");
       } else {
         setRouteError(null);
@@ -85,14 +91,14 @@ function MapScreen({
       return;
     }
 
-    let result = findPath(graph, routeStart, routeEnd);
+    let result = findPath(loadedGraph, routeStart, routeEnd);
     if (!result) {
-      result = findPath(graph, routeStart, routeEnd, {
+      result = findPath(loadedGraph, routeStart, routeEnd, {
         snapRadiusMeters: 150,
       });
     }
     if (!result && routeStartIsCurrentLocation) {
-      result = findPath(graph, routeStart, routeEnd, {
+      result = findPath(loadedGraph, routeStart, routeEnd, {
         snapRadiusMeters: 300,
       });
     }
@@ -109,7 +115,7 @@ function MapScreen({
     setRouteError(null);
     setActivePath(result);
   }, [
-    graph,
+    loadedGraph,
     routeStart,
     routeEnd,
     routingActive,

@@ -3,12 +3,17 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   useEffect,
 } from "react";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
-import type { PathfinderResult } from "../lib/routing/pathfinder";
+import {
+  findPath,
+  type PathfinderResult,
+  type PathGraph,
+} from "../lib/routing/pathfinder";
 import {
   buildDirectionsFromPath,
   type DirectionStep,
@@ -19,6 +24,8 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 18;
 const STEP_PROGRESS_SNAP_METERS = 60;
+const DEVIATION_THRESHOLD_METERS = 30;
+const REROUTE_COOLDOWN_MS = 5000;
 
 function distanceBetweenCoordinatesMeters(
   from: Coordinates,
@@ -38,6 +45,58 @@ function distanceBetweenCoordinatesMeters(
       Math.sin(lonDelta / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return 6_371_000 * c;
+}
+
+/** Shortest distance (meters) from a point to any segment in a path. */
+function minDistanceToPath(
+  point: Coordinates,
+  path: [number, number][],
+): number {
+  if (path.length === 0) return Number.POSITIVE_INFINITY;
+  if (path.length === 1) return distanceBetweenCoordinatesMeters(point, path[0]);
+
+  let min = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < path.length - 1; i++) {
+    const dist = pointToSegmentDistance(point, path[i], path[i + 1]);
+    if (dist < min) min = dist;
+  }
+  return min;
+}
+
+/**
+ * Approximate distance from a point to a line segment using flat‑Earth
+ * projection (accurate enough at campus scale).
+ */
+function pointToSegmentDistance(
+  point: Coordinates,
+  segA: [number, number],
+  segB: [number, number],
+): number {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(((segA[1] + segB[1]) / 2) * toRad);
+
+  // Project to flat meters (lon=x, lat=y)
+  const px = (point[0] - segA[0]) * cosLat * 111_320;
+  const py = (point[1] - segA[1]) * 111_320;
+  const ax = 0;
+  const ay = 0;
+  const bx = (segB[0] - segA[0]) * cosLat * 111_320;
+  const by = (segB[1] - segA[1]) * 111_320;
+
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+
+  let t = 0;
+  if (lenSq > 0) {
+    t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+  }
+
+  const projX = ax + t * dx;
+  const projY = ay + t * dy;
+  const ex = px - projX;
+  const ey = py - projY;
+  return Math.sqrt(ex * ex + ey * ey);
 }
 
 interface MapContextValue {
@@ -92,6 +151,8 @@ interface MapContextValue {
   activeStepIndex: number;
   startNavigation: () => void;
   exitNavigation: () => void;
+  graph: PathGraph | null;
+  setGraph: (graph: PathGraph | null) => void;
 }
 
 const MapContext = createContext<MapContextValue | undefined>(undefined);
@@ -125,10 +186,14 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
     useState(false);
 
+  // path graph (set from App.tsx after loading)
+  const [graph, setGraph] = useState<PathGraph | null>(null);
+
   // navigation mode state
   const [navigationMode, setNavigationMode] = useState(false);
   const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const lastRerouteTimeRef = useRef(0);
 
   // Keep routeStart in sync with live location when starting from current position
   useEffect(() => {
@@ -247,6 +312,42 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
   }, [activeStepIndex, navSteps, navigationMode, userLocation]);
 
+  // Deviation-based rerouting during active navigation
+  useEffect(() => {
+    if (!navigationMode || !activePath || !userLocation || !graph || !routeEnd) {
+      return;
+    }
+
+    const deviation = minDistanceToPath(
+      userLocation,
+      activePath.path as [number, number][],
+    );
+    if (deviation <= DEVIATION_THRESHOLD_METERS) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastRerouteTimeRef.current < REROUTE_COOLDOWN_MS) {
+      return;
+    }
+    lastRerouteTimeRef.current = now;
+
+    let result = findPath(graph, userLocation, routeEnd);
+    if (!result) {
+      result = findPath(graph, userLocation, routeEnd, {
+        snapRadiusMeters: 150,
+      });
+    }
+    if (!result) {
+      return; // keep current route — user may return to path
+    }
+
+    setActivePath(result);
+    const newSteps = buildDirectionsFromPath(result);
+    setNavSteps(newSteps);
+    setActiveStepIndex(0);
+  }, [activePath, graph, navigationMode, routeEnd, userLocation]);
+
   const clearRoute = useCallback(() => {
     setRouteStart(null);
     setRouteEnd(null);
@@ -306,6 +407,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       activeStepIndex,
       startNavigation,
       exitNavigation,
+      graph,
+      setGraph,
     }),
     [
       mapMode,
@@ -354,6 +457,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       activeStepIndex,
       startNavigation,
       exitNavigation,
+      graph,
     ],
   );
 
