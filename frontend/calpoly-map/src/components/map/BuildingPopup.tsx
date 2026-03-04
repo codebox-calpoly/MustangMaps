@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import type { Feature, Geometry, GeoJsonProperties } from "geojson";
+import { useMapContext } from "../../context/MapContext";
 
 interface BuildingPopupProps {
   visible: boolean;
@@ -10,6 +11,9 @@ interface BuildingPopupProps {
 }
 
 export function BuildingPopup({ visible, building, onClose, onNavigate }: BuildingPopupProps) {
+  const { mapStyle } = useMapContext();
+  const isDark = mapStyle === "dark";
+
   if (!building || !visible) return null;
 
   const props = building.properties || {};
@@ -27,54 +31,54 @@ export function BuildingPopup({ visible, building, onClose, onNavigate }: Buildi
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.popup} onPress={(e) => e.stopPropagation()}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{name}</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
+        <Pressable style={[styles.popup, isDark && styles.popupDark]} onPress={(e) => e.stopPropagation()}>
+          <View style={[styles.header, isDark && styles.headerDark]}>
+            <Text style={[styles.title, isDark && styles.titleDark]}>{name}</Text>
+            <Pressable onPress={onClose} style={[styles.closeButton, isDark && styles.closeButtonDark]}>
+              <Text style={[styles.closeButtonText, isDark && styles.closeButtonTextDark]}>✕</Text>
             </Pressable>
           </View>
 
           <ScrollView style={styles.content}>
             {amenity && (
               <View style={styles.row}>
-                <Text style={styles.label}>Type:</Text>
-                <Text style={styles.value}>{formatAmenityType(amenity)}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Type:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{formatAmenityType(amenity)}</Text>
               </View>
             )}
 
             {buildingType && buildingType !== "yes" && (
               <View style={styles.row}>
-                <Text style={styles.label}>Building:</Text>
-                <Text style={styles.value}>{formatBuildingType(buildingType)}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Building:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{formatBuildingType(buildingType)}</Text>
               </View>
             )}
 
             {universityFunction && (
               <View style={styles.row}>
-                <Text style={styles.label}>Function:</Text>
-                <Text style={styles.value}>{formatUniversityFunction(universityFunction)}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Function:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{formatUniversityFunction(universityFunction)}</Text>
               </View>
             )}
 
             {address && (
               <View style={styles.row}>
-                <Text style={styles.label}>Address:</Text>
-                <Text style={styles.value}>{address}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Address:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{address}</Text>
               </View>
             )}
 
             {props["building:levels"] && (
               <View style={styles.row}>
-                <Text style={styles.label}>Levels:</Text>
-                <Text style={styles.value}>{props["building:levels"]}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Levels:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{props["building:levels"]}</Text>
               </View>
             )}
 
             {props.wheelchair && (
               <View style={styles.row}>
-                <Text style={styles.label}>Wheelchair Accessible:</Text>
-                <Text style={styles.value}>{props.wheelchair === "yes" ? "Yes" : "No"}</Text>
+                <Text style={[styles.label, isDark && styles.labelDark]}>Wheelchair Accessible:</Text>
+                <Text style={[styles.value, isDark && styles.valueDark]}>{props.wheelchair === "yes" ? "Yes" : "No"}</Text>
               </View>
             )}
           </ScrollView>
@@ -134,6 +138,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
   },
+  popupDark: {
+    backgroundColor: "#1C1F26",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -142,12 +149,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
   },
+  headerDark: {
+    borderBottomColor: "#3A4048",
+  },
   title: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
     flex: 1,
     marginRight: 8,
+  },
+  titleDark: {
+    color: "#F1F3F5",
   },
   closeButton: {
     width: 32,
@@ -157,10 +170,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  closeButtonDark: {
+    backgroundColor: "#2A2F38",
+  },
   closeButtonText: {
     fontSize: 18,
     color: "#6B7280",
     fontWeight: "600",
+  },
+  closeButtonTextDark: {
+    color: "#E6E8EB",
   },
   content: {
     padding: 16,
@@ -179,9 +198,15 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 4,
   },
+  labelDark: {
+    color: "#CBD5E1",
+  },
   value: {
     fontSize: 16,
     color: "#111827",
+  },
+  valueDark: {
+    color: "#F1F3F5",
   },
   primaryButton: {
     backgroundColor: "#3B82F6",

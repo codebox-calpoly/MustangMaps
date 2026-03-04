@@ -94,6 +94,7 @@ export function MapContainer({
     mapStyle === "dark"
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+  const isDark = mapStyle === "dark";
 
   const { latitude, longitude } = useUserLocation();
   const userLocation =
@@ -191,11 +192,21 @@ export function MapContainer({
         accessibilityRole="button"
         accessibilityLabel="Center User Location"
         onPress={toggleFollowUser}
-        style={[styles.locationButton, followUser && styles.locationButtonActive]}
+        style={[
+          styles.locationButton,
+          isDark && styles.locationButtonDark,
+          followUser && styles.locationButtonActive,
+        ]}
       >
         <View style={styles.locationIcon}>
-          <View style={styles.locationIconRing} />
-          <View style={[styles.locationIconDot, followUser && styles.locationIconDotActive]} />
+          <View style={[styles.locationIconRing, isDark && styles.locationIconRingDark]} />
+          <View
+            style={[
+              styles.locationIconDot,
+              isDark && styles.locationIconDotDark,
+              followUser && styles.locationIconDotActive,
+            ]}
+          />
         </View>
       </Pressable>
     );
@@ -510,11 +521,11 @@ export function MapContainer({
       />
 
       {(hasLoading || errorMessage) && (
-        <View style={styles.statusOverlay} pointerEvents="auto">
+        <View style={[styles.statusOverlay, isDark && styles.statusOverlayDark]} pointerEvents="auto">
           {errorMessage ? (
-            <View style={styles.statusCard}>
-              <Text style={styles.statusTitle}>Map data failed to load</Text>
-              <Text style={styles.statusMessage}>{errorMessage}</Text>
+            <View style={[styles.statusCard, isDark && styles.statusCardDark]}>
+              <Text style={[styles.statusTitle, isDark && styles.statusTitleDark]}>Map data failed to load</Text>
+              <Text style={[styles.statusMessage, isDark && styles.statusMessageDark]}>{errorMessage}</Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Retry loading map data"
@@ -528,9 +539,9 @@ export function MapContainer({
               </Pressable>
             </View>
           ) : (
-            <View style={styles.loadingCard}>
-              <ActivityIndicator size="large" color="#111827" />
-              <Text style={styles.loadingText}>Loading map data...</Text>
+            <View style={[styles.loadingCard, isDark && styles.loadingCardDark]}>
+              <ActivityIndicator size="large" color={isDark ? "#E6E8EB" : "#111827"} />
+              <Text style={[styles.loadingText, isDark && styles.loadingTextDark]}>Loading map data...</Text>
             </View>
           )}
         </View>
@@ -580,6 +591,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     backgroundColor: "rgba(255, 255, 255, 0.6)",
   },
+  statusOverlayDark: {
+    backgroundColor: "rgba(11, 17, 32, 0.55)",
+  },
   statusCard: {
     width: "100%",
     maxWidth: 360,
@@ -592,16 +606,25 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
+  statusCardDark: {
+    backgroundColor: "#1C1F26",
+  },
   statusTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: "#111827",
     marginBottom: 6,
   },
+  statusTitleDark: {
+    color: "#F1F3F5",
+  },
   statusMessage: {
     fontSize: 13,
     color: "#6B7280",
     marginBottom: 12,
+  },
+  statusMessageDark: {
+    color: "#CBD5E1",
   },
   retryButton: {
     alignSelf: "flex-start",
@@ -631,10 +654,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
+  loadingCardDark: {
+    backgroundColor: "#1C1F26",
+  },
   loadingText: {
     fontSize: 13,
     color: "#374151",
     fontWeight: "600",
+  },
+  loadingTextDark: {
+    color: "#E6E8EB",
   },
   locationButtonContainer: {
     position: "absolute",
@@ -657,6 +686,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
+  locationButtonDark: {
+    backgroundColor: "#1C1F26",
+    borderColor: "#3A4048",
+  },
   locationIcon: {
     width: 20,
     height: 20,
@@ -670,12 +703,18 @@ const styles = StyleSheet.create({
     borderWidth: 2.5,
     borderColor: "#6B7280",
   },
+  locationIconRingDark: {
+    borderColor: "#CBD5E1",
+  },
   locationIconDot: {
     position: "absolute",
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: "#6B7280",
+  },
+  locationIconDotDark: {
+    backgroundColor: "#CBD5E1",
   },
   locationIconDotActive: {
     backgroundColor: "#2563EB",

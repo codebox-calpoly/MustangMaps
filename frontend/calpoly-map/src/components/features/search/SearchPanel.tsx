@@ -504,7 +504,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               {place.coordinate[1].toFixed(5)}, {place.coordinate[0].toFixed(5)}
             </Text>
             {place.ref && (
-              <Text style={styles.buildingNumber}>Building {place.ref}</Text>
+              <Text style={[styles.buildingNumber, isDark && styles.buildingNumberDark]}>
+                Building {place.ref}
+              </Text>
             )}
           </View>
 
@@ -523,7 +525,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                 onPress={() => removeFromHistory(place.id)}
                 style={styles.iconButton}
               >
-                <Text style={styles.removeIcon}>✕</Text>
+                <Text style={[styles.removeIcon, isDark && styles.removeIconDark]}>✕</Text>
               </Pressable>
             )}
           </View>
@@ -593,16 +595,20 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           <View style={styles.buildingInfoCard}>
             <View style={styles.buildingInfoHeader}>
               <View style={styles.buildingInfoText}>
-                <Text style={styles.buildingInfoName}>{selectedBuildingName}</Text>
-                <Text style={styles.buildingInfoSubtitle}>{selectedBuildingSubtitle}</Text>
+                <Text style={[styles.buildingInfoName, isDark && styles.buildingInfoNameDark]}>
+                  {selectedBuildingName}
+                </Text>
+                <Text style={[styles.buildingInfoSubtitle, isDark && styles.buildingInfoSubtitleDark]}>
+                  {selectedBuildingSubtitle}
+                </Text>
               </View>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Close building info"
                 onPress={clearSelection}
-                style={styles.buildingInfoClose}
+                style={[styles.buildingInfoClose, isDark && styles.buildingInfoCloseDark]}
               >
-                <Text style={styles.buildingInfoCloseText}>✕</Text>
+                <Text style={[styles.buildingInfoCloseText, isDark && styles.buildingInfoCloseTextDark]}>✕</Text>
               </Pressable>
             </View>
 
@@ -695,13 +701,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                 }}
                 style={({ pressed }) => [
                   styles.accessibleToggle,
+                  isDark && styles.accessibleToggleDark,
                   routeAccessibleOnly && styles.accessibleToggleActive,
+                  routeAccessibleOnly && isDark && styles.accessibleToggleActiveDark,
                   pressed && styles.accessibleTogglePressed,
                 ]}
               >
                 <View
                   style={[
                     styles.accessibleCheckbox,
+                    isDark && styles.accessibleCheckboxDark,
                     routeAccessibleOnly && styles.accessibleCheckboxActive,
                   ]}
                 >
@@ -709,8 +718,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                     <Text style={styles.accessibleCheckmark}>✓</Text>
                   )}
                 </View>
-                <Text style={styles.accessibleToggleText}>Accessible Routes Only</Text>
-                <Text style={styles.accessibleToggleIcon}>♿</Text>
+                <Text style={[styles.accessibleToggleText, isDark && styles.accessibleToggleTextDark]}>
+                  Accessible Routes Only
+                </Text>
+                <Text style={[styles.accessibleToggleIcon, isDark && styles.accessibleToggleIconDark]}>♿</Text>
               </Pressable>
 
               <Pressable
@@ -722,9 +733,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                   setActiveField("end");
                   closeRoutingSearchSheet();
                 }}
-                style={styles.clearChip}
+                style={[styles.clearChip, isDark && styles.clearChipDark]}
               >
-                <Text style={styles.clearChipText}>Clear</Text>
+                <Text style={[styles.clearChipText, isDark && styles.clearChipTextDark]}>Clear</Text>
               </Pressable>
             </View>
           </View>
@@ -1235,9 +1246,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     gap: 8,
   },
+  accessibleToggleDark: {
+    borderColor: "#3A4048",
+    backgroundColor: "#2A2F38",
+  },
   accessibleToggleActive: {
     borderColor: "#15803D",
     backgroundColor: "#ECFDF3",
+  },
+  accessibleToggleActiveDark: {
+    borderColor: "#16A34A",
+    backgroundColor: "#14532D",
   },
   accessibleTogglePressed: {
     opacity: 0.85,
@@ -1251,6 +1270,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#FFFFFF",
+  },
+  accessibleCheckboxDark: {
+    borderColor: "#6B7280",
+    backgroundColor: "#1C1F26",
   },
   accessibleCheckboxActive: {
     borderColor: "#15803D",
@@ -1267,10 +1290,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
+  accessibleToggleTextDark: {
+    color: "#E6E8EB",
+  },
   accessibleToggleIcon: {
     color: "#374151",
     fontSize: 13,
     fontWeight: "700",
+  },
+  accessibleToggleIconDark: {
+    color: "#CBD5E1",
   },
   clearChip: {
     borderRadius: 999,
@@ -1280,10 +1309,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#FEE2E2",
   },
+  clearChipDark: {
+    borderColor: "#7F1D1D",
+    backgroundColor: "#3F1D1D",
+  },
   clearChipText: {
     color: "#B91C1C",
     fontSize: 12,
     fontWeight: "600",
+  },
+  clearChipTextDark: {
+    color: "#FCA5A5",
   },
   statusRow: {
     marginTop: 6,
@@ -1336,6 +1372,9 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 2,
   },
+  buildingNumberDark: {
+    color: "#CBD5E1",
+  },
   subscript: {
     fontSize: 14,
     marginLeft: 10,
@@ -1366,6 +1405,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#9CA3AF",
+  },
+  removeIconDark: {
+    color: "#CBD5E1",
   },
   sectionHeader: {
     marginTop: 12,
@@ -1426,11 +1468,17 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#111827",
   },
+  buildingInfoNameDark: {
+    color: "#F1F3F5",
+  },
   buildingInfoSubtitle: {
     fontSize: 13,
     color: "#6B7280",
     textTransform: "capitalize",
     marginTop: 2,
+  },
+  buildingInfoSubtitleDark: {
+    color: "#CBD5E1",
   },
   buildingInfoClose: {
     width: 32,
@@ -1442,10 +1490,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#D1D5DB",
   },
+  buildingInfoCloseDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+  },
   buildingInfoCloseText: {
     fontSize: 16,
     fontWeight: "700",
     color: "#6B7280",
+  },
+  buildingInfoCloseTextDark: {
+    color: "#E6E8EB",
   },
   directionHeaderDark: {
     color: "#F1F3F5",
