@@ -6,7 +6,6 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import * as Location from "expo-location";
 import type { Feature, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
 import type { PathfinderResult } from "../lib/routing/pathfinder";
@@ -131,28 +130,6 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [navSteps, setNavSteps] = useState<DirectionStep[]>([]);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          return;
-        }
-        const { coords } = await Location.getCurrentPositionAsync({});
-        if (!cancelled && coords) {
-          setUserLocation([coords.longitude, coords.latitude]);
-        }
-      } catch {
-        // ignore location errors; routing will still work with manual points
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
