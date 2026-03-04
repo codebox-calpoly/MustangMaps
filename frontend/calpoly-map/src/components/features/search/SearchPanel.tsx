@@ -22,7 +22,6 @@ import {
   useSavedPlaces,
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
-import { useUserLocation } from "../../../context/UserLocationContext";
 
 import geoData from "./test.json";
 
@@ -98,7 +97,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setRouteRequested,
     setRouteStartIsCurrentLocation,
     clearRoute,
-    setUserLocation,
     startNavigation,
   } = useMapContext();
   const summaryVisible =
@@ -114,13 +112,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     toggleFavorite,
     isFavorite,
   } = useSavedPlaces();
-
-  const { latitude, longitude } = useUserLocation();
-
-  useEffect(() => {
-    if (latitude == null || longitude == null) return;
-    setUserLocation([longitude, latitude]);
-  }, [latitude, longitude, setUserLocation]);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
