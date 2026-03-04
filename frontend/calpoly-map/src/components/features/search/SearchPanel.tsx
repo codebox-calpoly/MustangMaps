@@ -132,6 +132,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setUserLocation([longitude, latitude]);
   }, [latitude, longitude, setUserLocation]);
 
+  // Clear search state when a building is selected (e.g. tapped on map)
+  useEffect(() => {
+    if (selectedBuilding && !routingActive) {
+      setFocused(false);
+      setSearchQuery("");
+      setMainSearchInput("");
+    }
+  }, [selectedBuilding, routingActive, setSearchQuery]);
+
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
       return (
