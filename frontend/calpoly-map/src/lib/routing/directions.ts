@@ -113,20 +113,19 @@ function mergeAccumulatorIntoNext(
 
 function instructionFromStep(
   maneuver: MovementManeuver,
-  direction: CompassDirection,
   distance: number,
 ) {
   const roundedDistance = roundDistanceMeters(distance);
   if (maneuver === "head") {
-    return `Head ${direction} for ${roundedDistance} m`;
+    return `Head straight for ${roundedDistance} m`;
   }
   if (maneuver === "continue") {
-    return `Continue ${direction} for ${roundedDistance} m`;
+    return `Continue for ${roundedDistance} m`;
   }
   if (maneuver === "turn-left") {
-    return `Turn left toward ${direction} and continue for ${roundedDistance} m`;
+    return `Turn left and continue for ${roundedDistance} m`;
   }
-  return `Turn right toward ${direction} and continue for ${roundedDistance} m`;
+  return `Turn right and continue for ${roundedDistance} m`;
 }
 
 export function bearingToCompassDirection(bearing: number): CompassDirection {
@@ -152,7 +151,7 @@ export function classifyTurn(
   if (Math.abs(delta) <= continueAngleMaxDeg) {
     return "continue";
   }
-  return delta < 0 ? "turn-left" : "turn-right";
+  return delta > 0 ? "turn-right" : "turn-left";
 }
 
 function mergeAdjacentSameManeuver(steps: StepAccumulator[]) {
@@ -268,7 +267,7 @@ export function buildDirectionsFromSegments(
     const bearing = movementBearing(step);
     const direction = bearingToCompassDirection(bearing);
     return {
-      instruction: instructionFromStep(step.maneuver, direction, step.distance),
+      instruction: instructionFromStep(step.maneuver, step.distance),
       distance: step.distance,
       bearing,
       direction,
