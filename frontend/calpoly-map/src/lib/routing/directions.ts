@@ -113,19 +113,18 @@ function mergeAccumulatorIntoNext(
 
 function instructionFromStep(
   maneuver: MovementManeuver,
-  distance: number,
+  direction: CompassDirection,
 ) {
-  const roundedDistance = roundDistanceMeters(distance);
   if (maneuver === "head") {
-    return `Head straight for ${roundedDistance} m`;
+    return `Head straight`;
   }
   if (maneuver === "continue") {
-    return `Continue for ${roundedDistance} m`;
+    return `Continue`;
   }
   if (maneuver === "turn-left") {
-    return `Turn left and continue for ${roundedDistance} m`;
+    return `Turn left`;
   }
-  return `Turn right and continue for ${roundedDistance} m`;
+  return `Turn right`;
 }
 
 export function bearingToCompassDirection(bearing: number): CompassDirection {
@@ -267,7 +266,7 @@ export function buildDirectionsFromSegments(
     const bearing = movementBearing(step);
     const direction = bearingToCompassDirection(bearing);
     return {
-      instruction: instructionFromStep(step.maneuver, step.distance),
+      instruction: instructionFromStep(step.maneuver, direction),
       distance: step.distance,
       bearing,
       direction,

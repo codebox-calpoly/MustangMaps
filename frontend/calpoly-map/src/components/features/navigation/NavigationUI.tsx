@@ -251,6 +251,19 @@ export function NavigationUI() {
 
   const currentStep = navSteps[clampedStepIndex];
 
+  // Preview the NEXT maneuver — what the user needs to do next.
+  // While walking straight, the top bar shows "Turn Right" with distance
+  // TO the turn, not "Head straight" with distance of the current leg.
+  const previewStep = useMemo(() => {
+    if (navSteps.length === 0 || !currentStep) return undefined;
+    if (currentStep.maneuver === "arrive") return currentStep;
+    const nextIdx = clampedStepIndex + 1;
+    if (nextIdx < navSteps.length) {
+      return navSteps[nextIdx];
+    }
+    return currentStep;
+  }, [clampedStepIndex, currentStep, navSteps]);
+
   const currentStepRemainingDistance = useMemo(() => {
     if (!currentStep) return 0;
     if (!userLocation) return Math.max(0, currentStep.distance);
@@ -297,11 +310,11 @@ export function NavigationUI() {
         <View style={styles.topBarContent}>
           <View style={styles.turnBadge}>
             <Text style={styles.turnBadgeText}>
-              {currentStep?.maneuver === "turn-left"
+              {previewStep?.maneuver === "turn-left"
                 ? "L"
-                : currentStep?.maneuver === "turn-right"
+                : previewStep?.maneuver === "turn-right"
                   ? "R"
-                  : currentStep?.maneuver === "arrive"
+                  : previewStep?.maneuver === "arrive"
                     ? "A"
                     : "C"}
             </Text>
@@ -311,9 +324,9 @@ export function NavigationUI() {
               {formatStepDistance(currentStepRemainingDistance)}
             </Text>
             <Text style={styles.topInstruction}>
-              {getPrimaryInstruction(currentStep)}
+              {getPrimaryInstruction(previewStep)}
             </Text>
-            {currentStep && (
+            {currentStep && currentStep !== previewStep && (
               <Text style={styles.topSubtext}>
                 {currentStep.instruction}
               </Text>
@@ -374,9 +387,9 @@ export function NavigationUI() {
         ]}
         pointerEvents="none"
       >
-        {currentStep && (
+        {previewStep && (
           <Text numberOfLines={1} style={styles.currentInstructionText}>
-            {getPrimaryInstruction(currentStep)} — {formatStepDistance(currentStepRemainingDistance)}
+            {getPrimaryInstruction(previewStep)} — {formatStepDistance(currentStepRemainingDistance)}
           </Text>
         )}
       </View>
