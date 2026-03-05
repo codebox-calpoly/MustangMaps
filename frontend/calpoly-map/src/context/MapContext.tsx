@@ -26,6 +26,8 @@ const STEP_REACHED_THRESHOLD_METERS = 5;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
+const HEADING_MIN_MOVE_METERS = 8;
+const HEADING_PROJECT_METERS = 30;
 
 function distanceBetweenCoordinatesMeters(
   from: Coordinates,
@@ -97,6 +99,29 @@ function pointToSegmentDistance(
   const ex = px - projX;
   const ey = py - projY;
   return Math.sqrt(ex * ex + ey * ey);
+}
+
+/** Flat-Earth bearing (degrees, 0=north, clockwise) between two coordinates. */
+function computeBearing(from: Coordinates, to: Coordinates): number {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(((from[1] + to[1]) / 2) * toRad);
+  const dLon = (to[0] - from[0]) * cosLat;
+  const dLat = to[1] - from[1];
+  const bearing = Math.atan2(dLon, dLat) * (180 / Math.PI);
+  return ((bearing % 360) + 360) % 360;
+}
+
+/** Project a coordinate forward by `distanceMeters` along `bearingDeg`. */
+function projectCoordinate(
+  from: Coordinates,
+  bearingDeg: number,
+  distanceMeters: number,
+): Coordinates {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(from[1] * toRad);
+  const dLat = (distanceMeters * Math.cos(bearingDeg * toRad)) / 111_320;
+  const dLon = (distanceMeters * Math.sin(bearingDeg * toRad)) / (111_320 * cosLat);
+  return [from[0] + dLon, from[1] + dLat];
 }
 
 interface MapContextValue {
@@ -200,6 +225,18 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [hasArrived, setHasArrived] = useState(false);
   const lastRerouteTimeRef = useRef(0);
   const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const locationHistoryRef = useRef<Coordinates[]>([]);
+
+  // Track distinct GPS positions for heading computation during rerouting
+  useEffect(() => {
+    if (!userLocation) return;
+    const history = locationHistoryRef.current;
+    const last = history[history.length - 1];
+    if (!last || distanceBetweenCoordinatesMeters(last, userLocation) > 3) {
+      history.push(userLocation);
+      if (history.length > 10) history.shift();
+    }
+  }, [userLocation]);
 
   // Keep routeStart in sync with live location when starting from current position
   useEffect(() => {
@@ -348,7 +385,28 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     // Clear any previous dismiss timer
     if (rerouteTimerRef.current) clearTimeout(rerouteTimerRef.current);
 
-    let result = findPath(graph, userLocation, routeEnd);
+    // Try heading-aware routing first: project the user forward in their
+    // direction of travel so the pathfinder snaps to a node ahead rather
+    // than behind, avoiding "turn around" instructions.
+    let result: PathfinderResult | null = null;
+    const history = locationHistoryRef.current;
+    if (history.length >= 2) {
+      const oldest = history[0];
+      const moveDist = distanceBetweenCoordinatesMeters(oldest, userLocation);
+      if (moveDist > HEADING_MIN_MOVE_METERS) {
+        const heading = computeBearing(oldest, userLocation);
+        const projected = projectCoordinate(userLocation, heading, HEADING_PROJECT_METERS);
+        result = findPath(graph, projected, routeEnd);
+        if (!result) {
+          result = findPath(graph, projected, routeEnd, { snapRadiusMeters: 100 });
+        }
+      }
+    }
+
+    // Fall back to routing from current position
+    if (!result) {
+      result = findPath(graph, userLocation, routeEnd);
+    }
     if (!result) {
       result = findPath(graph, userLocation, routeEnd, {
         snapRadiusMeters: 150,
