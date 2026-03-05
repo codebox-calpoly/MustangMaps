@@ -31,10 +31,12 @@ export interface DirectionOptions {
   continueAngleMaxDeg?: number;
   tinyStepMaxMeters?: number;
   includeArrivalStep?: boolean;
+  cumulativeDriftMaxDeg?: number;
 }
 
-const DEFAULT_CONTINUE_ANGLE_MAX_DEG = 25;
+const DEFAULT_CONTINUE_ANGLE_MAX_DEG = 20;
 const DEFAULT_TINY_STEP_MAX_METERS = 8;
+const DEFAULT_CUMULATIVE_DRIFT_MAX_DEG = 35;
 
 const COMPASS_DIRECTIONS: CompassDirection[] = [
   "north",
@@ -214,6 +216,8 @@ export function buildDirectionsFromSegments(
     options?.continueAngleMaxDeg ?? DEFAULT_CONTINUE_ANGLE_MAX_DEG;
   const tinyStepMaxMeters =
     options?.tinyStepMaxMeters ?? DEFAULT_TINY_STEP_MAX_METERS;
+  const cumulativeDriftMaxDeg =
+    options?.cumulativeDriftMaxDeg ?? DEFAULT_CUMULATIVE_DRIFT_MAX_DEG;
 
   const rawSteps: StepAccumulator[] = [createAccumulator(segments[0], "head")];
 
@@ -228,6 +232,13 @@ export function buildDirectionsFromSegments(
     }
   }
 
+  // Track the bearing at the start of the current accumulated step so we
+  // can detect gradual curves that individually stay below the turn threshold
+  // but cumulatively change direction significantly ("boiling frog" drift).
+  // Initialise from the first non-tiny segment (same as previousBearing) so
+  // a noisy starting segment doesn't create false drift.
+  let stepEntryBearing = previousBearing;
+
   for (let i = 1; i < segments.length; i += 1) {
     const segment = segments[i];
     const maneuver = classifyTurn(
@@ -237,9 +248,26 @@ export function buildDirectionsFromSegments(
     );
 
     if (maneuver === "continue") {
-      extendAccumulator(rawSteps[rawSteps.length - 1], segment);
+      // Even though the incremental change is small, check whether the
+      // bearing has drifted far from where this step started.
+      const cumulativeDrift = Math.abs(
+        signedBearingDelta(stepEntryBearing, segment.bearing),
+      );
+      if (cumulativeDrift >= cumulativeDriftMaxDeg) {
+        const driftDelta = signedBearingDelta(stepEntryBearing, segment.bearing);
+        rawSteps.push(
+          createAccumulator(
+            segment,
+            driftDelta > 0 ? "turn-right" : "turn-left",
+          ),
+        );
+        stepEntryBearing = segment.bearing;
+      } else {
+        extendAccumulator(rawSteps[rawSteps.length - 1], segment);
+      }
     } else {
       rawSteps.push(createAccumulator(segment, maneuver));
+      stepEntryBearing = segment.bearing;
     }
     // Skip previousBearing update for tiny segments that represent graph
     // zigzags (near-reversals) rather than legitimate short turns.  A tiny

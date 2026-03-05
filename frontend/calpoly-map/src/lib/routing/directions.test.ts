@@ -18,7 +18,7 @@ function segment(
 }
 
 test("classifyTurn keeps small angle changes as continue", () => {
-  assert.equal(classifyTurn(10, 28), "continue");
+  assert.equal(classifyTurn(10, 22), "continue");
   assert.equal(classifyTurn(10, 90), "turn-right");
   assert.equal(classifyTurn(90, 10), "turn-left");
 });
@@ -80,6 +80,72 @@ test("tiny starting segment does not corrupt first turn classification", () => {
   const turnStep = steps.find((s) => s.maneuver === "turn-left" || s.maneuver === "turn-right");
   assert.ok(turnStep, "expected a turn step");
   assert.equal(turnStep.maneuver, "turn-left");
+});
+
+test("cumulative drift creates turn instruction for gradual curve", () => {
+  // Five segments gradually curving right, each only 10° apart.
+  // Individual increments are below the 20° turn threshold, but the
+  // total drift from 0° to 40° should trigger a new step.
+  const segments: RouteSegment[] = [
+    segment([0, 0], [1, 0], 30, 0),
+    segment([1, 0], [2, 0], 30, 10),
+    segment([2, 0], [3, 0], 30, 20),
+    segment([3, 0], [4, 0], 30, 30),
+    segment([4, 0], [5, 0], 30, 40),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.ok(
+    steps.length >= 2,
+    `expected at least 2 steps for 40° total curve, got ${steps.length}`,
+  );
+  assert.equal(steps[0].maneuver, "head");
+  const turnStep = steps.find(
+    (s) => s.maneuver === "turn-left" || s.maneuver === "turn-right",
+  );
+  assert.ok(turnStep, "expected a turn step from cumulative drift");
+  assert.equal(turnStep.maneuver, "turn-right");
+});
+
+test("gradual curve east-to-south produces turn even with small increments", () => {
+  // Simulates the real campus scenario: path goes east (90°), curves
+  // gradually southeast, then south.  Each step is only ~18° but the
+  // total change is 72° — clearly a direction change the user should see.
+  const segments: RouteSegment[] = [
+    segment([0, 0], [1, 0], 40, 90),
+    segment([1, 0], [2, -0.2], 40, 108),
+    segment([2, -0.2], [3, -0.6], 40, 126),
+    segment([3, -0.6], [4, -1.2], 40, 144),
+    segment([4, -1.2], [5, -2], 40, 162),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.ok(
+    steps.length >= 2,
+    `expected at least 2 steps for 72° curve, got ${steps.length}`,
+  );
+  assert.equal(steps[0].maneuver, "head");
+  const turnStep = steps.find(
+    (s) => s.maneuver === "turn-left" || s.maneuver === "turn-right",
+  );
+  assert.ok(turnStep, "expected a turn step for east-to-south curve");
+  assert.equal(turnStep.maneuver, "turn-right");
+});
+
+test("gentle straight road with minor wobble stays as one step", () => {
+  // Bearing wobbles ±8° around 90° — should NOT trigger a turn.
+  const segments: RouteSegment[] = [
+    segment([0, 0], [1, 0], 50, 90),
+    segment([1, 0], [2, 0], 50, 98),
+    segment([2, 0], [3, 0], 50, 85),
+    segment([3, 0], [4, 0], 50, 93),
+    segment([4, 0], [5, 0], 50, 88),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.equal(steps.length, 1, "wobbling road should be a single head step");
+  assert.equal(steps[0].maneuver, "head");
+  assert.equal(steps[0].distance, 250);
 });
 
 test("tiny zigzag before junction does not invert turn direction", () => {
