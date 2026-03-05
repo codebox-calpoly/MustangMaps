@@ -551,6 +551,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteError(null);
     setRouteRequested(false);
     setRouteStartIsCurrentLocation(false);
+    setRouteDestination(null);
   }, []);
 
   const dismissArrival = useCallback(() => {

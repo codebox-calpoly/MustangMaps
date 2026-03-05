@@ -803,14 +803,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     setRouteRequested(Boolean(routeStart && destination.coordinate));
     setFocused(false);
     setSearchQuery("");
-    setRouteDestination(null);
   }, [
     isValidCoordinate,
     placeFromFeature,
     routeDestination,
     routeStart,
     routingActive,
-    setRouteDestination,
     setRouteEnd,
     setRouteRequested,
     setSearchQuery,
