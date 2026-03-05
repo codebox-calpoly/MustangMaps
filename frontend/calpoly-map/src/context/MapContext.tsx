@@ -23,6 +23,7 @@ type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 5;
+const ARRIVAL_PROXIMITY_METERS = 20;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
@@ -428,7 +429,13 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }, 2000);
   }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeEnd, userLocation]);
 
-  // Auto-exit navigation when user reaches the destination (arrive step)
+  // Auto-exit navigation when user reaches the destination.
+  // Trigger arrival either when the user is within 5m of the final path
+  // node OR within 20m of the building centroid (routeEnd), whichever
+  // comes first.  Buildings often sit 15-30m from the nearest walkway
+  // node, so the proximity check against routeEnd lets the user arrive
+  // when they're actually at the building rather than requiring them to
+  // stand on the exact graph endpoint.
   useEffect(() => {
     if (!navigationMode || navSteps.length === 0 || !userLocation) {
       return;
@@ -439,15 +446,22 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const distToDestination = distanceBetweenCoordinatesMeters(
+    const distToPathEnd = distanceBetweenCoordinatesMeters(
       userLocation,
       lastStep.to,
     );
-    if (distToDestination <= STEP_REACHED_THRESHOLD_METERS) {
+    const distToBuilding = routeEnd
+      ? distanceBetweenCoordinatesMeters(userLocation, routeEnd)
+      : Number.POSITIVE_INFINITY;
+
+    if (
+      distToPathEnd <= STEP_REACHED_THRESHOLD_METERS ||
+      distToBuilding <= ARRIVAL_PROXIMITY_METERS
+    ) {
       exitNavigation();
       setHasArrived(true);
     }
-  }, [exitNavigation, navigationMode, navSteps, userLocation]);
+  }, [exitNavigation, navigationMode, navSteps, routeEnd, userLocation]);
 
   const clearRoute = useCallback(() => {
     setRouteStart(null);
