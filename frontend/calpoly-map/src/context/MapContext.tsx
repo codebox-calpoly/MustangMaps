@@ -320,6 +320,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setNavSteps(steps);
     setActiveStepIndex(0);
     setNavigationMode(true);
+    setIsRerouting(false);
+    if (rerouteTimerRef.current) {
+      clearTimeout(rerouteTimerRef.current);
+      rerouteTimerRef.current = null;
+    }
     navStartTimeRef.current = Date.now();
     locationHistoryRef.current = [];
   }, [activePath]);
@@ -328,6 +333,11 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setNavigationMode(false);
     setNavSteps([]);
     setActiveStepIndex(0);
+    setIsRerouting(false);
+    if (rerouteTimerRef.current) {
+      clearTimeout(rerouteTimerRef.current);
+      rerouteTimerRef.current = null;
+    }
   }, []);
 
   useEffect(() => {
