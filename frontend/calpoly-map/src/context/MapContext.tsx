@@ -23,7 +23,7 @@ type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 5;
-const ARRIVAL_PROXIMITY_METERS = 20;
+const ARRIVAL_PROXIMITY_METERS = 35;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
@@ -100,6 +100,26 @@ function pointToSegmentDistance(
   const ex = px - projX;
   const ey = py - projY;
   return Math.sqrt(ex * ex + ey * ey);
+}
+
+/** Ray-casting point-in-polygon test (works with GeoJSON [lon,lat] rings). */
+function isPointInPolygon(
+  point: Coordinates,
+  ring: number[][],
+): boolean {
+  let inside = false;
+  const [px, py] = point;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (
+      yi > py !== yj > py &&
+      px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+    ) {
+      inside = !inside;
+    }
+  }
+  return inside;
 }
 
 /** Flat-Earth bearing (degrees, 0=north, clockwise) between two coordinates. */
@@ -368,6 +388,23 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Don't reroute if user is at/near the destination building — let the
+    // arrival detection handle it instead of creating route noise.
+    if (
+      routeDestination?.geometry?.type === "Polygon" &&
+      Array.isArray(routeDestination.geometry.coordinates?.[0]) &&
+      isPointInPolygon(userLocation, routeDestination.geometry.coordinates[0])
+    ) {
+      return;
+    }
+    const distToDestination = distanceBetweenCoordinatesMeters(
+      userLocation,
+      routeEnd,
+    );
+    if (distToDestination <= ARRIVAL_PROXIMITY_METERS) {
+      return;
+    }
+
     const deviation = minDistanceToPath(
       userLocation,
       activePath.path as [number, number][],
@@ -430,38 +467,55 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeEnd, userLocation]);
 
   // Auto-exit navigation when user reaches the destination.
-  // Trigger arrival either when the user is within 5m of the final path
-  // node OR within 20m of the building centroid (routeEnd), whichever
-  // comes first.  Buildings often sit 15-30m from the nearest walkway
-  // node, so the proximity check against routeEnd lets the user arrive
-  // when they're actually at the building rather than requiring them to
-  // stand on the exact graph endpoint.
+  // Three checks run on every location update (first match wins):
+  //   1. User's GPS position is inside the destination building polygon.
+  //   2. Within 35m of the building centroid (routeEnd).
+  //   3. Within 5m of the final path node (arrive step).
   useEffect(() => {
-    if (!navigationMode || navSteps.length === 0 || !userLocation) {
+    if (!navigationMode || !userLocation) {
       return;
     }
 
-    const lastStep = navSteps[navSteps.length - 1];
-    if (lastStep.maneuver !== "arrive") {
-      return;
-    }
-
-    const distToPathEnd = distanceBetweenCoordinatesMeters(
-      userLocation,
-      lastStep.to,
-    );
-    const distToBuilding = routeEnd
-      ? distanceBetweenCoordinatesMeters(userLocation, routeEnd)
-      : Number.POSITIVE_INFINITY;
-
+    // Point-in-polygon check (most reliable — works for any building size)
     if (
-      distToPathEnd <= STEP_REACHED_THRESHOLD_METERS ||
-      distToBuilding <= ARRIVAL_PROXIMITY_METERS
+      routeDestination?.geometry?.type === "Polygon" &&
+      Array.isArray(routeDestination.geometry.coordinates?.[0])
     ) {
-      exitNavigation();
-      setHasArrived(true);
+      if (isPointInPolygon(userLocation, routeDestination.geometry.coordinates[0])) {
+        exitNavigation();
+        setHasArrived(true);
+        return;
+      }
     }
-  }, [exitNavigation, navigationMode, navSteps, routeEnd, userLocation]);
+
+    // Building centroid proximity check
+    if (routeEnd) {
+      const distToBuilding = distanceBetweenCoordinatesMeters(
+        userLocation,
+        routeEnd,
+      );
+      if (distToBuilding <= ARRIVAL_PROXIMITY_METERS) {
+        exitNavigation();
+        setHasArrived(true);
+        return;
+      }
+    }
+
+    // Path endpoint check (fallback)
+    if (navSteps.length > 0) {
+      const lastStep = navSteps[navSteps.length - 1];
+      if (lastStep.maneuver === "arrive") {
+        const distToPathEnd = distanceBetweenCoordinatesMeters(
+          userLocation,
+          lastStep.to,
+        );
+        if (distToPathEnd <= STEP_REACHED_THRESHOLD_METERS) {
+          exitNavigation();
+          setHasArrived(true);
+        }
+      }
+    }
+  }, [exitNavigation, navigationMode, navSteps, routeDestination, routeEnd, userLocation]);
 
   const clearRoute = useCallback(() => {
     setRouteStart(null);
