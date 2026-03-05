@@ -27,7 +27,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sbalaji524.mustangmaps.dev",
+      "bundleIdentifier": "com.sbalaji524.mustangmaps.dev.v2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
