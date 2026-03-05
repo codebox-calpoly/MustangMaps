@@ -27,6 +27,8 @@ const ARRIVAL_PROXIMITY_METERS = 35;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
+const REROUTE_GRACE_PERIOD_MS = 5000;
+const REROUTE_MIN_MOVEMENT_METERS = 10;
 const HEADING_MIN_MOVE_METERS = 8;
 const HEADING_PROJECT_METERS = 30;
 
@@ -245,6 +247,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [isRerouting, setIsRerouting] = useState(false);
   const [hasArrived, setHasArrived] = useState(false);
   const lastRerouteTimeRef = useRef(0);
+  const navStartTimeRef = useRef(0);
   const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const locationHistoryRef = useRef<Coordinates[]>([]);
 
@@ -317,6 +320,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setNavSteps(steps);
     setActiveStepIndex(0);
     setNavigationMode(true);
+    navStartTimeRef.current = Date.now();
+    locationHistoryRef.current = [];
   }, [activePath]);
 
   const exitNavigation = useCallback(() => {
@@ -405,6 +410,27 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Don't reroute during the grace period after navigation starts or
+    // after a reroute — GPS needs time to settle and the new route may
+    // not yet align with the noisy initial fix.
+    const now = Date.now();
+    if (now - navStartTimeRef.current < REROUTE_GRACE_PERIOD_MS) {
+      return;
+    }
+
+    // Only reroute if the user has actually moved.  GPS jitter while
+    // stationary can easily exceed the deviation threshold.
+    const locHistory = locationHistoryRef.current;
+    if (locHistory.length >= 2) {
+      const totalMovement = distanceBetweenCoordinatesMeters(
+        locHistory[0],
+        locHistory[locHistory.length - 1],
+      );
+      if (totalMovement < REROUTE_MIN_MOVEMENT_METERS) {
+        return;
+      }
+    }
+
     const deviation = minDistanceToPath(
       userLocation,
       activePath.path as [number, number][],
@@ -413,7 +439,6 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const now = Date.now();
     if (now - lastRerouteTimeRef.current < REROUTE_COOLDOWN_MS) {
       return;
     }
@@ -459,6 +484,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     const newSteps = buildDirectionsFromPath(result);
     setNavSteps(newSteps);
     setActiveStepIndex(0);
+    navStartTimeRef.current = Date.now();
+    locationHistoryRef.current = [];
 
     // Dismiss rerouting indicator after 2 seconds
     rerouteTimerRef.current = setTimeout(() => {
