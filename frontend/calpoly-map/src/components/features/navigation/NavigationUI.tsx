@@ -47,9 +47,32 @@ function formatStepDistance(distanceMeters: number) {
 }
 
 /**
+ * Project a point onto a segment and return the fractional position (0–1)
+ * and the flat-Earth distance² from the point to its projection.
+ */
+function projectOntoSegment(
+  point: Coordinates,
+  segA: Coordinates,
+  segB: Coordinates,
+): { t: number; distSq: number } {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(((segA[1] + segB[1]) / 2) * toRad);
+  const px = (point[0] - segA[0]) * cosLat * 111_320;
+  const py = (point[1] - segA[1]) * 111_320;
+  const bx = (segB[0] - segA[0]) * cosLat * 111_320;
+  const by = (segB[1] - segA[1]) * 111_320;
+  const lenSq = bx * bx + by * by;
+  const t = lenSq > 0 ? Math.max(0, Math.min(1, (px * bx + py * by) / lenSq)) : 0;
+  const dx = px - t * bx;
+  const dy = py - t * by;
+  return { t, distSq: dx * dx + dy * dy };
+}
+
+/**
  * Compute remaining distance along a path from the user's current position
- * to a target coordinate.  Returns null if the target isn't found in the
- * path so the caller can fall back to haversine.
+ * to a target coordinate.  Projects onto path segments for accuracy even
+ * when path points are far apart (after simplification).
+ * Returns null if the target isn't found so the caller can fall back.
  */
 function remainingDistanceAlongPath(
   userLoc: Coordinates,
@@ -66,20 +89,33 @@ function remainingDistanceAlongPath(
   }
   if (targetIdx < 0) return null;
 
-  // Find the path point nearest to the user (only up to targetIdx)
-  let nearestIdx = 0;
-  let nearestDist = Number.POSITIVE_INFINITY;
-  for (let i = 0; i <= targetIdx; i++) {
-    const d = distanceBetweenCoordinatesMeters(userLoc, path[i] as Coordinates);
-    if (d < nearestDist) {
-      nearestDist = d;
-      nearestIdx = i;
+  // Find the path segment closest to the user (only up to targetIdx)
+  let bestSegIdx = 0;
+  let bestDistSq = Number.POSITIVE_INFINITY;
+  let bestT = 0;
+  const segLimit = Math.min(targetIdx, path.length - 1);
+  for (let i = 0; i < segLimit; i++) {
+    const { t, distSq } = projectOntoSegment(
+      userLoc,
+      path[i] as Coordinates,
+      path[i + 1] as Coordinates,
+    );
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestSegIdx = i;
+      bestT = t;
     }
   }
 
-  // Sum path‑segment distances from nearestIdx → targetIdx
-  let remaining = 0;
-  for (let i = nearestIdx; i < targetIdx; i++) {
+  // Distance from projection point to the end of the best segment
+  const segLength = distanceBetweenCoordinatesMeters(
+    path[bestSegIdx] as Coordinates,
+    path[bestSegIdx + 1] as Coordinates,
+  );
+  let remaining = segLength * (1 - bestT);
+
+  // Add full segment distances from (bestSegIdx+1) to targetIdx
+  for (let i = bestSegIdx + 1; i < targetIdx; i++) {
     remaining += distanceBetweenCoordinatesMeters(
       path[i] as Coordinates,
       path[i + 1] as Coordinates,
