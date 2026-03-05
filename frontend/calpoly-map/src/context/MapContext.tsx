@@ -564,6 +564,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteStartIsCurrentLocation(false);
     setRouteDestination(null);
     setActiveRoute(null);
+    setRoutingActive(false);
     setMapMode("buildings");
   }, []);
 
