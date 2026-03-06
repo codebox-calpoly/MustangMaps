@@ -505,25 +505,33 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (nextStepIndex === activeStepIndex) {
-      let nearestForwardIndex = activeStepIndex;
-      let nearestForwardDistance = Number.POSITIVE_INFINITY;
+      // Only attempt snap progression when the user is already reasonably
+      // close to the current step's endpoint.  Without this guard the scan
+      // can find a future step whose endpoint is geographically closer
+      // (e.g. a route that turns back toward the origin) and prematurely
+      // skip the current step before the user has walked through it.
+      const distToCurrentEnd = distanceBetweenCoordinatesMeters(
+        userLocation,
+        navSteps[activeStepIndex].to,
+      );
+      if (distToCurrentEnd <= STEP_PROGRESS_SNAP_METERS) {
+        let nearestForwardIndex = activeStepIndex;
+        let nearestForwardDistance = distToCurrentEnd;
 
-      for (let index = activeStepIndex; index <= finalStepIndex; index += 1) {
-        const distanceToStepEnd = distanceBetweenCoordinatesMeters(
-          userLocation,
-          navSteps[index].to,
-        );
-        if (distanceToStepEnd < nearestForwardDistance) {
-          nearestForwardDistance = distanceToStepEnd;
-          nearestForwardIndex = index;
+        for (let index = activeStepIndex + 1; index <= finalStepIndex; index += 1) {
+          const distanceToStepEnd = distanceBetweenCoordinatesMeters(
+            userLocation,
+            navSteps[index].to,
+          );
+          if (distanceToStepEnd < nearestForwardDistance) {
+            nearestForwardDistance = distanceToStepEnd;
+            nearestForwardIndex = index;
+          }
         }
-      }
 
-      if (
-        nearestForwardIndex > activeStepIndex &&
-        nearestForwardDistance <= STEP_PROGRESS_SNAP_METERS
-      ) {
-        nextStepIndex = nearestForwardIndex;
+        if (nearestForwardIndex > activeStepIndex) {
+          nextStepIndex = nearestForwardIndex;
+        }
       }
     }
 

@@ -11,6 +11,11 @@ const MIN_WALKING_SPEED_MPS = 0.3; // Below this treat user as stopped
 const SPEED_WINDOW_MS = 15_000; // Rolling window for speed calculation
 const MIN_DISTANCE_FOR_SPEED_M = 5; // Ignore GPS jitter below this
 const SPEED_SMOOTHING = 0.25; // EMA factor: 0 = ignore new, 1 = no smoothing
+// When the remaining distance on a straight step ("head"/"continue") drops
+// below this threshold, promote the upcoming turn to the primary display —
+// similar to Google Maps switching from "Head north" to "Turn left" as you
+// approach the intersection.
+const TURN_PROMOTE_METERS = 40;
 
 type Coordinates = [number, number];
 
@@ -151,14 +156,16 @@ function getPrimaryInstruction(step?: DirectionStep) {
     return "Continue";
   }
   switch (step.maneuver) {
+    case "head":
+      return "Head Straight";
+    case "continue":
+      return "Continue Straight";
     case "turn-left":
       return "Turn Left";
     case "turn-right":
       return "Turn Right";
     case "arrive":
       return "Arrive at Destination";
-    default:
-      return "Continue Straight";
   }
 }
 
@@ -283,6 +290,26 @@ export function NavigationUI() {
     );
   }, [activePath, currentStep, userLocation]);
 
+  // Google Maps-style promotion: when the user is close to a turn on a
+  // straight step, show the turn as the primary instruction instead of
+  // "Head Straight".  This avoids a useless "Head Straight — 8 m" when the
+  // turn is right in front of them.
+  const isStraightStep =
+    currentStep?.maneuver === "head" || currentStep?.maneuver === "continue";
+  const shouldPromotePreview =
+    isStraightStep &&
+    previewStep != null &&
+    currentStep !== previewStep &&
+    currentStepRemainingDistance <= TURN_PROMOTE_METERS;
+
+  // The step shown as the big instruction in the top bar.
+  const displayStep = shouldPromotePreview ? previewStep : currentStep;
+  // The secondary hint shown as subtext.
+  const displaySubStep = shouldPromotePreview ? undefined : previewStep;
+  // Distance shown: always the remaining distance to the current step's end
+  // (i.e. how far until the turn), regardless of promotion.
+  const displayDistance = currentStepRemainingDistance;
+
   const remainingDistanceMeters = useMemo(() => {
     if (navSteps.length === 0) {
       return 0;
@@ -310,25 +337,25 @@ export function NavigationUI() {
         <View style={styles.topBarContent}>
           <View style={styles.turnBadge}>
             <Text style={styles.turnBadgeText}>
-              {previewStep?.maneuver === "turn-left"
+              {displayStep?.maneuver === "turn-left"
                 ? "L"
-                : previewStep?.maneuver === "turn-right"
+                : displayStep?.maneuver === "turn-right"
                   ? "R"
-                  : previewStep?.maneuver === "arrive"
+                  : displayStep?.maneuver === "arrive"
                     ? "A"
                     : "C"}
             </Text>
           </View>
           <View style={styles.topTextColumn}>
             <Text style={styles.topDistance}>
-              {formatStepDistance(currentStepRemainingDistance)}
+              {formatStepDistance(displayDistance)}
             </Text>
             <Text style={styles.topInstruction}>
-              {getPrimaryInstruction(previewStep)}
+              {getPrimaryInstruction(displayStep)}
             </Text>
-            {currentStep && currentStep !== previewStep && (
+            {displaySubStep && displaySubStep !== currentStep && (
               <Text style={styles.topSubtext}>
-                {currentStep.instruction}
+                Then: {getPrimaryInstruction(displaySubStep)}
               </Text>
             )}
           </View>
@@ -387,9 +414,9 @@ export function NavigationUI() {
         ]}
         pointerEvents="none"
       >
-        {previewStep && (
+        {displayStep && (
           <Text numberOfLines={1} style={styles.currentInstructionText}>
-            {getPrimaryInstruction(previewStep)} — {formatStepDistance(currentStepRemainingDistance)}
+            {getPrimaryInstruction(displayStep)} — {formatStepDistance(displayDistance)}
           </Text>
         )}
       </View>
