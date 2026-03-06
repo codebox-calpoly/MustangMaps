@@ -6,6 +6,7 @@ import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
+import { FavoritesLayer } from '../components/map/layers/FavoritesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
 import type { BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 import { usePathGraph } from '../hooks/usePathGraph';
@@ -135,6 +136,7 @@ function MapScreen({
     >
       <BuildingLayer buildingTypes={buildingTypeIds} />
       <ClassZonesLayer />
+      {(mapMode === "buildings" || mapMode === "routing") && <FavoritesLayer />}
       {/* Only render amenities when in amenities mode or when filters are selected */}
       {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
         <AmenitiesLayer amenityTypes={amenityTypeIds} />
