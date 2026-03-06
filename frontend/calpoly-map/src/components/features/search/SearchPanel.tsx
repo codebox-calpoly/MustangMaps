@@ -22,7 +22,6 @@ import {
   useSavedPlaces,
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
-import { useUserLocation } from "../../../context/UserLocationContext";
 
 import geoData from "./test.json";
 
@@ -102,7 +101,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     routeAccessibleOnly,
     setRouteAccessibleOnly,
     clearRoute,
-    setUserLocation,
     startNavigation,
   } = useMapContext();
 
@@ -124,13 +122,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     toggleFavorite,
     isFavorite,
   } = useSavedPlaces();
-
-  const { latitude, longitude } = useUserLocation();
-
-  useEffect(() => {
-    if (latitude == null || longitude == null) return;
-    setUserLocation([longitude, latitude]);
-  }, [latitude, longitude, setUserLocation]);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -961,14 +952,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setRouteRequested(Boolean(routeStart && destination.coordinate));
     setFocused(false);
     setSearchQuery("");
-    setRouteDestination(null);
   }, [
     isValidCoordinate,
     placeFromFeature,
     routeDestination,
     routeStart,
     routingActive,
-    setRouteDestination,
     setRouteEnd,
     setRouteRequested,
     setSearchQuery,

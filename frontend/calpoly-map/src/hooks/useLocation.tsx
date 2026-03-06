@@ -3,6 +3,9 @@ import * as Location from "expo-location";
 
 // Readings with accuracy worse than this (in meters) are discarded.
 const ACCURACY_THRESHOLD = 25;
+// Cached (last-known) positions must be at least this accurate to be used as
+// the initial position.  Stale cache hits from hours ago can be wildly off.
+const CACHE_ACCURACY_THRESHOLD = 50;
 // New readings closer than this to the last accepted position are treated as
 // GPS drift and ignored, keeping the marker still when the phone is stationary.
 const DRIFT_DEAD_ZONE_METERS = 3;
@@ -25,6 +28,7 @@ const UseLocation = () => {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const lastAcceptedRef = useRef<{ lat: number; lon: number } | null>(null);
@@ -51,32 +55,37 @@ const UseLocation = () => {
           return;
         }
 
-        // 3) Instant initial position from the OS cache (no GPS wait)
+        // 3) Instant initial position from the OS cache (no GPS wait).
+        //    Only use it if accuracy is reasonable — stale cache can be far off.
         const lastKnown = await Location.getLastKnownPositionAsync();
         if (lastKnown && isMounted) {
-          setLatitude(lastKnown.coords.latitude);
-          setLongitude(lastKnown.coords.longitude);
-          lastAcceptedRef.current = {
-            lat: lastKnown.coords.latitude,
-            lon: lastKnown.coords.longitude,
-          };
+          const cachedAccuracy = lastKnown.coords.accuracy ?? null;
+          if (cachedAccuracy == null || cachedAccuracy <= CACHE_ACCURACY_THRESHOLD) {
+            setLatitude(lastKnown.coords.latitude);
+            setLongitude(lastKnown.coords.longitude);
+            setAccuracy(cachedAccuracy);
+            lastAcceptedRef.current = {
+              lat: lastKnown.coords.latitude,
+              lon: lastKnown.coords.longitude,
+            };
+          }
         }
 
-        // 4) Live updates — the watch will refine the position immediately
+        // 4) Live updates — BestForNavigation uses additional sensors
+        //    (gyroscope, accelerometer) for the highest precision.
         subRef.current = await Location.watchPositionAsync(
           {
-            accuracy: Location.Accuracy.High,
+            accuracy: Location.Accuracy.BestForNavigation,
             timeInterval: 1000,
             distanceInterval: 1,
           },
           (loc) => {
             if (!isMounted) return;
 
+            const readingAccuracy = loc.coords.accuracy ?? null;
+
             // Discard inaccurate readings
-            if (
-              loc.coords.accuracy != null &&
-              loc.coords.accuracy > ACCURACY_THRESHOLD
-            ) {
+            if (readingAccuracy != null && readingAccuracy > ACCURACY_THRESHOLD) {
               return;
             }
 
@@ -98,6 +107,7 @@ const UseLocation = () => {
             lastAcceptedRef.current = { lat: newLat, lon: newLon };
             setLatitude(newLat);
             setLongitude(newLon);
+            setAccuracy(readingAccuracy);
           },
         );
       } catch (e: any) {
@@ -114,7 +124,7 @@ const UseLocation = () => {
     };
   }, []);
 
-  return { latitude, longitude, errorMsg };
+  return { latitude, longitude, accuracy, errorMsg };
 };
 
 export default UseLocation;

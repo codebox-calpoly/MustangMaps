@@ -39,6 +39,8 @@ export interface PathGraph {
   adjacency?: Record<string, PathGraphEdgeRef[]>;
 }
 
+const PATH_SIMPLIFICATION_EPSILON_METERS = 3;
+
 const DEFAULT_SNAP_RADIUS_METERS = 50;
 const MAX_SNAP_RADIUS_METERS = 200;
 
@@ -152,6 +154,63 @@ export function bearingDegrees(
     Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
   const bearing = (Math.atan2(y, x) * 180) / Math.PI;
   return (bearing + 360) % 360;
+}
+
+function perpendicularDistanceMeters(
+  point: [number, number],
+  lineStart: [number, number],
+  lineEnd: [number, number],
+): number {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(((lineStart[1] + lineEnd[1]) / 2) * toRad);
+  const px = (point[0] - lineStart[0]) * cosLat * 111_320;
+  const py = (point[1] - lineStart[1]) * 111_320;
+  const lx = (lineEnd[0] - lineStart[0]) * cosLat * 111_320;
+  const ly = (lineEnd[1] - lineStart[1]) * 111_320;
+  const lenSq = lx * lx + ly * ly;
+  if (lenSq === 0) return Math.sqrt(px * px + py * py);
+  const t = Math.max(0, Math.min(1, (px * lx + py * ly) / lenSq));
+  const dx = px - t * lx;
+  const dy = py - t * ly;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function simplifyPath(
+  path: [number, number][],
+  epsilonMeters: number,
+): [number, number][] {
+  if (path.length <= 2) return path;
+
+  let maxDist = 0;
+  let maxIdx = 0;
+  for (let i = 1; i < path.length - 1; i++) {
+    const dist = perpendicularDistanceMeters(path[i], path[0], path[path.length - 1]);
+    if (dist > maxDist) {
+      maxDist = dist;
+      maxIdx = i;
+    }
+  }
+
+  if (maxDist > epsilonMeters) {
+    const left = simplifyPath(path.slice(0, maxIdx + 1), epsilonMeters);
+    const right = simplifyPath(path.slice(maxIdx), epsilonMeters);
+    return [...left.slice(0, -1), ...right];
+  }
+
+  return [path[0], path[path.length - 1]];
+}
+
+function rebuildSegments(path: [number, number][]): RouteSegment[] {
+  const segments: RouteSegment[] = [];
+  for (let i = 0; i < path.length - 1; i++) {
+    segments.push({
+      from: path[i],
+      to: path[i + 1],
+      distance: haversineDistanceMeters(path[i], path[i + 1]),
+      bearing: bearingDegrees(path[i], path[i + 1]),
+    });
+  }
+  return segments;
 }
 
 function buildAdjacency(graph: PathGraph) {
@@ -346,11 +405,12 @@ export function findPath(
       }
 
       const distance = gScore.get(endNodeId) ?? 0;
+      const simplifiedPath = simplifyPath(pathCoords, PATH_SIMPLIFICATION_EPSILON_METERS);
       return {
-        path: pathCoords,
+        path: simplifiedPath,
         distance,
         nodes: nodePath,
-        segments,
+        segments: rebuildSegments(simplifiedPath),
       };
     }
 
