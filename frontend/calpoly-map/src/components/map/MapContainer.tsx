@@ -91,6 +91,7 @@ export function MapContainer({
     setRouteDestination,
     setRoutingActive,
     setUserLocation,
+    setLocationAccuracy,
     navigationMode,
     hasArrived,
     dismissArrival,
@@ -100,7 +101,7 @@ export function MapContainer({
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
-  const { latitude, longitude } = useUserLocation();
+  const { latitude, longitude, accuracy } = useUserLocation();
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
   const [followUser, setFollowUser] = useState<boolean>(false);
@@ -110,7 +111,8 @@ export function MapContainer({
       return;
     }
     setUserLocation([longitude, latitude]);
-  }, [latitude, longitude, setUserLocation]);
+    setLocationAccuracy(accuracy);
+  }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {

@@ -157,6 +157,7 @@ interface MapContextValue {
   amenityLevels: number[];
   searchQuery: string;
   userLocation: Coordinates | null;
+  locationAccuracy: number | null;
   mapDataLoading: Record<string, boolean>;
   mapDataErrors: Record<string, string | null>;
   mapDataRetryToken: number;
@@ -177,6 +178,7 @@ interface MapContextValue {
   setRouteDestination: (building: SelectedBuilding | null) => void;
   setSearchQuery: (query: string) => void;
   setUserLocation: (location: Coordinates | null) => void;
+  setLocationAccuracy: (accuracy: number | null) => void;
   setRouteStart: (location: Coordinates | null) => void;
   setRouteEnd: (location: Coordinates | null) => void;
   setActivePath: (route: PathfinderResult | null) => void;
@@ -222,6 +224,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [amenityLevels, setAmenityLevels] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [mapDataLoading, setMapDataLoading] = useState<Record<string, boolean>>({});
   const [mapDataErrors, setMapDataErrors] = useState<Record<string, string | null>>({});
   const [mapDataRetryToken, setMapDataRetryToken] = useState(0);
@@ -262,12 +265,17 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
   }, [userLocation]);
 
-  // Keep routeStart in sync with live location when starting from current position
+  // Keep routeStart in sync with live location when starting from current position.
+  // Only use locations with reasonable accuracy (≤20m) so the route doesn't start
+  // from a stale or wildly inaccurate GPS position (common on first app load).
   useEffect(() => {
     if (routeStartIsCurrentLocation && userLocation && !navigationMode) {
-      setRouteStart(userLocation);
+      const accuracyOk = locationAccuracy == null || locationAccuracy <= 20;
+      if (accuracyOk) {
+        setRouteStart(userLocation);
+      }
     }
-  }, [routeStartIsCurrentLocation, userLocation, navigationMode]);
+  }, [routeStartIsCurrentLocation, userLocation, locationAccuracy, navigationMode]);
 
   const selectBuilding = useCallback((building: SelectedBuilding) => {
     setSelectedBuilding(building);
@@ -589,6 +597,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       amenityLevels,
       searchQuery,
       userLocation,
+      locationAccuracy,
       mapDataLoading,
       mapDataErrors,
       mapDataRetryToken,
@@ -609,6 +618,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteDestination,
       setSearchQuery,
       setUserLocation,
+      setLocationAccuracy,
       setRouteStart,
       setRouteEnd,
       setActivePath,
@@ -644,6 +654,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       amenityLevels,
       searchQuery,
       userLocation,
+      locationAccuracy,
       mapDataLoading,
       mapDataErrors,
       mapDataRetryToken,
