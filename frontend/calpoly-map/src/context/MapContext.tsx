@@ -25,9 +25,10 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 5;
 const ARRIVAL_PROXIMITY_METERS = 35;
-const ARRIVAL_EDGE_PROXIMITY_METERS = 15;
-const ARRIVAL_PATH_END_METERS = 15;
+const ARRIVAL_EDGE_PROXIMITY_METERS = 20;
+const ARRIVAL_PATH_END_METERS = 25;
 const ARRIVAL_CENTROID_BUFFER_METERS = 15;
+const ARRIVAL_REMAINING_ROUTE_METERS = 30;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
@@ -639,14 +640,15 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     rerouteTimerRef.current = setTimeout(() => {
       setIsRerouting(false);
     }, 2000);
-  }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeEnd, userLocation]);
+  }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeDestination, routeEnd, userLocation]);
 
   // Auto-exit navigation when user reaches the destination.
-  // Five checks run on every location update (first match wins):
+  // Six checks run on every location update (first match wins):
   //   1. User's GPS position is inside the destination building polygon.
-  //   2. User is within 15m of any edge of the building polygon.
+  //   2. User is within 20m of any edge of the building polygon.
   //   3. Dynamic centroid proximity — scales with building size.
-  //   4. Within 15m of the final path node (arrive step).
+  //   4. Within 25m of the final path node (arrive step).
+  //   5. Total remaining route distance ≤ 30m.
   //   5. Fixed centroid fallback (35m) for non-polygon destinations.
   useEffect(() => {
     if (!navigationMode || !userLocation) {
@@ -695,7 +697,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 4. Path endpoint check (15m — relaxed from 5m to account for GPS accuracy)
+    // 4. Path endpoint check (25m — relaxed to account for GPS accuracy)
     if (navSteps.length > 0) {
       const lastStep = navSteps[navSteps.length - 1];
       if (lastStep.maneuver === "arrive") {
@@ -711,7 +713,26 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // 5. Fixed centroid fallback for non-polygon destinations (points, etc.)
+    // 5. Remaining route distance — if there's almost no route left to
+    //    walk, the user has arrived regardless of building geometry.
+    //    Uses straight-line distance to the current step endpoint plus
+    //    the sum of all future step distances as an approximation.
+    if (navSteps.length > 0 && activeStepIndex < navSteps.length) {
+      const currentStepRemaining = distanceBetweenCoordinatesMeters(
+        userLocation,
+        navSteps[activeStepIndex].to,
+      );
+      const futureStepDistance = navSteps
+        .slice(activeStepIndex + 1)
+        .reduce((sum, step) => sum + step.distance, 0);
+      if (currentStepRemaining + futureStepDistance <= ARRIVAL_REMAINING_ROUTE_METERS) {
+        exitNavigation();
+        setHasArrived(true);
+        return;
+      }
+    }
+
+    // 6. Fixed centroid fallback for non-polygon destinations (points, etc.)
     if (routeEnd && !ring) {
       const distToBuilding = distanceBetweenCoordinatesMeters(
         userLocation,
@@ -722,7 +743,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
         setHasArrived(true);
       }
     }
-  }, [exitNavigation, navigationMode, navSteps, routeDestination, routeEnd, userLocation]);
+  }, [activeStepIndex, exitNavigation, navigationMode, navSteps, routeDestination, routeEnd, userLocation]);
 
   const clearRoute = useCallback(() => {
     setRouteStart(null);
