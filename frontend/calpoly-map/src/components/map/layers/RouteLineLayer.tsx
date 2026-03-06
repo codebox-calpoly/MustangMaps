@@ -46,13 +46,7 @@ function flatDistSq(a: Coord, b: Coord): number {
 }
 
 export function RouteLineLayer() {
-  const {
-    activePath,
-    routeStart,
-    routeEnd,
-    navigationMode,
-    userLocation,
-  } = useMapContext();
+  const { activePath, routeStart, routeEnd, routeStartIsCurrentLocation } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
     if (!activePath || activePath.path.length < 2) {
@@ -130,7 +124,7 @@ export function RouteLineLayer() {
       return null;
     }
     const features: Feature<Point>[] = [];
-    if (routeStart) {
+    if (routeStart && !routeStartIsCurrentLocation) {
       features.push({
         type: "Feature",
         geometry: { type: "Point", coordinates: routeStart },
@@ -170,7 +164,7 @@ export function RouteLineLayer() {
                 "match",
                 ["get", "kind"],
                 "start",
-                "#10B981",
+                "#2563EB",
                 "end",
                 "#EF4444",
                 "#6B7280",

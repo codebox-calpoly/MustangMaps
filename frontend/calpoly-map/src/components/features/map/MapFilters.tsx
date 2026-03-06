@@ -37,14 +37,15 @@ export function MapFilters({
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
+  const { setRoutingActive, clearRoute, clearSelection, mapStyle, setMapStyle } = useMapContext();
   const nextMapStyle = mapStyle === "light" ? "dark" : "light";
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <View style={styles.panel}>
+      <View style={[styles.panel, mapStyle === "dark" && styles.panelDark]}>
         <View style={styles.rowSpaceBetween}>
-          <Text style={styles.panelTitle}>Map Style</Text>
+          <Text style={[styles.panelTitle, mapStyle === "dark" && styles.panelTitleDark]}>Map Style</Text>
+          <Text style={styles.panelTitle}>Appearance</Text>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Switch to ${nextMapStyle} mode`}
@@ -71,6 +72,7 @@ export function MapFilters({
               key={mode}
               onPress={() => {
                 onMapModeChange(mode);
+                clearSelection();
                 if (mode === "routing") {
                   setRoutingActive(true);
                 } else {
@@ -78,11 +80,12 @@ export function MapFilters({
                   clearRoute();
                 }
               }}
-              style={[styles.chip, mapMode === mode && styles.chipActive]}
+              style={[styles.chip, mapStyle === "dark" && styles.chipDark, mapMode === mode && styles.chipActive]}
             >
               <Text
                 style={[
                   styles.chipText,
+                  mapStyle === "dark" && styles.chipTextDark,
                   mapMode === mode && styles.chipTextActive,
                 ]}
               >
@@ -118,9 +121,15 @@ export function MapFilters({
                     }
                     onBuildingTypesChange(Array.from(next));
                   }}
-                  style={[styles.chip, isActive && styles.chipActive]}
+                  style={[styles.chip, mapStyle === "dark" && styles.chipDark, isActive && styles.chipActive]}
                 >
-                  <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                  <Text
+                    style={[
+                      styles.chipText,
+                      mapStyle === "dark" && styles.chipTextDark,
+                      isActive && styles.chipTextActive,
+                    ]}
+                  >
                     {option.label}
                   </Text>
                 </Pressable>
@@ -132,11 +141,20 @@ export function MapFilters({
         {mapMode === "amenities" && (
           <View style={styles.rowWrap}>
             {amenityOptions.map((option) => {
-              const isActive = amenitySet.has(option.id);
+              const isAllOption = option.id === "all";
+              const isActive = isAllOption
+                ? amenityTypeIds.length === 0
+                : amenitySet.has(option.id);
+
               return (
                 <Pressable
                   key={option.id}
                   onPress={() => {
+                    if (isAllOption) {
+                      onAmenityTypesChange([]);
+                      return;
+                    }
+
                     const next = new Set(amenityTypeIds);
                     if (next.has(option.id)) {
                       next.delete(option.id);
@@ -145,10 +163,14 @@ export function MapFilters({
                     }
                     onAmenityTypesChange(Array.from(next));
                   }}
-                  style={[styles.chip, isActive && styles.chipActive]}
+                  style={[styles.chip, mapStyle === "dark" && styles.chipDark, isActive && styles.chipActive]}
                 >
                   <Text
-                    style={[styles.chipText, isActive && styles.chipTextActive]}
+                    style={[
+                      styles.chipText,
+                      mapStyle === "dark" && styles.chipTextDark,
+                      isActive && styles.chipTextActive,
+                    ]}
                   >
                     {option.label}
                   </Text>
@@ -185,6 +207,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
+  panelDark: {
+    backgroundColor: "#1C1F26",
+    borderColor: "#3A4048",
+  },
   row: {
     flexDirection: "row",
     gap: 8,
@@ -207,6 +233,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "#F3F4F6",
   },
+  chipDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+  },
   chipActive: {
     backgroundColor: "#111827",
     borderColor: "#111827",
@@ -215,6 +245,9 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 12,
     fontWeight: "600",
+  },
+  chipTextDark: {
+    color: "#E6E8EB",
   },
   chipTextActive: {
     color: "#F9FAFB",
@@ -225,6 +258,9 @@ const styles = StyleSheet.create({
     color: "#111827",
     textTransform: "uppercase",
     letterSpacing: 0.6,
+  },
+  panelTitleDark: {
+    color: "#F1F3F5",
   },
   styleToggle: {
     borderRadius: 999,

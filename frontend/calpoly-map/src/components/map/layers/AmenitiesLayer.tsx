@@ -14,12 +14,36 @@ const AMENITY_ICONS: Record<string, any> = {
   "water-fountain": require("../../../../assets/icons/water-fountain.png"),
   "bathroom": require("../../../../assets/icons/bathroom.png"),
   "printer": require("../../../../assets/icons/printer.png"),
+  "elevator": require("../../../../assets/icons/elevator.png"),
 };
+
+const DISPLAYED_AMENITY_CATEGORIES = [
+  "water_fountain",
+  "bathroom",
+  "toilet",
+  "printer",
+  "elevator",
+  "lift",
+] as const;
 
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
-  const { setMapDataStatus, mapDataRetryToken, selectAmenity } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, selectAmenity, selectedBuilding, mapMode } = useMapContext();
+
+  const selectedBuildingName = selectedBuilding?.properties?.name ?? null;
+
+  // Build a FeatureCollection of amenities that belong to the selected building
+  const highlightedAmenities = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!amenityData || !selectedBuildingName || mapMode !== "amenities") return null;
+    const matching = amenityData.features.filter((f) => {
+      const bldg = f.properties?.building;
+      if (!bldg || typeof bldg !== "string") return false;
+      return bldg.includes(selectedBuildingName);
+    });
+    if (matching.length === 0) return null;
+    return { type: "FeatureCollection", features: matching };
+  }, [amenityData, selectedBuildingName, mapMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,18 +101,37 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       "bathroom", "bathroom",
       "toilet", "bathroom",
       "printer", "printer",
+      "elevator", "elevator",
+      "lift", "elevator",
       "water-fountain" // default
     ] as any;
   }, []);
 
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
-  const filter = amenityTypes.length === 0
-    ? ["has", "category"] // Show all features that have a category property
+  // Expand "bathroom" to also match "toilet" (GeoJSON uses "toilet" as the category)
+  const expandedTypes = useMemo(() => {
+    if (amenityTypes.length === 0) return [];
+    const types = [...amenityTypes];
+    if (types.includes("bathroom") && !types.includes("toilet")) {
+      types.push("toilet");
+    }
+    if (types.includes("elevator") && !types.includes("lift")) {
+      types.push("lift");
+    }
+    return types;
+  }, [amenityTypes]);
+
+  const filter = expandedTypes.length === 0
+    ? [
+        "in",
+        ["get", "category"],
+        ["literal", DISPLAYED_AMENITY_CATEGORIES],
+      ]
     : [
         "in",
         ["get", "category"],
-        ["literal", amenityTypes],
+        ["literal", expandedTypes],
       ];
 
   const handlePress = useCallback(
@@ -126,7 +169,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
       {/* Load icon images */}
       <Images images={AMENITY_ICONS} />
 
-      <ShapeSource id="amenities-source" shape={amenityData} onPress={handlePress}>
+      <ShapeSource id="amenities-source" shape={highlightedAmenities ?? amenityData} onPress={handlePress}>
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
@@ -143,7 +186,8 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
               19, 0.5,   // At zoom 19, 50% size
             ] as any,
             iconAllowOverlap: true,
-            iconIgnorePlacement: false,
+            // Keep amenity icons visible even when points are very close together.
+            iconIgnorePlacement: true,
             iconAnchor: "bottom",
           }}
         />

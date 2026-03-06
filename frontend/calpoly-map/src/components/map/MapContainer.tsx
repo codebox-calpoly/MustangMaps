@@ -34,13 +34,13 @@ import type {
 } from "geojson";
 import { useMapContext } from "../../context/MapContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
-import { BuildingPopup } from "./BuildingPopup";
 import { AmenityPopup } from "./AmenityPopup";
 import { useUserLocation } from "../../context/UserLocationContext";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 // Disable telemetry
 setAccessToken(null);
@@ -102,6 +102,7 @@ export function MapContainer({
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
   const { latitude, longitude, accuracy } = useUserLocation();
+  const { favorites, isFavorite } = useSavedPlaces();
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
   const [followUser, setFollowUser] = useState<boolean>(false);
@@ -182,36 +183,56 @@ export function MapContainer({
     };
   }, [featureCenter, selectedBuilding]);
 
+  // Hide the selected-building marker when that building already exists in favorites.
+  const selectedBuildingIsFavorite = useMemo(() => {
+    if (!selectedBuilding) {
+      return false;
+    }
+
+    const center = featureCenter(selectedBuilding);
+    if (!center) {
+      return false;
+    }
+
+    const name = String(selectedBuilding.properties?.name ?? "Unknown");
+    const selectedRef= selectedBuilding.properties?.ref;
+    // Preferred match path: stable building ref when available.
+    if (selectedRef) {
+      const matchedByRef = favorites.some((item) => {
+        const favoriteRef = item.ref
+        return Boolean(favoriteRef) && favoriteRef === selectedRef;
+      });
+      if (matchedByRef) {
+        return true;
+      }
+    }
+
+    // Fallback for geometry drift between data sources.
+    const [lng, lat] = center;
+    return favorites.some((item) => {
+      if (item.name !== name) {
+        return false;
+      }
+      const [favLng, favLat] = item.coordinate;
+      return (
+        Math.abs(favLng - lng) <= 0.00005 &&
+        Math.abs(favLat - lat) <= 0.00005
+      );
+    });
+  }, [selectedBuilding, favorites, featureCenter, isFavorite]);
+
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
 
-  const controlsAnimatedStyle = useAnimatedStyle(() => {
-    const bottom = windowHeight - searchPanelHeight.value - 70;
-    if (searchPanelHeight.value / windowHeight > 0.265) {
-      return { bottom: bottom };
-    } else {
-      return { bottom: -10000 };
-    }
-  }, [windowHeight]);
-
-  const handleZoom = useCallback(
-    async (delta: number) => {
-      const map = mapRef.current;
-      const camera = cameraRef.current;
-      if (!mapReady || !map || !camera) {
-        return;
-      }
-
-      try {
-        const zoom = await map.getZoom();
-        const nextZoom = Math.max(0, Math.min(zoom + delta, 22));
-        camera.zoomTo(nextZoom, 150);
-      } catch {
-        // Ignore transient zoom errors to keep taps safe.
-      }
-    },
-    [mapReady],
-  );
+  // Hide the recenter button when the bottom sheet extends past it
+  const locationButtonStyle = useAnimatedStyle(() => {
+    const buttonTop = 175;
+    const sheetTop = searchPanelHeight.value;
+    return {
+      opacity: sheetTop < buttonTop + 44 ? 0 : 1,
+      pointerEvents: sheetTop < buttonTop + 44 ? "none" as const : "auto" as const,
+    };
+  }, []);
 
   // Show user location button if we have a valid location, and center map on tap.
   function UserLocationButton() {
@@ -223,18 +244,18 @@ export function MapContainer({
         accessibilityRole="button"
         accessibilityLabel="Center User Location"
         onPress={toggleFollowUser}
-        style={[styles.zoomButton, followUser && styles.locationButtonActive]}
+        style={[styles.locationButton, followUser && styles.locationButtonActive]}
       >
-        <View style={styles.zoomIcon}>
-          <View style={styles.locationIconInner} />
-          <View style={styles.locationIconOuter} />
+        <View style={styles.locationIcon}>
+          <View style={styles.locationIconRing} />
+          <View style={[styles.locationIconDot, followUser && styles.locationIconDotActive]} />
         </View>
       </Pressable>
     );
   }
 
   // Toggle follow user mode on/off. When on, the map will center on the user's location and follow it as it moves.
-  const toggleFollowUser = () => {
+  const toggleFollowUser = async () => {
     const camera = cameraRef.current;
     const map = mapRef.current;
     if (!userLocation || !mapReady || !map || !camera) {
@@ -248,6 +269,28 @@ export function MapContainer({
 
     lastCameraStopRef.current = null;
     setFollowUser(true);
+
+    // If zoomed out, zoom in to street level while centering
+    const MIN_RECENTER_ZOOM = 15;
+    try {
+      const currentZoom = await map.getZoom();
+      if (currentZoom < MIN_RECENTER_ZOOM) {
+        const safeLoc = clampCoordinate(userLocation as [number, number]);
+        cameraBusyRef.current = true;
+        camera.setCamera({
+          centerCoordinate: safeLoc,
+          zoomLevel: 17,
+          animationDuration: 350,
+        });
+        setTimeout(() => {
+          cameraBusyRef.current = false;
+        }, 400);
+        return;
+      }
+    } catch {
+      // Fall through to default panning behavior
+    }
+
     handleCameraMove(userLocation);
   };
 
@@ -469,7 +512,12 @@ export function MapContainer({
         zoomEnabled={mapGesturesEnabled}
         scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
-        onDidFinishLoadingMap={() => setMapReady(true)}
+        onDidFinishLoadingMap={() => {
+          // Hide the base map's building layers so only our custom BuildingLayer renders,
+          // preventing double-shading that makes some buildings appear darker.
+          mapRef.current?.setSourceVisibility(false, "carto", "building");
+          setMapReady(true);
+        }}
         onRegionWillChange={handleRegionChange}
       >
         <UserLocationMarker />
@@ -488,15 +536,15 @@ export function MapContainer({
           }
           return child;
         })}
-        {selectedBuildingMarker && (
+        {selectedBuildingMarker && mapMode !== "amenities" && !selectedBuildingIsFavorite && (
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
               style={{
-                circleRadius: 7,
-                circleColor: "#2563EB",
+                circleRadius: 10,
+                circleColor: "#EF4444",
                 circleStrokeColor: "#FFFFFF",
-                circleStrokeWidth: 2,
+                circleStrokeWidth: 3,
               }}
             />
           </ShapeSource>
@@ -550,42 +598,12 @@ export function MapContainer({
           cameraMove={handleCameraMove}
           cameraFitRoute={handleCameraFitRoute}
           bottomSheetPosition={searchPanelHeight}
+          onNavigate={handleNavigate}
         />
       )}
 
-      <BuildingPopup
-        visible={!!selectedBuilding}
-        building={selectedBuilding}
-        onClose={clearSelection}
-        onNavigate={handleNavigate}
-      />
-      <Animated.View
-        style={[styles.zoomControls, controlsAnimatedStyle]}
-        pointerEvents="box-none"
-      >
+      <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
         <UserLocationButton />
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom in"
-          onPress={() => handleZoom(1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-            <View style={styles.zoomIconBarVertical} />
-          </View>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Zoom out"
-          onPress={() => handleZoom(-1)}
-          style={styles.zoomButton}
-        >
-          <View style={styles.zoomIcon}>
-            <View style={styles.zoomIconBarHorizontal} />
-          </View>
-        </Pressable>
       </Animated.View>
 
       <AmenityPopup
@@ -699,61 +717,52 @@ const styles = StyleSheet.create({
     color: "#374151",
     fontWeight: "600",
   },
-  zoomControls: {
+  locationButtonContainer: {
     position: "absolute",
     right: 16,
-    gap: 10,
+    top: 175,
+    zIndex: 3,
   },
-  zoomButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#111827",
+  locationButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    elevation: 3,
   },
-  zoomIcon: {
-    width: 18,
-    height: 18,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  zoomIconBarHorizontal: {
-    width: 18,
-    height: 2,
-    backgroundColor: "#F9FAFB",
-  },
-  zoomIconBarVertical: {
-    position: "absolute",
-    width: 2,
-    height: 18,
-    backgroundColor: "#F9FAFB",
-  },
-  locationControls: {
-    position: "absolute",
-    left: 16,
-    gap: 10,
-  },
-  locationIconInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 4,
-    backgroundColor: "#ffffffff",
-  },
-  locationIconOuter: {
-    position: "absolute",
+  locationIcon: {
     width: 20,
     height: 20,
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  locationIconRing: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2.5,
+    borderColor: "#6B7280",
+  },
+  locationIconDot: {
+    position: "absolute",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#6B7280",
+  },
+  locationIconDotActive: {
+    backgroundColor: "#2563EB",
   },
   locationButtonActive: {
-    backgroundColor: "#0B5FFF",
+    borderColor: "#2563EB",
   },
   arrivalOverlay: {
     flex: 1,

@@ -6,6 +6,7 @@ import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
+import { FavoritesLayer } from '../components/map/layers/FavoritesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
 import type { BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 import { usePathGraph } from '../hooks/usePathGraph';
@@ -21,9 +22,11 @@ const BUILDING_OPTIONS: BuildingFilterOption[] = [
 ];
 
 const AMENITY_OPTIONS: AmenityFilterOption[] = [
+  { id: "all", label: "All" },
   { id: "bathroom", label: "Bathrooms" },
   { id: "water_fountain", label: "Water Fountains" },
   { id: "printer", label: "Printers" },
+  { id: "elevator", label: "Elevators" },
 ];
 
 export default function App() {
@@ -63,6 +66,7 @@ function MapScreen({
     routingActive,
     routeRequested,
     routeStartIsCurrentLocation,
+    routeAccessibleOnly,
     setActivePath,
     setRouteError,
     setGraph,
@@ -91,23 +95,29 @@ function MapScreen({
       return;
     }
 
-    let result = findPath(loadedGraph, routeStart, routeEnd);
+    let result = findPath(loadedGraph, routeStart, routeEnd, {
+      onlyAccessible: routeAccessibleOnly,
+    });
     if (!result) {
       result = findPath(loadedGraph, routeStart, routeEnd, {
         snapRadiusMeters: 150,
+        onlyAccessible: routeAccessibleOnly,
       });
     }
     if (!result && routeStartIsCurrentLocation) {
       result = findPath(loadedGraph, routeStart, routeEnd, {
         snapRadiusMeters: 300,
+        onlyAccessible: routeAccessibleOnly,
       });
     }
     if (!result) {
       setActivePath(null);
       setRouteError(
-        routeStartIsCurrentLocation
-          ? "Current location isn't on the path network. Choose a start point."
-          : "No path found between those points",
+        routeAccessibleOnly
+          ? "No accessible route found between those points."
+          : routeStartIsCurrentLocation
+            ? "Current location isn't on the path network. Choose a start point."
+            : "No path found between those points",
       );
       return;
     }
@@ -120,6 +130,7 @@ function MapScreen({
     routeEnd,
     routingActive,
     routeRequested,
+    routeAccessibleOnly,
     setActivePath,
     setRouteError,
   ]);
@@ -131,6 +142,7 @@ function MapScreen({
     >
       <BuildingLayer buildingTypes={buildingTypeIds} />
       <ClassZonesLayer />
+      {(mapMode === "buildings" || mapMode === "routing") && <FavoritesLayer />}
       {/* Only render amenities when in amenities mode or when filters are selected */}
       {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
         <AmenitiesLayer amenityTypes={amenityTypeIds} />

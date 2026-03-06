@@ -303,4 +303,48 @@ test("total distance is preserved after simplification", () => {
     Math.abs(segmentTotal - result.distance) < 5,
     `segment total ${segmentTotal.toFixed(1)}m should be close to A* total ${result.distance}m`,
   );
+test("findPath can restrict to accessible edges only", () => {
+  const graph: PathGraph = {
+    nodes: {
+      A: { id: "A", coordinates: [-120.6595, 35.305] },
+      B: { id: "B", coordinates: [-120.659, 35.3052] },
+      C: { id: "C", coordinates: [-120.6585, 35.3054] },
+    },
+    edges: {
+      AB: {
+        id: "AB",
+        from: "A",
+        to: "B",
+        distance: 80,
+        accessible: false,
+      },
+      BC: {
+        id: "BC",
+        from: "B",
+        to: "C",
+        distance: 80,
+        accessible: true,
+      },
+      AC: {
+        id: "AC",
+        from: "A",
+        to: "C",
+        distance: 250,
+        accessible: true,
+      },
+    },
+  };
+
+  const allEdgesResult = findPath(graph, graph.nodes.A.coordinates, graph.nodes.C.coordinates);
+  assert.ok(allEdgesResult);
+  assert.equal(allEdgesResult.nodes.join(","), "A,B,C");
+
+  const accessibleOnlyResult = findPath(
+    graph,
+    graph.nodes.A.coordinates,
+    graph.nodes.C.coordinates,
+    { onlyAccessible: true },
+  );
+  assert.ok(accessibleOnlyResult);
+  assert.equal(accessibleOnlyResult.nodes.join(","), "A,C");
 });

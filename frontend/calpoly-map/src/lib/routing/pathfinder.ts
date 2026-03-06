@@ -24,6 +24,7 @@ export interface PathGraphEdge {
   distance: number;
   coordinates?: [number, number][];
   bidirectional?: boolean;
+  accessible?: boolean;
 }
 
 export interface PathGraphEdgeRef {
@@ -45,6 +46,7 @@ const MAX_SNAP_RADIUS_METERS = 200;
 
 export interface FindPathOptions {
   snapRadiusMeters?: number;
+  onlyAccessible?: boolean;
 }
 
 class MinHeap<T> {
@@ -295,6 +297,7 @@ export function findPath(
   endCoord: [number, number],
   options?: FindPathOptions,
 ): PathfinderResult | null {
+  const onlyAccessible = options?.onlyAccessible === true;
   const snapRadius = Math.min(
     options?.snapRadiusMeters ?? DEFAULT_SNAP_RADIUS_METERS,
     MAX_SNAP_RADIUS_METERS,
@@ -413,6 +416,13 @@ export function findPath(
 
     const neighbors = adjacency[current.nodeId] ?? [];
     for (const neighbor of neighbors) {
+      const edge = graph.edges[neighbor.edgeId];
+      if (!edge) {
+        continue;
+      }
+      if (onlyAccessible && edge.accessible === false) {
+        continue;
+      }
       const tentative =
         (gScore.get(current.nodeId) ?? Number.POSITIVE_INFINITY) +
         neighbor.distance;
