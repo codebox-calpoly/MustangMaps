@@ -25,6 +25,9 @@ export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
 const STEP_REACHED_THRESHOLD_METERS = 5;
 const ARRIVAL_PROXIMITY_METERS = 35;
+const ARRIVAL_EDGE_PROXIMITY_METERS = 15;
+const ARRIVAL_PATH_END_METERS = 15;
+const ARRIVAL_CENTROID_BUFFER_METERS = 15;
 const STEP_PROGRESS_SNAP_METERS = 60;
 const DEVIATION_THRESHOLD_METERS = 8;
 const REROUTE_COOLDOWN_MS = 1000;
@@ -123,6 +126,46 @@ function isPointInPolygon(
     }
   }
   return inside;
+}
+
+/**
+ * Minimum distance (meters) from a point to any edge of a polygon ring.
+ * Uses flat-Earth projection (accurate at campus scale).
+ */
+function minDistanceToPolygonEdge(
+  point: Coordinates,
+  ring: number[][],
+): number {
+  let min = Number.POSITIVE_INFINITY;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const dist = pointToSegmentDistance(
+      point,
+      ring[j] as [number, number],
+      ring[i] as [number, number],
+    );
+    if (dist < min) min = dist;
+  }
+  return min;
+}
+
+/**
+ * Maximum distance (meters) from a centroid to any vertex of a polygon ring.
+ * This gives the building's "bounding radius" so arrival detection scales
+ * with building size.
+ */
+function polygonBoundingRadius(
+  centroid: Coordinates,
+  ring: number[][],
+): number {
+  let max = 0;
+  for (const vertex of ring) {
+    const dist = distanceBetweenCoordinatesMeters(
+      centroid,
+      vertex as [number, number],
+    );
+    if (dist > max) max = dist;
+  }
+  return max;
 }
 
 /** Flat-Earth bearing (degrees, 0=north, clockwise) between two coordinates. */
@@ -485,18 +528,29 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
 
     // Don't reroute if user is at/near the destination building — let the
     // arrival detection handle it instead of creating route noise.
-    if (
+    const hasDestPoly =
       routeDestination?.geometry?.type === "Polygon" &&
-      Array.isArray(routeDestination.geometry.coordinates?.[0]) &&
-      isPointInPolygon(userLocation, routeDestination.geometry.coordinates[0])
-    ) {
+      Array.isArray(routeDestination.geometry.coordinates?.[0]);
+    const destRing = hasDestPoly
+      ? (routeDestination!.geometry as { coordinates: number[][][] }).coordinates[0]
+      : null;
+
+    if (destRing && isPointInPolygon(userLocation, destRing)) {
       return;
+    }
+    if (destRing) {
+      const edgeDist = minDistanceToPolygonEdge(userLocation, destRing);
+      if (edgeDist <= ARRIVAL_EDGE_PROXIMITY_METERS) return;
     }
     const distToDestination = distanceBetweenCoordinatesMeters(
       userLocation,
       routeEnd,
     );
-    if (distToDestination <= ARRIVAL_PROXIMITY_METERS) {
+    if (destRing) {
+      const boundingRadius = polygonBoundingRadius(routeEnd, destRing);
+      const dynamicThreshold = Math.max(boundingRadius, ARRIVAL_PROXIMITY_METERS) + ARRIVAL_CENTROID_BUFFER_METERS;
+      if (distToDestination <= dynamicThreshold) return;
+    } else if (distToDestination <= ARRIVAL_PROXIMITY_METERS) {
       return;
     }
 
@@ -588,41 +642,60 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   }, [activeStepIndex, activePath, graph, navigationMode, navSteps.length, routeEnd, userLocation]);
 
   // Auto-exit navigation when user reaches the destination.
-  // Three checks run on every location update (first match wins):
+  // Five checks run on every location update (first match wins):
   //   1. User's GPS position is inside the destination building polygon.
-  //   2. Within 35m of the building centroid (routeEnd).
-  //   3. Within 5m of the final path node (arrive step).
+  //   2. User is within 15m of any edge of the building polygon.
+  //   3. Dynamic centroid proximity — scales with building size.
+  //   4. Within 15m of the final path node (arrive step).
+  //   5. Fixed centroid fallback (35m) for non-polygon destinations.
   useEffect(() => {
     if (!navigationMode || !userLocation) {
       return;
     }
 
-    // Point-in-polygon check (most reliable — works for any building size)
-    if (
+    const hasPolygon =
       routeDestination?.geometry?.type === "Polygon" &&
-      Array.isArray(routeDestination.geometry.coordinates?.[0])
-    ) {
-      if (isPointInPolygon(userLocation, routeDestination.geometry.coordinates[0])) {
+      Array.isArray(routeDestination.geometry.coordinates?.[0]);
+    const ring = hasPolygon
+      ? (routeDestination!.geometry as { coordinates: number[][][] }).coordinates[0]
+      : null;
+
+    // 1. Point-in-polygon (most reliable — works for any building size)
+    if (ring && isPointInPolygon(userLocation, ring)) {
+      exitNavigation();
+      setHasArrived(true);
+      return;
+    }
+
+    // 2. Edge proximity — catches "standing at the entrance" even when
+    //    GPS drifts just outside the polygon boundary.
+    if (ring) {
+      const edgeDist = minDistanceToPolygonEdge(userLocation, ring);
+      if (edgeDist <= ARRIVAL_EDGE_PROXIMITY_METERS) {
         exitNavigation();
         setHasArrived(true);
         return;
       }
     }
 
-    // Building centroid proximity check
-    if (routeEnd) {
+    // 3. Dynamic centroid proximity — use the building's bounding radius
+    //    so large buildings (rec center, library) don't require the user
+    //    to reach the centroid, which may be deep inside the structure.
+    if (routeEnd && ring) {
+      const boundingRadius = polygonBoundingRadius(routeEnd, ring);
+      const dynamicThreshold = Math.max(boundingRadius, ARRIVAL_PROXIMITY_METERS) + ARRIVAL_CENTROID_BUFFER_METERS;
       const distToBuilding = distanceBetweenCoordinatesMeters(
         userLocation,
         routeEnd,
       );
-      if (distToBuilding <= ARRIVAL_PROXIMITY_METERS) {
+      if (distToBuilding <= dynamicThreshold) {
         exitNavigation();
         setHasArrived(true);
         return;
       }
     }
 
-    // Path endpoint check (fallback)
+    // 4. Path endpoint check (15m — relaxed from 5m to account for GPS accuracy)
     if (navSteps.length > 0) {
       const lastStep = navSteps[navSteps.length - 1];
       if (lastStep.maneuver === "arrive") {
@@ -630,10 +703,23 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
           userLocation,
           lastStep.to,
         );
-        if (distToPathEnd <= STEP_REACHED_THRESHOLD_METERS) {
+        if (distToPathEnd <= ARRIVAL_PATH_END_METERS) {
           exitNavigation();
           setHasArrived(true);
+          return;
         }
+      }
+    }
+
+    // 5. Fixed centroid fallback for non-polygon destinations (points, etc.)
+    if (routeEnd && !ring) {
+      const distToBuilding = distanceBetweenCoordinatesMeters(
+        userLocation,
+        routeEnd,
+      );
+      if (distToBuilding <= ARRIVAL_PROXIMITY_METERS) {
+        exitNavigation();
+        setHasArrived(true);
       }
     }
   }, [exitNavigation, navigationMode, navSteps, routeDestination, routeEnd, userLocation]);
