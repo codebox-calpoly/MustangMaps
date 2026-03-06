@@ -13,6 +13,7 @@ import {
   findPath,
   type PathfinderResult,
   type PathGraph,
+  type RouteSegment,
 } from "../lib/routing/pathfinder";
 import {
   buildDirectionsFromPath,
@@ -132,6 +133,77 @@ function computeBearing(from: Coordinates, to: Coordinates): number {
   const dLat = to[1] - from[1];
   const bearing = Math.atan2(dLon, dLat) * (180 / Math.PI);
   return ((bearing % 360) + 360) % 360;
+}
+
+/** Project a point onto a segment, returning fractional t and flat-Earth distSq. */
+function projectOntoPathSeg(
+  point: Coordinates,
+  segA: [number, number],
+  segB: [number, number],
+): { t: number; distSq: number } {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(((segA[1] + segB[1]) / 2) * toRad);
+  const px = (point[0] - segA[0]) * cosLat * 111_320;
+  const py = (point[1] - segA[1]) * 111_320;
+  const bx = (segB[0] - segA[0]) * cosLat * 111_320;
+  const by = (segB[1] - segA[1]) * 111_320;
+  const lenSq = bx * bx + by * by;
+  const t = lenSq > 0 ? Math.max(0, Math.min(1, (px * bx + py * by) / lenSq)) : 0;
+  const dx = px - t * bx;
+  const dy = py - t * by;
+  return { t, distSq: dx * dx + dy * dy };
+}
+
+/**
+ * Trim a PathfinderResult so it starts from the user's current position
+ * instead of from a graph snap node.  This prevents false turn instructions
+ * at the start of a rerouted path where the snap node is offset from the
+ * user, creating a phantom bearing change.
+ */
+function trimPathFromUser(
+  userPos: Coordinates,
+  result: PathfinderResult,
+): PathfinderResult {
+  const path = result.path;
+  if (path.length < 2) return result;
+
+  let bestSegIdx = 0;
+  let bestDistSq = Number.POSITIVE_INFINITY;
+  let bestT = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const { t, distSq } = projectOntoPathSeg(userPos, path[i], path[i + 1]);
+    if (distSq < bestDistSq) {
+      bestDistSq = distSq;
+      bestSegIdx = i;
+      bestT = t;
+    }
+  }
+
+  const segA = path[bestSegIdx];
+  const segB = path[bestSegIdx + 1];
+  const projected: [number, number] = [
+    segA[0] + bestT * (segB[0] - segA[0]),
+    segA[1] + bestT * (segB[1] - segA[1]),
+  ];
+
+  const trimmedPath: [number, number][] = [projected, ...path.slice(bestSegIdx + 1)];
+
+  const segments: RouteSegment[] = [];
+  for (let i = 0; i < trimmedPath.length - 1; i++) {
+    segments.push({
+      from: trimmedPath[i],
+      to: trimmedPath[i + 1],
+      distance: distanceBetweenCoordinatesMeters(trimmedPath[i], trimmedPath[i + 1]),
+      bearing: computeBearing(trimmedPath[i], trimmedPath[i + 1]),
+    });
+  }
+
+  return {
+    ...result,
+    path: trimmedPath,
+    segments,
+    distance: segments.reduce((sum, seg) => sum + seg.distance, 0),
+  };
 }
 
 /** Project a coordinate forward by `distanceMeters` along `bearingDeg`. */
@@ -498,8 +570,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return; // keep current route — user may return to path
     }
 
-    setActivePath(result);
-    const newSteps = buildDirectionsFromPath(result);
+    // Trim the path to start from the user's actual position so that
+    // directions reflect reality, not the graph's snap node offset.
+    const trimmed = trimPathFromUser(userLocation, result);
+
+    setActivePath(trimmed);
+    const newSteps = buildDirectionsFromPath(trimmed);
     setNavSteps(newSteps);
     setActiveStepIndex(0);
     navStartTimeRef.current = Date.now();
