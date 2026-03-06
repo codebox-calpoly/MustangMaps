@@ -23,7 +23,7 @@ import {
 type Coordinates = [number, number];
 export type SelectedBuilding = Feature<Geometry, GeoJsonProperties>;
 
-const STEP_REACHED_THRESHOLD_METERS = 5;
+const STEP_REACHED_THRESHOLD_METERS = 12;
 const ARRIVAL_PROXIMITY_METERS = 35;
 const ARRIVAL_EDGE_PROXIMITY_METERS = 20;
 const ARRIVAL_PATH_END_METERS = 25;
@@ -492,6 +492,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
 
     let nextStepIndex = activeStepIndex;
+
+    // Primary check: advance past steps whose endpoint the user is close to.
     while (nextStepIndex < finalStepIndex) {
       const step = navSteps[nextStepIndex];
       const distanceToStepEnd = distanceBetweenCoordinatesMeters(
@@ -504,12 +506,57 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       nextStepIndex += 1;
     }
 
+    // Path-projection check: if the user's closest path segment is beyond
+    // the current step's endpoint, they've walked past it even if their
+    // straight-line distance to the exact coordinate is > threshold (GPS
+    // offset).  This keeps step advancement in sync with what the UI shows.
+    if (nextStepIndex === activeStepIndex && activePath) {
+      const path = activePath.path as [number, number][];
+      const stepTo = navSteps[activeStepIndex].to;
+
+      // Find the path index of the current step's endpoint
+      let stepToPathIdx = -1;
+      for (let i = 0; i < path.length; i++) {
+        if (path[i][0] === stepTo[0] && path[i][1] === stepTo[1]) {
+          stepToPathIdx = i;
+          break;
+        }
+      }
+
+      if (stepToPathIdx >= 0 && stepToPathIdx < path.length - 1) {
+        // Find which path segment the user is closest to
+        let bestSegIdx = 0;
+        let bestDistSq = Number.POSITIVE_INFINITY;
+        for (let i = 0; i < path.length - 1; i++) {
+          const { distSq } = projectOntoPathSeg(userLocation, path[i], path[i + 1]);
+          if (distSq < bestDistSq) {
+            bestDistSq = distSq;
+            bestSegIdx = i;
+          }
+        }
+
+        // If the user's closest segment starts at or after the step's
+        // endpoint, they've walked past it — advance.
+        if (bestSegIdx >= stepToPathIdx) {
+          nextStepIndex = activeStepIndex + 1;
+          // Continue advancing past any further steps whose endpoint the
+          // user has also passed.
+          while (nextStepIndex < finalStepIndex) {
+            const dist = distanceBetweenCoordinatesMeters(
+              userLocation,
+              navSteps[nextStepIndex].to,
+            );
+            if (dist > STEP_REACHED_THRESHOLD_METERS) break;
+            nextStepIndex += 1;
+          }
+        }
+      }
+    }
+
+    // Snap progression fallback: when close to the current step's endpoint,
+    // check if a future step's endpoint is even closer (handles GPS drift
+    // past step transitions).
     if (nextStepIndex === activeStepIndex) {
-      // Only attempt snap progression when the user is already reasonably
-      // close to the current step's endpoint.  Without this guard the scan
-      // can find a future step whose endpoint is geographically closer
-      // (e.g. a route that turns back toward the origin) and prematurely
-      // skip the current step before the user has walked through it.
       const distToCurrentEnd = distanceBetweenCoordinatesMeters(
         userLocation,
         navSteps[activeStepIndex].to,
@@ -538,7 +585,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     if (nextStepIndex !== activeStepIndex) {
       setActiveStepIndex(nextStepIndex);
     }
-  }, [activeStepIndex, navSteps, navigationMode, userLocation]);
+  }, [activePath, activeStepIndex, navSteps, navigationMode, userLocation]);
 
   // Deviation-based rerouting during active navigation
   useEffect(() => {
