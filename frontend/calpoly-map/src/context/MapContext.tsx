@@ -369,6 +369,14 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const navStartTimeRef = useRef(0);
   const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const locationHistoryRef = useRef<Coordinates[]>([]);
+  const userLocationRef = useRef<Coordinates | null>(null);
+
+  // Keep a ref of the latest userLocation so startNavigation can read it
+  // without adding userLocation to its dependency array (which would cause
+  // the entire context value to be recreated on every GPS update).
+  useEffect(() => {
+    userLocationRef.current = userLocation;
+  }, [userLocation]);
 
   // Track distinct GPS positions for heading computation during rerouting
   useEffect(() => {
@@ -439,7 +447,16 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const startNavigation = useCallback(() => {
     if (!activePath) return;
 
-    const steps = buildDirectionsFromPath(activePath);
+    // Trim the path from the user's current position so the first direction
+    // reflects reality, not the pathfinder's snap-node offset.  This is the
+    // same fix applied during rerouting (trimPathFromUser).
+    const currentPos = userLocationRef.current;
+    const pathToUse = currentPos
+      ? trimPathFromUser(currentPos, activePath)
+      : activePath;
+
+    setActivePath(pathToUse);
+    const steps = buildDirectionsFromPath(pathToUse);
 
     setNavSteps(steps);
     setActiveStepIndex(0);
