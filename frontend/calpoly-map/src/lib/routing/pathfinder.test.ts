@@ -115,7 +115,7 @@ test("findPath handles same start and end node", () => {
 
 // ── Path simplification tests ──────────────────────────────────────
 
-test("simplification collapses collinear nodes into a single segment", () => {
+test("collinear nodes are all preserved in path (no simplification)", () => {
   const graph: PathGraph = {
     nodes: {
       A: { id: "A", coordinates: [-120.660, 35.3040] },
@@ -135,13 +135,13 @@ test("simplification collapses collinear nodes into a single segment", () => {
   const result = findPath(graph, [-120.660, 35.3040], [-120.660, 35.3048]);
   assert.ok(result);
   assert.equal(result.nodes.join(","), "A,B,C,D,E");
-  assert.equal(result.path.length, 2);
-  assert.equal(result.segments.length, 1);
+  assert.equal(result.path.length, 5);
+  assert.equal(result.segments.length, 4);
   assert.deepEqual(result.path[0], [-120.660, 35.3040]);
-  assert.deepEqual(result.path[1], [-120.660, 35.3048]);
+  assert.deepEqual(result.path[4], [-120.660, 35.3048]);
 });
 
-test("simplification preserves turn points on an L-shaped path", () => {
+test("L-shaped path preserves all nodes including turn point", () => {
   const graph: PathGraph = {
     nodes: {
       A: { id: "A", coordinates: [-120.662, 35.304] },
@@ -160,7 +160,7 @@ test("simplification preserves turn points on an L-shaped path", () => {
 
   const result = findPath(graph, [-120.662, 35.304], [-120.660, 35.306]);
   assert.ok(result);
-  assert.ok(result.path.length <= 4, `expected ≤4 points, got ${result.path.length}`);
+  assert.equal(result.path.length, 5);
   const hasC = result.path.some(
     (p) => Math.abs(p[0] - -120.660) < 0.0001 && Math.abs(p[1] - 35.304) < 0.0001,
   );
@@ -169,7 +169,7 @@ test("simplification preserves turn points on an L-shaped path", () => {
   assert.deepEqual(result.path[result.path.length - 1], [-120.660, 35.306]);
 });
 
-test("simplification removes small wobbles below epsilon", () => {
+test("small wobbles are preserved in path (no simplification)", () => {
   const graph: PathGraph = {
     nodes: {
       A: { id: "A", coordinates: [-120.66000, 35.3040] },
@@ -188,8 +188,8 @@ test("simplification removes small wobbles below epsilon", () => {
 
   const result = findPath(graph, [-120.66000, 35.3040], [-120.66000, 35.3048]);
   assert.ok(result);
-  assert.equal(result.path.length, 2, "wobbles < epsilon should be removed");
-  assert.equal(result.segments.length, 1);
+  assert.equal(result.path.length, 5, "all graph nodes should be preserved");
+  assert.equal(result.segments.length, 4);
 });
 
 test("simplification keeps deviations above epsilon", () => {
@@ -279,7 +279,7 @@ test("directions from simplified L-shaped path produce correct turn", () => {
   assert.match(turnStep.instruction, /^Turn left/);
 });
 
-test("total distance is preserved after simplification", () => {
+test("total distance is preserved with all nodes", () => {
   const graph: PathGraph = {
     nodes: {
       A: { id: "A", coordinates: [-120.660, 35.3040] },
@@ -296,7 +296,7 @@ test("total distance is preserved after simplification", () => {
 
   const result = findPath(graph, [-120.660, 35.3040], [-120.660, 35.3052]);
   assert.ok(result);
-  assert.equal(result.path.length, 2);
+  assert.equal(result.path.length, 4);
   assert.equal(result.distance, 132);
   const segmentTotal = result.segments.reduce((sum, s) => sum + s.distance, 0);
   assert.ok(
