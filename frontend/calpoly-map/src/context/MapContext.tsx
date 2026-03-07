@@ -230,7 +230,29 @@ function trimPathFromUser(
     segA[1] + bestT * (segB[1] - segA[1]),
   ];
 
-  const trimmedPath: [number, number][] = [projected, ...path.slice(bestSegIdx + 1)];
+  let trimmedPath: [number, number][] = [projected, ...path.slice(bestSegIdx + 1)];
+
+  // Collapse phantom turn: the projection often lands on a segment
+  // heading toward a nearby snap node, creating a short first segment
+  // whose bearing diverges sharply from the main route.  This produces
+  // a useless "head 15 m" then "turn" at navigation start that the
+  // step progression would skip, making it look like directions are
+  // wrong.  Remove the intermediate node so the path goes directly
+  // from the projected point to where the main route continues.
+  if (trimmedPath.length >= 3) {
+    const firstDist = distanceBetweenCoordinatesMeters(
+      trimmedPath[0],
+      trimmedPath[1],
+    );
+    if (firstDist <= 25) {
+      const b1 = computeBearing(trimmedPath[0], trimmedPath[1]);
+      const b2 = computeBearing(trimmedPath[1], trimmedPath[2]);
+      const delta = ((b2 - b1 + 540) % 360) - 180;
+      if (Math.abs(delta) > 30) {
+        trimmedPath = [trimmedPath[0], ...trimmedPath.slice(2)];
+      }
+    }
+  }
 
   const segments: RouteSegment[] = [];
   for (let i = 0; i < trimmedPath.length - 1; i++) {
