@@ -535,30 +535,40 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (stepToPathIdx >= 0 && stepToPathIdx < path.length - 1) {
-        // Find which path segment the user is closest to
-        let bestSegIdx = 0;
-        let bestDistSq = Number.POSITIVE_INFINITY;
-        for (let i = 0; i < path.length - 1; i++) {
-          const { distSq } = projectOntoPathSeg(userLocation, path[i], path[i + 1]);
-          if (distSq < bestDistSq) {
-            bestDistSq = distSq;
-            bestSegIdx = i;
+        // Only use path projection when the user is reasonably close to
+        // the step endpoint.  Without this guard, GPS offset on a short
+        // first segment can make the user appear closer to a later
+        // segment, skipping the "head" step when the turn is 200+ m away.
+        const distToStepEnd = distanceBetweenCoordinatesMeters(
+          userLocation,
+          stepTo,
+        );
+        if (distToStepEnd <= STEP_PROGRESS_SNAP_METERS) {
+          // Find which path segment the user is closest to
+          let bestSegIdx = 0;
+          let bestDistSq = Number.POSITIVE_INFINITY;
+          for (let i = 0; i < path.length - 1; i++) {
+            const { distSq } = projectOntoPathSeg(userLocation, path[i], path[i + 1]);
+            if (distSq < bestDistSq) {
+              bestDistSq = distSq;
+              bestSegIdx = i;
+            }
           }
-        }
 
-        // If the user's closest segment starts at or after the step's
-        // endpoint, they've walked past it — advance.
-        if (bestSegIdx >= stepToPathIdx) {
-          nextStepIndex = activeStepIndex + 1;
-          // Continue advancing past any further steps whose endpoint the
-          // user has also passed.
-          while (nextStepIndex < finalStepIndex) {
-            const dist = distanceBetweenCoordinatesMeters(
-              userLocation,
-              navSteps[nextStepIndex].to,
-            );
-            if (dist > STEP_REACHED_THRESHOLD_METERS) break;
-            nextStepIndex += 1;
+          // If the user's closest segment starts at or after the step's
+          // endpoint, they've walked past it — advance.
+          if (bestSegIdx >= stepToPathIdx) {
+            nextStepIndex = activeStepIndex + 1;
+            // Continue advancing past any further steps whose endpoint the
+            // user has also passed.
+            while (nextStepIndex < finalStepIndex) {
+              const dist = distanceBetweenCoordinatesMeters(
+                userLocation,
+                navSteps[nextStepIndex].to,
+              );
+              if (dist > STEP_REACHED_THRESHOLD_METERS) break;
+              nextStepIndex += 1;
+            }
           }
         }
       }
