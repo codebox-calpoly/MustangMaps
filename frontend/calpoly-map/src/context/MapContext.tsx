@@ -199,18 +199,20 @@ function projectOntoPathSeg(
 }
 
 /**
- * Trim a PathfinderResult so it starts from the user's current position
- * instead of from a graph snap node.  This prevents false turn instructions
- * at the start of a rerouted path where the snap node is offset from the
- * user, creating a phantom bearing change.
+ * Trim a PathfinderResult so it starts from the nearest real graph node to the
+ * user — not a synthetic projected coordinate.  This avoids:
+ *  - Segments behind the user that create false step-skip artifacts
+ *  - Synthetic first-segment bearings that flip left/right classification
+ * All coordinates remain real graph nodes so all bearings are correct.
  */
-function trimPathFromUser(
+function trimPathToNearestNode(
   userPos: Coordinates,
   result: PathfinderResult,
 ): PathfinderResult {
   const path = result.path;
   if (path.length < 2) return result;
 
+  // Find the nearest path segment to the user
   let bestSegIdx = 0;
   let bestDistSq = Number.POSITIVE_INFINITY;
   let bestT = 0;
@@ -223,15 +225,17 @@ function trimPathFromUser(
     }
   }
 
-  const segA = path[bestSegIdx];
-  const segB = path[bestSegIdx + 1];
-  const projected: [number, number] = [
-    segA[0] + bestT * (segB[0] - segA[0]),
-    segA[1] + bestT * (segB[1] - segA[1]),
-  ];
+  // Pick the closer endpoint of the best segment:
+  // if past midpoint → start from the end node (ahead of user)
+  // if before midpoint → start from the start node
+  const startIdx = bestT >= 0.5 ? bestSegIdx + 1 : bestSegIdx;
 
-  const trimmedPath: [number, number][] = [projected, ...path.slice(bestSegIdx + 1)];
+  if (startIdx === 0) return result; // already at path start
 
+  const trimmedPath = path.slice(startIdx) as [number, number][];
+  if (trimmedPath.length < 2) return result; // safety: need at least two nodes
+
+  // Rebuild segments from real graph node coordinates
   const segments: RouteSegment[] = [];
   for (let i = 0; i < trimmedPath.length - 1; i++) {
     segments.push({
@@ -448,12 +452,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const startNavigation = useCallback(() => {
     if (!activePath) return;
 
-    // Trim the path from the user's current position so the first direction
-    // reflects reality, not the pathfinder's snap-node offset.  This is the
-    // same fix applied during rerouting (trimPathFromUser).
+    // Trim path to start from the nearest real graph node to the user.
+    // This removes behind-the-user segments (which cause false step skips)
+    // while keeping all coordinates as real graph nodes (correct bearings).
     const currentPos = userLocationRef.current;
     const pathToUse = currentPos
-      ? trimPathFromUser(currentPos, activePath)
+      ? trimPathToNearestNode(currentPos, activePath)
       : activePath;
 
     setActivePath(pathToUse);
@@ -728,10 +732,9 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return; // keep current route — user may return to path
     }
 
-    // Trim the path to start from the user's actual position so that
-    // directions reflect reality, not the graph's snap node offset.
-    const trimmed = trimPathFromUser(userLocation, result);
-
+    // Trim to nearest real graph node — removes behind-the-user segments
+    // while keeping all bearings from real graph edges.
+    const trimmed = trimPathToNearestNode(userLocation, result);
     setActivePath(trimmed);
     const newSteps = buildDirectionsFromPath(trimmed);
     setNavSteps(newSteps);
