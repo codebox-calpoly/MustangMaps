@@ -302,8 +302,23 @@ export function NavigationUI() {
     currentStep !== previewStep &&
     currentStepRemainingDistance <= TURN_PROMOTE_METERS;
 
+  // Once the user has walked ≥10 m past a turn, they've already turned —
+  // show "Continue Straight" instead of repeating "Turn Right" for the
+  // rest of the leg.
+  const isTurnStep =
+    currentStep?.maneuver === "turn-left" || currentStep?.maneuver === "turn-right";
+  const TURN_COMPLETED_METERS = 10;
+  const turnAlreadyCompleted =
+    isTurnStep &&
+    currentStep != null &&
+    currentStep.distance - currentStepRemainingDistance >= TURN_COMPLETED_METERS;
+
   // The step shown as the big instruction in the top bar.
-  const displayStep = shouldPromotePreview ? previewStep : currentStep;
+  const displayStep = shouldPromotePreview
+    ? previewStep
+    : turnAlreadyCompleted
+      ? { ...currentStep!, maneuver: "continue" as const }
+      : currentStep;
   // The secondary hint shown as subtext.
   const displaySubStep = shouldPromotePreview ? undefined : previewStep;
   // Distance shown: always the remaining distance to the current step's end
