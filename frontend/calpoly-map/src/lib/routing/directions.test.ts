@@ -148,6 +148,38 @@ test("gentle straight road with minor wobble stays as one step", () => {
   assert.equal(steps[0].distance, 250);
 });
 
+test("two consecutive 90-degree left turns are preserved as separate steps", () => {
+  // Route goes north, turns left (west), short segment, turns left again (south).
+  // Both turns must appear as separate instructions.
+  const segments: RouteSegment[] = [
+    segment([0, 0], [0, 1], 50, 0),
+    segment([0, 1], [-1, 1], 30, 270),
+    segment([-1, 1], [-1, 0], 200, 180),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.equal(steps.length, 3, "expected 3 steps: head, turn-left, turn-left");
+  assert.equal(steps[0].maneuver, "head");
+  assert.equal(steps[1].maneuver, "turn-left");
+  assert.equal(steps[2].maneuver, "turn-left");
+  assert.equal(steps[1].distance, 30);
+  assert.equal(steps[2].distance, 200);
+});
+
+test("two consecutive right turns are preserved as separate steps", () => {
+  const segments: RouteSegment[] = [
+    segment([0, 0], [0, 1], 60, 0),
+    segment([0, 1], [1, 1], 25, 90),
+    segment([1, 1], [1, 0], 150, 180),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
+  assert.equal(steps.length, 3, "expected 3 steps: head, turn-right, turn-right");
+  assert.equal(steps[0].maneuver, "head");
+  assert.equal(steps[1].maneuver, "turn-right");
+  assert.equal(steps[2].maneuver, "turn-right");
+});
+
 test("tiny zigzag before junction does not invert turn direction", () => {
   // Heading south (180°), tiny 3m zigzag nearly north (350°), then east (90°).
   const segments: RouteSegment[] = [

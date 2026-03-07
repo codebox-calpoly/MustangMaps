@@ -164,7 +164,9 @@ function mergeAdjacentSameManeuver(steps: StepAccumulator[]) {
   for (let i = 1; i < steps.length; i += 1) {
     const current = steps[i];
     const previous = merged[merged.length - 1];
-    if (previous.maneuver === current.maneuver) {
+    const isStraight =
+      previous.maneuver === "head" || previous.maneuver === "continue";
+    if (isStraight && previous.maneuver === current.maneuver) {
       mergeAccumulatorIntoPrevious(previous, current);
       continue;
     }
