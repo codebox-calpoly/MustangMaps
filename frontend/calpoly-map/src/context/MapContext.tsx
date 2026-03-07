@@ -491,6 +491,15 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Brief grace period after navigation starts or after a reroute.
+    // GPS offset can place the user within STEP_REACHED_THRESHOLD of
+    // the first step's endpoint on the very first update, causing the
+    // new instructions to flash for one frame then immediately advance.
+    // Freezing for 2 seconds lets the user read the initial instruction.
+    if (Date.now() - navStartTimeRef.current < 2000) {
+      return;
+    }
+
     let nextStepIndex = activeStepIndex;
 
     // Primary check: advance past steps whose endpoint the user is close to.
