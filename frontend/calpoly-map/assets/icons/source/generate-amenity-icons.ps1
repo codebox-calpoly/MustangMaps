@@ -265,10 +265,42 @@ function Draw-ElevatorGlyph {
   $pen.Dispose()
 }
 
+function Draw-FavoritesGlyph {
+  param(
+    [System.Drawing.Graphics]$Graphics,
+    [System.Drawing.RectangleF]$Rect,
+    [System.Drawing.Color]$PrimaryColor
+  )
+
+  $sx = $Rect.Width / 24.0
+  $sy = $Rect.Height / 24.0
+  $toX = { param([double]$x) [float]($Rect.X + ($x * $sx)) }
+  $toY = { param([double]$y) [float]($Rect.Y + ($y * $sy)) }
+
+  $brush = [System.Drawing.SolidBrush]::new($PrimaryColor)
+
+  # Centered 5-point star, sized to match the visual weight of the other glyphs.
+  $star = [System.Drawing.PointF[]]@(
+    [System.Drawing.PointF]::new((&$toX 12.0), (&$toY 2.8)),
+    [System.Drawing.PointF]::new((&$toX 14.3), (&$toY 8.1)),
+    [System.Drawing.PointF]::new((&$toX 20.1), (&$toY 8.7)),
+    [System.Drawing.PointF]::new((&$toX 15.7), (&$toY 12.5)),
+    [System.Drawing.PointF]::new((&$toX 17.0), (&$toY 18.2)),
+    [System.Drawing.PointF]::new((&$toX 12.0), (&$toY 15.1)),
+    [System.Drawing.PointF]::new((&$toX 7.0), (&$toY 18.2)),
+    [System.Drawing.PointF]::new((&$toX 8.3), (&$toY 12.5)),
+    [System.Drawing.PointF]::new((&$toX 3.9), (&$toY 8.7)),
+    [System.Drawing.PointF]::new((&$toX 9.7), (&$toY 8.1))
+  )
+
+  $Graphics.FillPolygon($brush, $star)
+  $brush.Dispose()
+}
+
 $resolvedSpecPath = (Resolve-Path $SpecPath).Path
 $resolvedOutputDir = (Resolve-Path $OutputDir).Path
 
-$spec = Get-Content -Raw $resolvedSpecPath | ConvertFrom-Json -Depth 10
+$spec = Get-Content -Raw $resolvedSpecPath | ConvertFrom-Json
 $canvasSize = [int]$spec.canvasSize
 $badgeSpec = $spec.badge
 $glyphSpec = $spec.glyph
@@ -309,6 +341,9 @@ foreach ($icon in $spec.icons) {
       }
       "elevator" {
         Draw-ElevatorGlyph -Graphics $graphics -Rect $glyphRect -PrimaryColor $glyphPrimary -StrokeWidth $glyphSpec.strokeWidth
+      }
+      "favorites" {
+        Draw-FavoritesGlyph -Graphics $graphics -Rect $glyphRect -PrimaryColor $glyphPrimary
       }
       default {
         throw "Unsupported glyph type '$($icon.glyph)' in spec."

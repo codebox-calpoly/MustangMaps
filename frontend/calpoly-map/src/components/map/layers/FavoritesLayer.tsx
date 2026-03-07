@@ -9,7 +9,7 @@ import { useSavedPlaces } from "../../../context/SavedPlacesContext";
 import geoData from "../../features/search/test.json";
 
 const FAVORITE_ICONS: Record<string, any> = {
-  "favorite-star": require("../../../../assets/icons/star.png"),
+  "favorite-star": require("../../../../assets/icons/favorites.png"),
 };
 
 export function FavoritesLayer({
@@ -92,14 +92,10 @@ export function FavoritesLayer({
               "interpolate",
               ["linear"],
               ["zoom"],
-              13,
-              0.05,
-              15,
-              0.07,
-              17,
-              0.09,
-              19,
-              0.11,
+              13, 0.2,   // At zoom 13, 20% size
+              15, 0.3,   // At zoom 15, 30% size
+              17, 0.4,   // At zoom 17, 40% size
+              19, 0.5,
             ] as any,
             iconAllowOverlap: true,
             iconIgnorePlacement: true,

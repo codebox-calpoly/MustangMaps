@@ -46,7 +46,13 @@ function flatDistSq(a: Coord, b: Coord): number {
 }
 
 export function RouteLineLayer() {
-  const { activePath, routeStart, routeEnd, routeStartIsCurrentLocation } = useMapContext();
+  const {
+    activePath,
+    routeStart,
+    routeEnd,
+    navigationMode,
+    userLocation,
+  } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
     if (!activePath || activePath.path.length < 2) {
@@ -88,9 +94,14 @@ export function RouteLineLayer() {
         remaining.push(path[i]);
       }
 
-      // Prepend user's location for a seamless line from the blue dot
-      if (remaining.length > 0) {
+      // Only prepend user location if they're close to the path.
+      // A long straight connector line from GPS to the path cuts through
+      // buildings and looks like a fake route.
+      const MAX_CONNECTOR_DIST_SQ = 5 * 5; // 5 m
+      if (remaining.length > 0 && bestDistSq <= MAX_CONNECTOR_DIST_SQ) {
         coordinates = [userLocation as Coord, ...remaining];
+      } else if (remaining.length > 0) {
+        coordinates = remaining;
       } else {
         coordinates = [userLocation as Coord];
       }
@@ -124,7 +135,7 @@ export function RouteLineLayer() {
       return null;
     }
     const features: Feature<Point>[] = [];
-    if (routeStart && !routeStartIsCurrentLocation) {
+    if (routeStart) {
       features.push({
         type: "Feature",
         geometry: { type: "Point", coordinates: routeStart },
@@ -164,7 +175,7 @@ export function RouteLineLayer() {
                 "match",
                 ["get", "kind"],
                 "start",
-                "#2563EB",
+                "#10B981",
                 "end",
                 "#EF4444",
                 "#6B7280",

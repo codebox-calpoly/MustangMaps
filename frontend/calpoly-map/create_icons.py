@@ -10,6 +10,8 @@ ICONS = {
     'water-fountain': ('#2196F3', '💧'),  # Blue
     'bathroom': ('#9C27B0', '🚻'),  # Purple
     'printer': ('#FF9800', '🖨'),  # Orange
+    'favorites': ("#F99CBB", '⭐'),  # Pink
+    
 }
 
 def create_icon(name, color, size=64):
