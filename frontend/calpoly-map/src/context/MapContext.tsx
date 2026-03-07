@@ -30,12 +30,12 @@ const ARRIVAL_PATH_END_METERS = 25;
 const ARRIVAL_CENTROID_BUFFER_METERS = 15;
 const ARRIVAL_REMAINING_ROUTE_METERS = 30;
 const STEP_PROGRESS_SNAP_METERS = 60;
-const DEVIATION_THRESHOLD_METERS = 8;
-const REROUTE_COOLDOWN_MS = 1000;
-const REROUTE_GRACE_PERIOD_MS = 5000;
+const DEVIATION_THRESHOLD_METERS = 15;
+const REROUTE_COOLDOWN_MS = 3000;
+const REROUTE_GRACE_PERIOD_MS = 3000;
 const REROUTE_MIN_MOVEMENT_METERS = 10;
-const HEADING_MIN_MOVE_METERS = 8;
-const HEADING_PROJECT_METERS = 50;
+const HEADING_MIN_MOVE_METERS = 5;
+const HEADING_PROJECT_METERS = 100;
 
 function distanceBetweenCoordinatesMeters(
   from: Coordinates,
@@ -369,6 +369,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const navStartTimeRef = useRef(0);
   const rerouteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const locationHistoryRef = useRef<Coordinates[]>([]);
+  const consecutiveDeviationsRef = useRef(0);
   const userLocationRef = useRef<Coordinates | null>(null);
 
   // Keep a ref of the latest userLocation so startNavigation can read it
@@ -468,6 +469,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     }
     navStartTimeRef.current = Date.now();
     locationHistoryRef.current = [];
+    consecutiveDeviationsRef.current = 0;
   }, [activePath]);
 
   const exitNavigation = useCallback(() => {
@@ -662,8 +664,18 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       activePath.path as [number, number][],
     );
     if (deviation <= DEVIATION_THRESHOLD_METERS) {
+      consecutiveDeviationsRef.current = 0;
       return;
     }
+
+    // Require multiple consecutive off-path readings before rerouting.
+    // A single GPS spike or brief drift shouldn't trigger a reroute —
+    // only a sustained deviation (user took a wrong turn) should.
+    consecutiveDeviationsRef.current += 1;
+    if (consecutiveDeviationsRef.current < 2) {
+      return;
+    }
+    consecutiveDeviationsRef.current = 0;
 
     if (now - lastRerouteTimeRef.current < REROUTE_COOLDOWN_MS) {
       return;
