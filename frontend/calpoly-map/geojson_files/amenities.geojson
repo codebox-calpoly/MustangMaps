@@ -1160,6 +1160,336 @@
           "type": "Point",
           "coordinates": [-120.657012, 35.299316]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_042",
+          "category": "toilet",
+          "name": "Aero Hangar Bathroom",
+          "building": "Aero Hanger",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665118, 35.304758]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_025",
+          "category": "water_fountain",
+          "name": "Aero Hangar Water Fountain",
+          "building": "Aero Hanger",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665051, 35.305624]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_026",
+          "category": "water_fountain",
+          "name": "1901 Water Fountain",
+          "building": "1901 Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659599, 35.299561]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_043",
+          "category": "toilet",
+          "name": "1901 Bathroom",
+          "building": "1901 Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659630, 35.299561]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_044",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [1,2,3,4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665231, 35.297772]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_045",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [1,2,3,4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665420, 35.298059]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_027",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [2, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655402, 35.297947]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "printer_001",
+          "category": "printer",
+          "name": "Pacheco Post Office Printer",
+          "building": "Pacheco Post Office",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655355, 35.297392]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_001",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172B elewexe",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654638, 35.297786]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_001",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "172B elewexe",
+          "level": [2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654683, 35.297718]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_002",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172C ti\u0142hini",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654413, 35.297223]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_002",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172C ti\u0142hini",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654401, 35.297124]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_003",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172C ti\u0142hini",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654190, 35.296952]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_004",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172D t\u0161\u0268\u0142kukun\u0268t\u0161",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.653581, 35.297091]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_003",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "172D t\u0161\u0268\u0142kukun\u0268t\u0161",
+          "level": [2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.653648, 35.297023]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_004",
+          "category": "water_fountain",
+          "name": "Floor 1, 2, 3 Water Fountain",
+          "building": "172E nipumu\u0294",
+          "level": [1, 2, 3],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654052, 35.296417]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_005",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3 Bathroom",
+          "building": "172E nipumu\u0294",
+          "level": [1, 2, 3],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654029, 35.296327]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_006",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654686, 35.296891]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_005",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654488, 35.296778]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_007",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654424, 35.296663]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_006",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172G ts\u0268tpxatu",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655187, 35.296890]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_008",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172G ts\u0268tpxatu",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655260, 35.296827]
+        }
       }
     ]
   }
