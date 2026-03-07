@@ -43,6 +43,12 @@
       "filename": "elevator.png",
       "fillColor": "#7C3AED",
       "glyph": "elevator"
+    },
+    {
+      "id": "favorites",
+      "filename": "favorites.png",
+      "fillColor": "#F99CBB",
+      "glyph":"favorites"
     }
   ]
 }
