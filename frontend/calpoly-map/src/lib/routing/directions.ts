@@ -35,7 +35,7 @@ export interface DirectionOptions {
 }
 
 const DEFAULT_CONTINUE_ANGLE_MAX_DEG = 20;
-const DEFAULT_TINY_STEP_MAX_METERS = 8;
+const DEFAULT_TINY_STEP_MAX_METERS = 12;
 const DEFAULT_CUMULATIVE_DRIFT_MAX_DEG = 35;
 
 const COMPASS_DIRECTIONS: CompassDirection[] = [
