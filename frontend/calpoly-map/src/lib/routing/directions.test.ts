@@ -82,10 +82,10 @@ test("tiny starting segment does not corrupt first turn classification", () => {
   assert.equal(turnStep.maneuver, "turn-left");
 });
 
-test("cumulative drift creates turn instruction for gradual curve", () => {
+test("40° cumulative drift stays as single step (below threshold)", () => {
   // Five segments gradually curving right, each only 10° apart.
-  // Individual increments are below the 20° turn threshold, but the
-  // total drift from 0° to 40° should trigger a new step.
+  // Total drift is 40° which is below the 55° threshold, so it
+  // should remain a single "head" step (gentle curve, not a turn).
   const segments: RouteSegment[] = [
     segment([0, 0], [1, 0], 30, 0),
     segment([1, 0], [2, 0], 30, 10),
@@ -95,9 +95,27 @@ test("cumulative drift creates turn instruction for gradual curve", () => {
   ];
 
   const steps = buildDirectionsFromSegments(segments);
+  assert.equal(steps.length, 1, "40° gentle curve should be a single head step");
+  assert.equal(steps[0].maneuver, "head");
+  assert.equal(steps[0].distance, 150);
+});
+
+test("60° cumulative drift creates turn instruction", () => {
+  // Six segments gradually curving right, each 12° apart.
+  // Total drift is 60° which exceeds the 55° threshold.
+  const segments: RouteSegment[] = [
+    segment([0, 0], [1, 0], 30, 0),
+    segment([1, 0], [2, 0], 30, 12),
+    segment([2, 0], [3, 0], 30, 24),
+    segment([3, 0], [4, 0], 30, 36),
+    segment([4, 0], [5, 0], 30, 48),
+    segment([5, 0], [6, 0], 30, 60),
+  ];
+
+  const steps = buildDirectionsFromSegments(segments);
   assert.ok(
     steps.length >= 2,
-    `expected at least 2 steps for 40° total curve, got ${steps.length}`,
+    `expected at least 2 steps for 60° total curve, got ${steps.length}`,
   );
   assert.equal(steps[0].maneuver, "head");
   const turnStep = steps.find(

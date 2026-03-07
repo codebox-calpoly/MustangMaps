@@ -94,9 +94,14 @@ export function RouteLineLayer() {
         remaining.push(path[i]);
       }
 
-      // Prepend user's location for a seamless line from the blue dot
-      if (remaining.length > 0) {
+      // Only prepend user location if they're close to the path.
+      // A long straight connector line from GPS to the path cuts through
+      // buildings and looks like a fake route.
+      const MAX_CONNECTOR_DIST_SQ = 5 * 5; // 5 m
+      if (remaining.length > 0 && bestDistSq <= MAX_CONNECTOR_DIST_SQ) {
         coordinates = [userLocation as Coord, ...remaining];
+      } else if (remaining.length > 0) {
+        coordinates = remaining;
       } else {
         coordinates = [userLocation as Coord];
       }

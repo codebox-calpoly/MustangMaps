@@ -36,7 +36,7 @@ export interface DirectionOptions {
 
 const DEFAULT_CONTINUE_ANGLE_MAX_DEG = 20;
 const DEFAULT_TINY_STEP_MAX_METERS = 12;
-const DEFAULT_CUMULATIVE_DRIFT_MAX_DEG = 35;
+const DEFAULT_CUMULATIVE_DRIFT_MAX_DEG = 55;
 
 const COMPASS_DIRECTIONS: CompassDirection[] = [
   "north",
@@ -118,7 +118,7 @@ function instructionFromStep(
   direction: CompassDirection,
 ) {
   if (maneuver === "head") {
-    return `Head straight`;
+    return `Head ${direction}`;
   }
   if (maneuver === "continue") {
     return `Continue`;
