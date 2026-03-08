@@ -162,14 +162,20 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     [amenityData, selectAmenity],
   );
 
-  if (!amenityData) return null;
+  const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
+
+  const activeShape = !amenityData
+    ? EMPTY_FC
+    : (mapMode === "amenities" || amenityTypes.length > 0)
+      ? (highlightedAmenities ?? amenityData)
+      : EMPTY_FC;
 
   return (
     <>
       {/* Load icon images */}
       <Images images={AMENITY_ICONS} />
 
-      <ShapeSource id="amenities-source" shape={highlightedAmenities ?? amenityData} onPress={handlePress}>
+      <ShapeSource id="amenities-source" shape={activeShape} onPress={handlePress}>
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
