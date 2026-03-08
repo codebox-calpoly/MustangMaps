@@ -69,7 +69,6 @@ function MapScreen({
     routeAccessibleOnly,
     setActivePath,
     setRouteError,
-    setGraph,
   } = useMapContext();
   const { graph: loadedGraph, error } = usePathGraph();
 
@@ -78,11 +77,6 @@ function MapScreen({
       setRouteError("Failed to load paths data");
     }
   }, [error, setRouteError]);
-
-  // Push the loaded graph into MapContext so rerouting can access it
-  useEffect(() => {
-    setGraph(loadedGraph);
-  }, [loadedGraph, setGraph]);
 
   useEffect(() => {
     if (!routingActive || !routeRequested || !routeStart || !routeEnd || !loadedGraph) {
@@ -142,7 +136,7 @@ function MapScreen({
     >
       <BuildingLayer buildingTypes={buildingTypeIds} />
       <ClassZonesLayer />
-      {(mapMode === "buildings" || mapMode === "routing") && <FavoritesLayer />}
+      {mapMode === "buildings" && <FavoritesLayer />}
       {/* Only render amenities when in amenities mode or when filters are selected */}
       {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
         <AmenitiesLayer amenityTypes={amenityTypeIds} />

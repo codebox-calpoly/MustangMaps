@@ -11,7 +11,6 @@ import {
 import {
   ActivityIndicator,
   Dimensions,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,7 +18,6 @@ import {
   View,
 } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
-import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -89,12 +87,11 @@ export function MapContainer({
     setRouteStart,
     setRouteStartIsCurrentLocation,
     setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
-    navigationMode,
-    hasArrived,
-    dismissArrival,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -469,14 +466,20 @@ export function MapContainer({
         setRouteStart(null);
         setRouteStartIsCurrentLocation(false);
       }
+      const center = featureCenter(feature);
+      if (center) {
+        setRouteEnd(center);
+        setRouteRequested(true);
+      }
       setRoutingActive(true);
       setRouteDestination(feature);
-      setMapMode("routing");
     },
     [
+      featureCenter,
       isValidCoordinate,
-      setMapMode,
       setRouteDestination,
+      setRouteEnd,
+      setRouteRequested,
       setRouteStart,
       setRouteStartIsCurrentLocation,
       setRoutingActive,
@@ -551,18 +554,16 @@ export function MapContainer({
         )}
       </MapView>
 
-      {!navigationMode && (
-        <MapFilters
-          mapMode={mapMode}
-          onMapModeChange={setMapMode}
-          buildingTypeIds={buildingTypeIds}
-          onBuildingTypesChange={setBuildingTypeIds}
-          amenityTypeIds={amenityTypeIds}
-          onAmenityTypesChange={setAmenityTypeIds}
-          buildingOptions={buildingOptions}
-          amenityOptions={amenityOptions}
-        />
-      )}
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingTypeIds={buildingTypeIds}
+        onBuildingTypesChange={setBuildingTypeIds}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -591,16 +592,12 @@ export function MapContainer({
         </View>
       )}
 
-      {navigationMode ? (
-        <NavigationUI />
-      ) : (
-        <SearchPanel
-          cameraMove={handleCameraMove}
-          cameraFitRoute={handleCameraFitRoute}
-          bottomSheetPosition={searchPanelHeight}
-          onNavigate={handleNavigate}
-        />
-      )}
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+        bottomSheetPosition={searchPanelHeight}
+        onNavigate={handleNavigate}
+      />
 
       <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
         <UserLocationButton />
@@ -614,31 +611,6 @@ export function MapContainer({
         onNavigate={handleNavigate}
       />
 
-      <Modal
-        visible={hasArrived}
-        transparent
-        animationType="fade"
-        onRequestClose={dismissArrival}
-      >
-        <View style={styles.arrivalOverlay}>
-          <View style={styles.arrivalCard}>
-            <Text style={styles.arrivalTitle}>You have arrived!</Text>
-            <Text style={styles.arrivalSubtitle}>
-              You have reached your destination.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={dismissArrival}
-              style={({ pressed }) => [
-                styles.arrivalButton,
-                pressed && styles.arrivalButtonPressed,
-              ]}
-            >
-              <Text style={styles.arrivalButtonText}>Done</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

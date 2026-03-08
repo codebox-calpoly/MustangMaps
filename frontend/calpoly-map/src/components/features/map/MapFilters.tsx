@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
-export type MapMode = "buildings" | "amenities" | "routing";
+export type MapMode = "buildings" | "amenities";
 
 export type BuildingFilterOption = {
   id: string;
@@ -37,148 +37,99 @@ export function MapFilters({
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute, clearSelection, mapStyle, setMapStyle } = useMapContext();
-  const nextMapStyle = mapStyle === "light" ? "dark" : "light";
+  const { clearSelection, mapStyle, setMapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
+
+  const activeOptions = mapMode === "buildings" ? buildingOptions : amenityOptions;
+  const activeSet = mapMode === "buildings" ? buildingSet : amenitySet;
+  const activeTypeIds = mapMode === "buildings" ? buildingTypeIds : amenityTypeIds;
+  const onActiveChange = mapMode === "buildings" ? onBuildingTypesChange : onAmenityTypesChange;
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <View style={[styles.panel, mapStyle === "dark" && styles.panelDark]}>
-        <View style={styles.rowSpaceBetween}>
-          <Text style={[styles.panelTitle, mapStyle === "dark" && styles.panelTitleDark]}>Map Style</Text>
-          <Text style={styles.panelTitle}>Appearance</Text>
+      <View style={[styles.panel, dark && styles.panelDark]}>
+        {/* Mode selector + theme toggle */}
+        <View style={styles.topRow}>
+          <View style={[styles.segmented, dark && styles.segmentedDark]}>
+            {(["buildings", "amenities"] as MapMode[]).map((mode) => (
+              <Pressable
+                key={mode}
+                onPress={() => { onMapModeChange(mode); clearSelection(); }}
+                style={[
+                  styles.segment,
+                  mapMode === mode && (dark ? styles.segmentActiveDark : styles.segmentActive),
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.segmentText,
+                    dark && styles.segmentTextDark,
+                    mapMode === mode && styles.segmentTextActive,
+                  ]}
+                >
+                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Switch to ${nextMapStyle} mode`}
-            onPress={() => setMapStyle(nextMapStyle)}
+            accessibilityLabel={`Switch to ${dark ? "light" : "dark"} mode`}
+            onPress={() => setMapStyle(dark ? "light" : "dark")}
             style={({ pressed }) => [
-              styles.styleToggle,
-              mapStyle === "dark" && styles.styleToggleActive,
-              pressed && styles.styleTogglePressed,
+              styles.themeButton,
+              dark && styles.themeButtonDark,
+              pressed && styles.themeButtonPressed,
             ]}
           >
-            <Text
-              style={[
-                styles.styleToggleText,
-                mapStyle === "dark" && styles.styleToggleTextActive,
-              ]}
-            >
-              {mapStyle === "dark" ? "Dark" : "Light"}
+            <Text style={[styles.themeIcon, dark && styles.themeIconDark]}>
+              {dark ? "☀" : "☾"}
             </Text>
           </Pressable>
         </View>
-        <View style={styles.row}>
-          {(["buildings", "amenities", "routing"] as MapMode[]).map((mode) => (
-            <Pressable
-              key={mode}
-              onPress={() => {
-                onMapModeChange(mode);
-                clearSelection();
-                if (mode === "routing") {
-                  setRoutingActive(true);
-                } else {
-                  setRoutingActive(false);
-                  clearRoute();
-                }
-              }}
-              style={[styles.chip, mapStyle === "dark" && styles.chipDark, mapMode === mode && styles.chipActive]}
-            >
-              <Text
+
+        {/* Filter chips */}
+        <View style={styles.chipsRow}>
+          {activeOptions.map((option) => {
+            const isAllOption = option.id === "all";
+            const isActive = isAllOption ? activeTypeIds.length === 0 : activeSet.has(option.id);
+
+            return (
+              <Pressable
+                key={option.id}
+                onPress={() => {
+                  if (isAllOption) {
+                    onActiveChange([]);
+                    return;
+                  }
+                  const next = new Set(activeTypeIds);
+                  if (next.has(option.id)) {
+                    next.delete(option.id);
+                  } else {
+                    next.add(option.id);
+                  }
+                  onActiveChange(Array.from(next));
+                }}
                 style={[
-                  styles.chipText,
-                  mapStyle === "dark" && styles.chipTextDark,
-                  mapMode === mode && styles.chipTextActive,
+                  styles.chip,
+                  dark && styles.chipDark,
+                  isActive && styles.chipActive,
                 ]}
               >
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  style={[
+                    styles.chipText,
+                    dark && styles.chipTextDark,
+                    isActive && styles.chipTextActive,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
-
-        {mapMode === "buildings" && (
-          <View style={styles.rowWrap}>
-            {buildingOptions.map((option) => {
-              const isAllOption = option.id === "all";
-              const isActive = isAllOption
-                ? buildingTypeIds.length === 0
-                : buildingSet.has(option.id);
-
-              return (
-                <Pressable
-                  key={option.id}
-                  onPress={() => {
-                    // "All" (or an empty set) means show every building.
-                    if (isAllOption) {
-                      onBuildingTypesChange([]);
-                      return;
-                    }
-
-                    const next = new Set(buildingTypeIds);
-                    if (next.has(option.id)) {
-                      next.delete(option.id);
-                    } else {
-                      next.add(option.id);
-                    }
-                    onBuildingTypesChange(Array.from(next));
-                  }}
-                  style={[styles.chip, mapStyle === "dark" && styles.chipDark, isActive && styles.chipActive]}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      mapStyle === "dark" && styles.chipTextDark,
-                      isActive && styles.chipTextActive,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
-
-        {mapMode === "amenities" && (
-          <View style={styles.rowWrap}>
-            {amenityOptions.map((option) => {
-              const isAllOption = option.id === "all";
-              const isActive = isAllOption
-                ? amenityTypeIds.length === 0
-                : amenitySet.has(option.id);
-
-              return (
-                <Pressable
-                  key={option.id}
-                  onPress={() => {
-                    if (isAllOption) {
-                      onAmenityTypesChange([]);
-                      return;
-                    }
-
-                    const next = new Set(amenityTypeIds);
-                    if (next.has(option.id)) {
-                      next.delete(option.id);
-                    } else {
-                      next.add(option.id);
-                    }
-                    onAmenityTypesChange(Array.from(next));
-                  }}
-                  style={[styles.chip, mapStyle === "dark" && styles.chipDark, isActive && styles.chipActive]}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      mapStyle === "dark" && styles.chipTextDark,
-                      isActive && styles.chipTextActive,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
       </View>
     </View>
   );
@@ -196,9 +147,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     marginTop: 6,
     backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 12,
-    gap: 10,
+    borderRadius: 16,
+    padding: 10,
+    gap: 8,
     borderWidth: 1,
     borderColor: "#E5E7EB",
     shadowColor: "#000",
@@ -211,27 +162,87 @@ const styles = StyleSheet.create({
     backgroundColor: "#1C1F26",
     borderColor: "#3A4048",
   },
-  row: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  rowSpaceBetween: {
+  topRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 8,
   },
-  rowWrap: {
+  segmented: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 10,
+    padding: 3,
+    gap: 2,
+  },
+  segmentedDark: {
+    backgroundColor: "#2A2F38",
+  },
+  segment: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  segmentActive: {
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  segmentActiveDark: {
+    backgroundColor: "#3A4048",
+  },
+  segmentText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+  segmentTextDark: {
+    color: "#9CA3AF",
+  },
+  segmentTextActive: {
+    color: "#111827",
+    fontWeight: "700",
+  },
+  themeButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  themeButtonDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+  },
+  themeButtonPressed: {
+    opacity: 0.75,
+  },
+  themeIcon: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  themeIconDark: {
+    color: "#D1D5DB",
+  },
+  chipsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 6,
   },
   chip: {
     borderRadius: 999,
     borderWidth: 1,
     borderColor: "#D1D5DB",
-    paddingVertical: 6,
+    paddingVertical: 5,
     paddingHorizontal: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#F9FAFB",
   },
   chipDark: {
     backgroundColor: "#2A2F38",
@@ -242,47 +253,14 @@ const styles = StyleSheet.create({
     borderColor: "#111827",
   },
   chipText: {
-    color: "#111827",
+    color: "#374151",
     fontSize: 12,
     fontWeight: "600",
   },
   chipTextDark: {
-    color: "#E6E8EB",
+    color: "#D1D5DB",
   },
   chipTextActive: {
-    color: "#F9FAFB",
-  },
-  panelTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#111827",
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
-  },
-  panelTitleDark: {
-    color: "#F1F3F5",
-  },
-  styleToggle: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    backgroundColor: "#F9FAFB",
-  },
-  styleToggleActive: {
-    backgroundColor: "#111827",
-    borderColor: "#111827",
-  },
-  styleTogglePressed: {
-    opacity: 0.85,
-  },
-  styleToggleText: {
-    color: "#111827",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  styleToggleTextActive: {
     color: "#F9FAFB",
   },
 });
