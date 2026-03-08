@@ -135,8 +135,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     const filtered = data.filter((item) => {
       const name = item.properties?.name;
       if (!name) return false;
-      const match = name.toLowerCase().match(searchQuery.toLowerCase());
-      return match && match.length > 0;
+      const q = searchQuery.toLowerCase();
+      if (name.toLowerCase().match(q)) return true;
+      const ref = item.properties?.ref as string | undefined;
+      if (ref && ref === searchQuery.trim()) return true;
+      return false;
     });
     return filtered.sort((a, b) => {
       const nameA = a.properties?.name ?? "";
@@ -172,13 +175,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [],
   );
 
+  const stripBuildingNumber = useCallback((name: string): string => {
+    return name.replace(/\s*\(\d+\)\s*$/, "").trim();
+  }, []);
+
+  const extractBuildingRef = useCallback((name: string): string | undefined => {
+    const match = name.match(/\((\d+)\)\s*$/);
+    return match ? match[1] : undefined;
+  }, []);
+
   const placeFromFeature = useCallback(
     (feature: any): SavedPlace | null => {
       const ring = getRingCoordinates(feature.geometry as Geometry);
       if (!ring || ring.length === 0) return null;
       const coord = middle(ring) as [number, number];
-      const name = feature.properties?.name ?? "Unknown";
-      const ref = feature.properties?.ref as string | undefined;
+      const rawName = feature.properties?.name ?? "Unknown";
+      const name = stripBuildingNumber(rawName);
+      const ref = (feature.properties?.ref as string | undefined) ?? extractBuildingRef(rawName);
       return {
         id: buildPlaceId(name, coord),
         name,
@@ -187,7 +200,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         ref,
       };
     },
-    [buildPlaceId, getRingCoordinates, middle],
+    [buildPlaceId, extractBuildingRef, getRingCoordinates, middle, stripBuildingNumber],
   );
 
   const myLocationPlace = useMemo<SavedPlace | null>(() => {
@@ -353,13 +366,20 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     return arrival.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " Arrival";
   };
 
-  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
-  const selectedBuildingSubtitle = String(
-    selectedBuilding?.properties?.["university-function"] ??
-    selectedBuilding?.properties?.amenity ??
-    selectedBuilding?.properties?.building ??
-    "Campus building",
+  const selectedBuildingName = stripBuildingNumber(
+    selectedBuilding?.properties?.name ?? "Unknown Building",
   );
+  const selectedBuildingRef =
+    (selectedBuilding?.properties?.ref as string | undefined) ??
+    extractBuildingRef(selectedBuilding?.properties?.name ?? "");
+  const selectedBuildingSubtitle = selectedBuildingRef
+    ? `Building ${selectedBuildingRef}`
+    : String(
+        selectedBuilding?.properties?.["university-function"] ??
+        selectedBuilding?.properties?.amenity ??
+        selectedBuilding?.properties?.building ??
+        "Campus building",
+      );
 
   const renderMainSheetHeader = useCallback(() => {
     if (selectedBuilding && !routingActive) {
