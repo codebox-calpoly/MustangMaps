@@ -11,7 +11,6 @@ import {
 import {
   ActivityIndicator,
   Dimensions,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,7 +18,6 @@ import {
   View,
 } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
-import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -87,14 +85,15 @@ export function MapContainer({
     mapDataErrors,
     retryMapData,
     setRouteStart,
+    setRouteEnd,
+    setRouteRequested,
     setRouteStartIsCurrentLocation,
-    setRouteDestination,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
-    navigationMode,
-    hasArrived,
-    dismissArrival,
+    activePath,
+    routingActive,
+    clearRoute,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -427,13 +426,17 @@ export function MapContainer({
         setRouteStartIsCurrentLocation(false);
       }
       setRoutingActive(true);
-      setRouteDestination(feature);
-      setMapMode("routing");
+      const center = featureCenter(feature);
+      if (center) {
+        setRouteEnd(center);
+        setRouteRequested(true);
+      }
     },
     [
+      featureCenter,
       isValidCoordinate,
-      setMapMode,
-      setRouteDestination,
+      setRouteEnd,
+      setRouteRequested,
       setRouteStart,
       setRouteStartIsCurrentLocation,
       setRoutingActive,
@@ -503,18 +506,16 @@ export function MapContainer({
         )}
       </MapView>
 
-      {!navigationMode && (
-        <MapFilters
-          mapMode={mapMode}
-          onMapModeChange={setMapMode}
-          buildingTypeIds={buildingTypeIds}
-          onBuildingTypesChange={setBuildingTypeIds}
-          amenityTypeIds={amenityTypeIds}
-          onAmenityTypesChange={setAmenityTypeIds}
-          buildingOptions={buildingOptions}
-          amenityOptions={amenityOptions}
-        />
-      )}
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingTypeIds={buildingTypeIds}
+        onBuildingTypesChange={setBuildingTypeIds}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -543,15 +544,22 @@ export function MapContainer({
         </View>
       )}
 
-      {navigationMode ? (
-        <NavigationUI />
-      ) : (
-        <SearchPanel
-          cameraMove={handleCameraMove}
-          cameraFitRoute={handleCameraFitRoute}
-          bottomSheetPosition={searchPanelHeight}
-        />
+      {routingActive && activePath && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Clear route"
+          onPress={clearRoute}
+          style={styles.clearRouteButton}
+        >
+          <Text style={styles.clearRouteButtonText}>✕ Clear Route</Text>
+        </Pressable>
       )}
+
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+        bottomSheetPosition={searchPanelHeight}
+      />
 
       <BuildingPopup
         visible={!!selectedBuilding}
@@ -595,32 +603,6 @@ export function MapContainer({
         onClose={clearAmenitySelection}
         onNavigate={handleNavigate}
       />
-
-      <Modal
-        visible={hasArrived}
-        transparent
-        animationType="fade"
-        onRequestClose={dismissArrival}
-      >
-        <View style={styles.arrivalOverlay}>
-          <View style={styles.arrivalCard}>
-            <Text style={styles.arrivalTitle}>You have arrived!</Text>
-            <Text style={styles.arrivalSubtitle}>
-              You have reached your destination.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={dismissArrival}
-              style={({ pressed }) => [
-                styles.arrivalButton,
-                pressed && styles.arrivalButtonPressed,
-              ]}
-            >
-              <Text style={styles.arrivalButtonText}>Done</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -755,49 +737,26 @@ const styles = StyleSheet.create({
   locationButtonActive: {
     backgroundColor: "#0B5FFF",
   },
-  arrivalOverlay: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  arrivalCard: {
-    width: 280,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingVertical: 28,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    gap: 8,
+  clearRouteButton: {
+    position: "absolute",
+    top: 16,
+    alignSelf: "center",
+    left: "50%",
+    transform: [{ translateX: -60 }],
+    backgroundColor: "#EF4444",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    zIndex: 10,
     shadowColor: "#000",
     shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
   },
-  arrivalTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#111827",
-  },
-  arrivalSubtitle: {
-    fontSize: 14,
-    color: "#6B7280",
-    textAlign: "center",
-  },
-  arrivalButton: {
-    marginTop: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 14,
-    backgroundColor: "#2563EB",
-  },
-  arrivalButtonPressed: {
-    backgroundColor: "#1D4ED8",
-  },
-  arrivalButtonText: {
+  clearRouteButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "700",
   },
 });

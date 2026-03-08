@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
-export type MapMode = "buildings" | "amenities" | "routing";
+export type MapMode = "buildings" | "amenities";
 
 export type BuildingFilterOption = {
   id: string;
@@ -37,7 +37,7 @@ export function MapFilters({
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
-  const { setRoutingActive, clearRoute, mapStyle, setMapStyle } = useMapContext();
+  const { mapStyle, setMapStyle } = useMapContext();
   const nextMapStyle = mapStyle === "light" ? "dark" : "light";
 
   return (
@@ -66,18 +66,10 @@ export function MapFilters({
           </Pressable>
         </View>
         <View style={styles.row}>
-          {(["buildings", "amenities", "routing"] as MapMode[]).map((mode) => (
+          {(["buildings", "amenities"] as MapMode[]).map((mode) => (
             <Pressable
               key={mode}
-              onPress={() => {
-                onMapModeChange(mode);
-                if (mode === "routing") {
-                  setRoutingActive(true);
-                } else {
-                  setRoutingActive(false);
-                  clearRoute();
-                }
-              }}
+              onPress={() => onMapModeChange(mode)}
               style={[styles.chip, mapMode === mode && styles.chipActive]}
             >
               <Text
@@ -104,7 +96,6 @@ export function MapFilters({
                 <Pressable
                   key={option.id}
                   onPress={() => {
-                    // "All" (or an empty set) means show every building.
                     if (isAllOption) {
                       onBuildingTypesChange([]);
                       return;

@@ -65,7 +65,6 @@ function MapScreen({
     routeStartIsCurrentLocation,
     setActivePath,
     setRouteError,
-    setGraph,
   } = useMapContext();
   const { graph: loadedGraph, error } = usePathGraph();
 
@@ -74,11 +73,6 @@ function MapScreen({
       setRouteError("Failed to load paths data");
     }
   }, [error, setRouteError]);
-
-  // Push the loaded graph into MapContext so rerouting can access it
-  useEffect(() => {
-    setGraph(loadedGraph);
-  }, [loadedGraph, setGraph]);
 
   useEffect(() => {
     if (!routingActive || !routeRequested || !routeStart || !routeEnd || !loadedGraph) {

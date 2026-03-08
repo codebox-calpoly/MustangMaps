@@ -170,7 +170,11 @@ function getPrimaryInstruction(step?: DirectionStep) {
 }
 
 export function NavigationUI() {
-  const { exitNavigation, navSteps, activeStepIndex, userLocation, isRerouting, activePath } = useMapContext();
+  const { userLocation, activePath } = useMapContext();
+  const exitNavigation = () => {};
+  const navSteps: DirectionStep[] = [];
+  const activeStepIndex = 0;
+  const isRerouting = false;
   const insets = useSafeAreaInsets();
   const [topBarHeight, setTopBarHeight] = useState(0);
 
