@@ -579,18 +579,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
       >
+        <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
         <BottomSheetFlatList
           data={!routingActive ? searchRows : []}
           keyExtractor={extractSearchRowKey}
           renderItem={renderSearchRow}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
           bounces={false}
+          overScrollMode="never"
+          removeClippedSubviews={false}
           style={styles.resultsList}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
-          ListHeaderComponent={
-            <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
-          }
-          stickyHeaderIndices={[0]}
         />
       </BottomSheet>
     </View>
