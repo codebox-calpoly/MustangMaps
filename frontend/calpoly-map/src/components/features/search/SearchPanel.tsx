@@ -44,16 +44,16 @@ interface SearchSection {
 
 type SearchRow =
   | {
-      id: string;
-      type: "header";
-      section: SearchSection;
-    }
+    id: string;
+    type: "header";
+    section: SearchSection;
+  }
   | {
-      id: string;
-      type: "item";
-      sectionKind: SectionKind;
-      item: SavedPlace;
-    };
+    id: string;
+    type: "item";
+    sectionKind: SectionKind;
+    item: SavedPlace;
+  };
 
 export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
   // Bottom sheet controls
@@ -134,6 +134,25 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [],
   );
 
+  const normalizeSearchText = (value: string) => value.trim().toLowerCase();
+
+  // splits buildingName (38) into buildingName and 38
+  const parseBuildingName = (rawName: string, rawRef?: string) => {
+    const normalizedName = rawName.replace(/\s+/g, " ").trim();
+    const trailingRefMatch = normalizedName.match(/\(([^()]+)\)\s*$/);
+
+    const parsedRef = trailingRefMatch?.[1]?.trim();
+    const displayName =
+      trailingRefMatch && trailingRefMatch.index !== undefined
+        ? normalizedName.slice(0, trailingRefMatch.index).trim()
+        : normalizedName;
+
+    return {
+      displayName: displayName || normalizedName,
+      buildingRef: rawRef?.trim() || parsedRef || undefined,
+    };
+  };
+
   const handleSearch = useCallback(
     (input: string) => {
       setMainSearchInput(input);
@@ -204,24 +223,43 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const data = geoData.features;
 
-  // data filters off a regex match with input in search bar
+  // Filter safely with plain string matching (no user-input RegExp).
   const filteredData = useMemo(() => {
-    const filteredData = data.filter((item) => {
-      const name = item.properties?.name;
-      if (!name) {
-        return false;
-      }
-      const match = name.toLowerCase().match(searchQuery.toLowerCase());
-      return match && match.length > 0;
+    const query = normalizeSearchText(searchQuery);
+
+    const filtered = data.filter((item) => {
+      const rawName = String(item.properties?.name ?? "");
+      if (!rawName) return false;
+
+      const rawRef =
+        typeof item.properties?.ref === "string"
+          ? item.properties.ref
+          : undefined;
+
+      const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
+
+      if (query.length === 0) return true;
+
+      const normalizedDisplayName = normalizeSearchText(displayName);
+      const normalizedRawName = normalizeSearchText(rawName);
+      const normalizedRef = normalizeSearchText(buildingRef ?? "");
+
+      return (
+        normalizedDisplayName.includes(query) ||
+        normalizedRawName.includes(query) ||
+        (normalizedRef.length > 0 &&
+          (normalizedRef.includes(query) ||
+            `building ${normalizedRef}`.includes(query)))
+      );
     });
 
-    // sort and return results
-    return filteredData.sort((a, b) => {
-      const nameA = a.properties?.name ?? "";
-      const nameB = b.properties?.name ?? "";
+    return filtered.sort((a, b) => {
+      const nameA = String(a.properties?.name ?? "");
+      const nameB = String(b.properties?.name ?? "");
       return nameA.localeCompare(nameB);
     });
   }, [data, searchQuery]);
+
 
   const buildPlaceId = useCallback((name: string, coord: number[]) => {
     const [lng, lat] = coord;
@@ -263,17 +301,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (!ring || ring.length === 0) {
         return null;
       }
+
       const coord = middle(ring) as [number, number];
-      const name = feature.properties?.name ?? "Unknown";
-      const ref = feature.properties?.ref as string | undefined;
+      const rawName = String(feature.properties?.name ?? "Unknown");
+      const rawRef =
+        typeof feature.properties?.ref === "string"
+          ? feature.properties.ref
+          : undefined;
+
+      const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
 
       return {
-        id: buildPlaceId(name, coord),
-        name,
+        id: buildPlaceId(displayName, coord),
+        name: displayName,
         coordinate: coord,
         // Search results are transient; keep a stable timestamp to avoid list resets.
         updatedAt: 0,
-        ref,
+        ref: buildingRef,
       };
     },
     [buildPlaceId, getRingCoordinates, middle],
@@ -324,9 +368,17 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
         // Find the matching GeoJSON feature and select it to show a marker
         if (!isMyLocation) {
-          const matchingFeature = data.find(
-            (f) => f.properties?.name === place.name,
-          );
+          const matchingFeature = data.find((f) => {
+            const rawName = String(f.properties?.name ?? "");
+            const rawRef =
+              typeof f.properties?.ref === "string" ? f.properties.ref : undefined;
+            const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
+
+            if (displayName !== place.name) return false;
+            if (place.ref && buildingRef) return place.ref === buildingRef;
+            return true;
+          });
+
           if (matchingFeature) {
             selectBuilding(
               matchingFeature as Feature<Geometry, GeoJsonProperties>,
@@ -985,9 +1037,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           style={styles.resultsList}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
-              <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
-            }
-            stickyHeaderIndices={[0]}
+            <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+          }
+          stickyHeaderIndices={[0]}
         />
       </BottomSheet>
 
