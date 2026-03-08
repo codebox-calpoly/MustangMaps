@@ -124,7 +124,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const commitSearch = useCallback(
     (text: string) => {
       setSearchQuery(text);
-      setFocused(Boolean(text));
     },
     [setSearchQuery],
   );
@@ -472,7 +471,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             }}
             onSubmitEditing={() => commitSearch(mainSearchInput)}
             onBlur={() => commitSearch(mainSearchInput)}
-            returnKeyType="search"
+            returnKeyType="default"
           />
         )}
 
@@ -577,7 +576,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         enableContentPanningGesture={false}
         handleStyle={styles.handleStyle}
         keyboardBehavior="extend"
-        keyboardBlurBehavior="restore"
+        keyboardBlurBehavior="none"
       >
         <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
         <BottomSheetFlatList
