@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
 export type MapMode = "buildings" | "amenities";
@@ -90,7 +90,11 @@ export function MapFilters({
         </View>
 
         {/* Filter chips */}
-        <View style={styles.chipsRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsRow}
+        >
           {activeOptions.map((option) => {
             const isAllOption = option.id === "all";
             const isActive = isAllOption ? activeTypeIds.length === 0 : activeSet.has(option.id);
@@ -129,7 +133,7 @@ export function MapFilters({
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -233,8 +237,8 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: 6,
+    alignItems: "center",
   },
   chip: {
     borderRadius: 999,
