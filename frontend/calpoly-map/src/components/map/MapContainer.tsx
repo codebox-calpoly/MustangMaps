@@ -496,13 +496,12 @@ export function MapContainer({
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
       }
-      clearAmenitySelection();
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [clearSelection, clearAmenitySelection, onMapPress],
+    [clearSelection, onMapPress],
   );
 
   return (
