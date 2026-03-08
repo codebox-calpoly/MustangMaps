@@ -268,7 +268,7 @@ export function MapContainer({
     setFollowUser(true);
 
     // If zoomed out, zoom in to street level while centering
-    const MIN_RECENTER_ZOOM = 15;
+    const MIN_RECENTER_ZOOM = 17;
     try {
       const currentZoom = await map.getZoom();
       if (currentZoom < MIN_RECENTER_ZOOM) {
