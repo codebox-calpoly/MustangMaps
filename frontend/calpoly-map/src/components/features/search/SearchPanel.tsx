@@ -61,6 +61,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
+  const routingSearchInputRef = useRef<TextInput>(null);
 
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
@@ -151,6 +152,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [setSearchQuery],
   );
 
+  const blurRoutingInputs = useCallback(() => {
+    routeStartInputRef.current?.blur();
+    routeEndInputRef.current?.blur();
+  }, []);
+
   // Opens the routing search based on which field is selected
   const openRoutingSearchSheet = useCallback(
     (field: "start" | "end") => {
@@ -158,18 +164,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setSearchQuery("");
       setFocused(true);
       setRoutingSearchSheetOpen(true);
+      blurRoutingInputs();
 
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
       });
     },
-    [setSearchQuery],
+    [blurRoutingInputs, setSearchQuery],
   );
-
-  const blurRoutingInputs = useCallback(() => {
-    routeStartInputRef.current?.blur();
-    routeEndInputRef.current?.blur();
-  }, []);
 
   const closeRoutingSearchSheet = useCallback(() => {
     setRoutingSearchSheetOpen(false);
@@ -807,6 +809,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         </View>
 
         <BottomSheetTextInput
+          ref={routingSearchInputRef}
           style={styles.input}
           placeholder={
             activeField === "start"
@@ -818,7 +821,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           autoCorrect={false}
           value={activeField === "start" ? startValue : endValue}
           onChangeText={handleRoutingSearchChange}
-          autoFocus={routingSearchSheetOpen}
           selectTextOnFocus={false}
         />
       </>
@@ -828,10 +830,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       closeRoutingSearchSheet,
       endValue,
       handleRoutingSearchChange,
-      routingSearchSheetOpen,
       startValue,
     ],
   );
+
+  useEffect(() => {
+    if (!routingSearchSheetOpen) {
+      return;
+    }
+
+    const focusTimer = setTimeout(() => {
+      routingSearchInputRef.current?.focus();
+    }, 140);
+
+    return () => {
+      clearTimeout(focusTimer);
+    };
+  }, [activeField, routingSearchSheetOpen]);
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
