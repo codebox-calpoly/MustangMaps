@@ -29,6 +29,7 @@ interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
   bottomSheetPosition: SharedValue<number>;
+  routingSearchSheetChange: (change : boolean) => void;
   onNavigate: (feature: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
@@ -55,7 +56,7 @@ type SearchRow =
       item: SavedPlace;
     };
 
-export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, routingSearchSheetChange, onNavigate }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -106,7 +107,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   } = useMapContext();
 
   const snapPoints = useMemo(
-    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    () => routingActive ? ["34%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
     [routingActive],
   );
 
@@ -155,6 +156,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const blurRoutingInputs = useCallback(() => {
     routeStartInputRef.current?.blur();
     routeEndInputRef.current?.blur();
+    Keyboard.dismiss();
   }, []);
 
   // Opens the routing search based on which field is selected
@@ -172,6 +174,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     },
     [blurRoutingInputs, setSearchQuery],
   );
+
+  useEffect(() => {
+  routingSearchSheetChange?.(routingSearchSheetOpen);
+}, [routingSearchSheetOpen, routingSearchSheetChange]);
+
 
   const closeRoutingSearchSheet = useCallback(() => {
     setRoutingSearchSheetOpen(false);
