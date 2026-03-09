@@ -405,10 +405,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               onNavigate(selectedBuilding);
               clearSelection();
             }}
-            style={({ pressed }) => [
-              styles.buildingDirectionsButton,
-              pressed && styles.buildingDirectionsButtonPressed,
-            ]}
+            style={styles.buildingDirectionsButton}
           >
             <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
           </Pressable>
@@ -580,7 +577,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       >
         <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
         <BottomSheetFlatList
-          data={!routingActive ? searchRows : []}
+          data={!routingActive && !selectedBuilding ? searchRows : []}
           keyExtractor={extractSearchRowKey}
           renderItem={renderSearchRow}
           keyboardShouldPersistTaps="handled"
@@ -817,12 +814,11 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   buildingDirectionsButton: {
-    flex: 1,
+    height: 44,
     borderRadius: 12,
     backgroundColor: "#16A34A",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
   },
   buildingDirectionsButtonPressed: {
     backgroundColor: "#15803D",
@@ -831,6 +827,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
+    lineHeight: 20,
   },
   routeSummaryContainer: {
     marginTop: 16,
