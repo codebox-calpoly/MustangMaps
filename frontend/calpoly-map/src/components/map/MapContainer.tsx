@@ -18,6 +18,9 @@ import {
   Text,
   View,
 } from "react-native";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system/legacy";
+
 import { SearchPanel } from "../features/search/SearchPanel";
 import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
@@ -25,6 +28,7 @@ import {
   type AmenityFilterOption,
   type BuildingFilterOption,
 } from "../features/map/MapFilters";
+
 import type {
   Feature,
   FeatureCollection,
@@ -32,15 +36,20 @@ import type {
   GeoJsonProperties,
   Point,
 } from "geojson";
+
 import { useMapContext } from "../../context/MapContext";
+import { useUserLocation } from "../../context/UserLocationContext";
+import { useSavedPlaces } from "../../context/SavedPlacesContext";
+
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
-import { useUserLocation } from "../../context/UserLocationContext";
+import { BuildingPopup } from "./BuildingPopup";
+import { ClassroomFinderPanel } from "./ClassroomFinderPanel";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 // Disable telemetry
 setAccessToken(null);
@@ -66,9 +75,10 @@ export function MapContainer({
     start: [number, number];
     end: [number, number];
   } | null>(null);
+
   const [mapReady, setMapReady] = useState(false);
-  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
-  const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
+  const [mapGesturesEnabled] = useState(true);
+
   const {
     selectedBuilding,
     selectBuilding,
@@ -96,16 +106,25 @@ export function MapContainer({
     hasArrived,
     dismissArrival,
   } = useMapContext();
+
   const mapStyleUrl =
     mapStyle === "dark"
       ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
       : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
   const { latitude, longitude, accuracy } = useUserLocation();
-  const { favorites, isFavorite } = useSavedPlaces();
+  const { favorites } = useSavedPlaces();
+
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
+
   const [followUser, setFollowUser] = useState<boolean>(false);
+
+  const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
+  const [classroomFinderBuilding, setClassroomFinderBuilding] =
+    useState<Feature<Geometry, GeoJsonProperties> | null>(null);
+  const [classZones, setClassZones] = useState<FeatureCollection | null>(null);
+  const [selectedClassZoneLabel, setSelectedClassZoneLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -114,6 +133,41 @@ export function MapContainer({
     setUserLocation([longitude, latitude]);
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const asset = Asset.fromModule(
+          require("../../../geojson_files/class_zones/class_zones2.geojson")
+        );
+
+        await asset.downloadAsync();
+
+        const uri = asset.localUri ?? asset.uri;
+        const text = await FileSystem.readAsStringAsync(uri);
+        const parsed = JSON.parse(text);
+
+        if (!parsed || parsed.type !== "FeatureCollection") {
+          throw new Error("class_zones2.geojson is not a valid FeatureCollection");
+        }
+
+        if (!cancelled) {
+          setClassZones(parsed as FeatureCollection);
+        }
+      } catch (error) {
+        console.error("Failed to load class zones:", error);
+        if (!cancelled) {
+          setClassZones(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -135,6 +189,7 @@ export function MapContainer({
     },
     [],
   );
+
   const hasLoading = Object.values(mapDataLoading).some(Boolean);
   const errorMessage =
     Object.values(mapDataErrors).find((value) => Boolean(value)) ?? null;
@@ -146,22 +201,29 @@ export function MapContainer({
   const featureCenter = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
       const geom = feature.geometry;
+
       if (geom.type === "Point") {
         return geom.coordinates as [number, number];
       }
+
       let ring: number[][] | null = null;
+
       if (geom.type === "Polygon") {
         ring = geom.coordinates[0] ?? null;
       } else if (geom.type === "MultiPolygon") {
         ring = geom.coordinates[0]?.[0] ?? null;
       }
+
       if (!ring || ring.length === 0) return null;
+
       let sumLng = 0;
       let sumLat = 0;
+
       for (const pt of ring) {
         sumLng += pt[0];
         sumLat += pt[1];
       }
+
       return [sumLng / ring.length, sumLat / ring.length];
     },
     [],
@@ -169,8 +231,10 @@ export function MapContainer({
 
   const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
     if (!selectedBuilding) return null;
+
     const center = featureCenter(selectedBuilding);
     if (!center) return null;
+
     return {
       type: "FeatureCollection",
       features: [
@@ -183,7 +247,6 @@ export function MapContainer({
     };
   }, [featureCenter, selectedBuilding]);
 
-  // Hide the selected-building marker when that building already exists in favorites.
   const selectedBuildingIsFavorite = useMemo(() => {
     if (!selectedBuilding) {
       return false;
@@ -195,11 +258,11 @@ export function MapContainer({
     }
 
     const name = String(selectedBuilding.properties?.name ?? "Unknown");
-    const selectedRef= selectedBuilding.properties?.ref;
-    // Preferred match path: stable building ref when available.
+    const selectedRef = selectedBuilding.properties?.ref;
+
     if (selectedRef) {
       const matchedByRef = favorites.some((item) => {
-        const favoriteRef = item.ref
+        const favoriteRef = item.ref;
         return Boolean(favoriteRef) && favoriteRef === selectedRef;
       });
       if (matchedByRef) {
@@ -207,7 +270,6 @@ export function MapContainer({
       }
     }
 
-    // Fallback for geometry drift between data sources.
     const [lng, lat] = center;
     return favorites.some((item) => {
       if (item.name !== name) {
@@ -219,26 +281,78 @@ export function MapContainer({
         Math.abs(favLat - lat) <= 0.00005
       );
     });
-  }, [selectedBuilding, favorites, featureCenter, isFavorite]);
+  }, [selectedBuilding, favorites, featureCenter]);
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
 
-  // Hide the recenter button when the bottom sheet extends past it
   const locationButtonStyle = useAnimatedStyle(() => {
     const buttonTop = 175;
     const sheetTop = searchPanelHeight.value;
     return {
       opacity: sheetTop < buttonTop + 44 ? 0 : 1,
-      pointerEvents: sheetTop < buttonTop + 44 ? "none" as const : "auto" as const,
+      pointerEvents: sheetTop < buttonTop + 44 ? ("none" as const) : ("auto" as const),
     };
   }, []);
 
-  // Show user location button if we have a valid location, and center map on tap.
+  const handleCameraMove = useCallback(
+    async (loc: number[]) => {
+      const map = mapRef.current;
+      const camera = cameraRef.current;
+
+      if (!mapReady || !map || !camera) {
+        return;
+      }
+      if (!isValidCoordinate(loc)) {
+        return;
+      }
+
+      try {
+        const safeLoc = clampCoordinate(loc as [number, number]);
+        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
+
+        if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
+          return;
+        }
+
+        cameraBusyRef.current = true;
+        lastCameraStopRef.current = stopKey;
+
+        requestAnimationFrame(() => {
+          camera.flyTo(safeLoc, 250);
+          camera.setCamera({
+            animationDuration: 250,
+          });
+          setTimeout(() => {
+            cameraBusyRef.current = false;
+          }, 300);
+        });
+
+        if (Platform.OS === "ios") {
+          setTimeout(() => {
+            const retryMap = mapRef.current;
+            const retryCamera = cameraRef.current;
+            if (!mapReady || !retryMap || !retryCamera) {
+              return;
+            }
+            retryCamera.flyTo(safeLoc, 250);
+            setTimeout(() => {
+              cameraBusyRef.current = false;
+            }, 300);
+          }, 320);
+        }
+      } catch {
+        cameraBusyRef.current = false;
+      }
+    },
+    [clampCoordinate, isValidCoordinate, mapReady],
+  );
+
   function UserLocationButton() {
     if (!userLocation) {
-      return;
+      return null;
     }
+
     return (
       <Pressable
         accessibilityRole="button"
@@ -254,10 +368,10 @@ export function MapContainer({
     );
   }
 
-  // Toggle follow user mode on/off. When on, the map will center on the user's location and follow it as it moves.
   const toggleFollowUser = async () => {
     const camera = cameraRef.current;
     const map = mapRef.current;
+
     if (!userLocation || !mapReady || !map || !camera) {
       return;
     }
@@ -270,8 +384,8 @@ export function MapContainer({
     lastCameraStopRef.current = null;
     setFollowUser(true);
 
-    // If zoomed out, zoom in to street level while centering
     const MIN_RECENTER_ZOOM = 15;
+
     try {
       const currentZoom = await map.getZoom();
       if (currentZoom < MIN_RECENTER_ZOOM) {
@@ -288,21 +402,19 @@ export function MapContainer({
         return;
       }
     } catch {
-      // Fall through to default panning behavior
+      // Fall through
     }
 
     handleCameraMove(userLocation);
   };
 
-  // Center map on user location when it changes, but only if follow user mode is active.
   useEffect(() => {
     if (!userLocation || !followUser) {
       return;
     }
     handleCameraMove(userLocation);
-  }, [userLocation]);
+  }, [userLocation, followUser, handleCameraMove]);
 
-  // Disable follow user mode if the user manually moves the map.
   const handleRegionChange = useCallback(
     (feature: any) => {
       if (!followUser) {
@@ -316,61 +428,11 @@ export function MapContainer({
     [followUser],
   );
 
-  const handleCameraMove = useCallback(
-    async (loc: number[]) => {
-      const map = mapRef.current;
-      const camera = cameraRef.current;
-      if (!mapReady || !map || !camera) {
-        return;
-      }
-      if (!isValidCoordinate(loc)) {
-        return;
-      }
-
-      try {
-        const safeLoc = clampCoordinate(loc as [number, number]);
-        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
-        if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
-          return;
-        }
-        cameraBusyRef.current = true;
-        lastCameraStopRef.current = stopKey;
-        requestAnimationFrame(() => {
-          camera.flyTo(safeLoc, 250);
-          camera.setCamera({
-            animationDuration: 250,
-          });
-          setTimeout(() => {
-            cameraBusyRef.current = false;
-          }, 300);
-        });
-
-        // Retry camera movement on IOS after delay
-        if (Platform.OS === "ios") {
-          setTimeout(() => {
-            const retryMap = mapRef.current;
-            const retryCamera = cameraRef.current;
-            if (!mapReady || !retryMap || !retryCamera) {
-              return;
-            }
-            retryCamera.flyTo(safeLoc, 250);
-            setTimeout(() => {
-              cameraBusyRef.current = false;
-            }, 300);
-          }, 320);
-        }
-      } catch {
-        // Ignore transient zoom errors to keep taps safe.
-        cameraBusyRef.current = false;
-      }
-    },
-    [clampCoordinate, isValidCoordinate, mapReady],
-  );
-
   const fitRouteBounds = useCallback(
     (start: [number, number], end: [number, number]) => {
       const map = mapRef.current;
       const camera = cameraRef.current;
+
       if (!mapReady || !map || !camera) {
         return false;
       }
@@ -395,7 +457,6 @@ export function MapContainer({
 
       camera.fitBounds(ne, sw, padding, 350);
 
-      // iOS can apply stale layout metrics during bottom-sheet animation; a short retry stabilizes framing.
       if (Platform.OS === "ios") {
         setTimeout(() => {
           const retryMap = mapRef.current;
@@ -409,10 +470,9 @@ export function MapContainer({
 
       return true;
     },
-    [mapReady],
+    [mapReady, windowHeight],
   );
 
-  // Keep both route start/end points visible when a route is active.
   const handleCameraFitRoute = useCallback(
     (start: number[], end: number[]) => {
       if (!isValidCoordinate(start) || !isValidCoordinate(end)) {
@@ -446,18 +506,22 @@ export function MapContainer({
 
   const handleBuildingPress = useCallback(
     (feature: any) => {
-      // Handle building press from BuildingLayer
       const properties = feature.properties;
       if (properties && (properties.building || properties.amenity)) {
         const building = feature as Feature<Geometry, GeoJsonProperties>;
         selectBuilding(building);
+
         const center = featureCenter(building);
         if (center) {
           handleCameraMove(center);
         }
       }
+
+      if (onBuildingPress) {
+        onBuildingPress(feature);
+      }
     },
-    [featureCenter, handleCameraMove, selectBuilding],
+    [featureCenter, handleCameraMove, onBuildingPress, selectBuilding],
   );
 
   const handleNavigate = useCallback(
@@ -492,14 +556,115 @@ export function MapContainer({
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
+        setSelectedClassZoneLabel(null);
       }
+
       clearAmenitySelection();
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [clearSelection, clearAmenitySelection, onMapPress],
+    [clearAmenitySelection, clearSelection, onMapPress],
+  );
+
+  const normalizeRoom = useCallback((room: string) => {
+    return room.trim().toUpperCase().replace(/^(\d+)-/, "");
+  }, []);
+
+  const findZoneByClassroom = useCallback(
+    (room: string): Feature<Geometry, GeoJsonProperties> | null => {
+      if (!classZones) return null;
+
+      const normalizedTarget = normalizeRoom(room);
+
+      for (const feature of classZones.features) {
+        const classrooms = feature.properties?.classrooms;
+
+        if (
+          Array.isArray(classrooms) &&
+          classrooms.some(
+            (value) => normalizeRoom(String(value)) === normalizedTarget
+          )
+        ) {
+          return feature as Feature<Geometry, GeoJsonProperties>;
+        }
+      }
+
+      return null;
+    },
+    [classZones, normalizeRoom],
+  );
+
+  const classroomsForSelectedBuilding = useMemo(() => {
+    if (!classroomFinderBuilding || !classZones) {
+      return [];
+    }
+
+    const selectedBuildingName = String(
+      classroomFinderBuilding.properties?.name ?? ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (!selectedBuildingName) {
+      return [];
+    }
+
+    const matchingFeatures = classZones.features.filter((feature) => {
+      const zoneBuildingName = String(feature.properties?.building_name ?? "")
+        .trim()
+        .toLowerCase();
+
+      return zoneBuildingName === selectedBuildingName;
+    });
+
+    const allClassrooms = matchingFeatures.flatMap((feature) => {
+      const classrooms = feature.properties?.classrooms;
+      return Array.isArray(classrooms) ? classrooms : [];
+    });
+
+    return Array.from(new Set(allClassrooms.map(String))).sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" })
+    );
+  }, [classZones, classroomFinderBuilding]);
+
+  const handleOpenClassroomFinder = useCallback(
+    (building: Feature<Geometry, GeoJsonProperties>) => {
+      setClassroomFinderBuilding(building);
+      setClassroomFinderVisible(true);
+      clearSelection();
+    },
+    [clearSelection],
+  );
+
+  const handleCloseClassroomFinder = useCallback(() => {
+    setClassroomFinderVisible(false);
+    setSelectedClassZoneLabel(null);
+    setClassroomFinderBuilding(null);
+  }, []);
+
+  const handleSelectClassroom = useCallback(
+    (room: string) => {
+      const zone = findZoneByClassroom(room);
+      if (!zone) {
+        return;
+      }
+
+      const label = zone.properties?.label;
+      setSelectedClassZoneLabel(typeof label === "string" ? label : null);
+
+      const center = featureCenter(zone);
+      if (center && cameraRef.current) {
+        const safeCenter = clampCoordinate(center);
+        cameraRef.current.setCamera({
+          centerCoordinate: safeCenter,
+          zoomLevel: 19,
+          animationDuration: 800,
+        });
+      }
+    },
+    [clampCoordinate, featureCenter, findZoneByClassroom],
   );
 
   return (
@@ -513,14 +678,13 @@ export function MapContainer({
         scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => {
-          // Hide the base map's building layers so only our custom BuildingLayer renders,
-          // preventing double-shading that makes some buildings appear darker.
           mapRef.current?.setSourceVisibility(false, "carto", "building");
           setMapReady(true);
         }}
         onRegionWillChange={handleRegionChange}
       >
         <UserLocationMarker />
+
         <Camera
           ref={cameraRef}
           defaultSettings={{
@@ -528,14 +692,18 @@ export function MapContainer({
             zoomLevel: 15,
           }}
         />
+
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               onBuildingPress: handleBuildingPress,
+              zoneData: classZones,
+              selectedZoneLabel: selectedClassZoneLabel,
             } as any);
           }
           return child;
         })}
+
         {selectedBuildingMarker && mapMode !== "amenities" && !selectedBuildingIsFavorite && (
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
@@ -593,6 +761,19 @@ export function MapContainer({
 
       {navigationMode ? (
         <NavigationUI />
+      ) : classroomFinderVisible ? (
+        <ClassroomFinderPanel
+          visible={classroomFinderVisible}
+          buildingName={
+            typeof classroomFinderBuilding?.properties?.name === "string"
+              ? classroomFinderBuilding.properties.name
+              : null
+          }
+          classrooms={classroomsForSelectedBuilding}
+          onClose={handleCloseClassroomFinder}
+          onSelectClassroom={handleSelectClassroom}
+          bottomSheetPosition={searchPanelHeight}
+        />
       ) : (
         <SearchPanel
           cameraMove={handleCameraMove}
@@ -605,6 +786,14 @@ export function MapContainer({
       <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
         <UserLocationButton />
       </Animated.View>
+
+      <BuildingPopup
+        visible={!!selectedBuilding}
+        building={selectedBuilding}
+        onClose={clearSelection}
+        onNavigate={handleNavigate}
+        onOpenClassroomFinder={handleOpenClassroomFinder}
+      />
 
       <AmenityPopup
         visible={!!selectedAmenity}

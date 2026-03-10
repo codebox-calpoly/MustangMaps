@@ -7,9 +7,16 @@ interface BuildingPopupProps {
   building: Feature<Geometry, GeoJsonProperties> | null;
   onClose: () => void;
   onNavigate: (building: Feature<Geometry, GeoJsonProperties>) => void;
+  onOpenClassroomFinder: (building: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
-export function BuildingPopup({ visible, building, onClose, onNavigate }: BuildingPopupProps) {
+export function BuildingPopup({
+  visible,
+  building,
+  onClose,
+  onNavigate,
+  onOpenClassroomFinder,
+}: BuildingPopupProps) {
   if (!building || !visible) return null;
 
   const props = building.properties || {};
@@ -78,6 +85,7 @@ export function BuildingPopup({ visible, building, onClose, onNavigate }: Buildi
               </View>
             )}
           </ScrollView>
+
           <View style={styles.actions}>
             <Pressable
               accessibilityRole="button"
@@ -87,11 +95,27 @@ export function BuildingPopup({ visible, building, onClose, onNavigate }: Buildi
                 onClose();
               }}
               style={({ pressed }) => [
+                styles.actionButton,
                 styles.primaryButton,
                 pressed && styles.primaryButtonPressed,
               ]}
             >
               <Text style={styles.primaryButtonText}>Directions</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Find classroom in ${name}`}
+              onPress={() => {
+                onOpenClassroomFinder(building);
+              }}
+              style={({ pressed }) => [
+                styles.actionButton,
+                styles.secondaryButton,
+                pressed && styles.secondaryButtonPressed,
+              ]}
+            >
+              <Text style={styles.secondaryButtonText}>Find Classroom</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -168,6 +192,14 @@ const styles = StyleSheet.create({
   actions: {
     padding: 16,
     paddingTop: 0,
+    flexDirection: "row",
+    gap: 10,
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
   },
   row: {
     marginBottom: 12,
@@ -185,15 +217,25 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: "#3B82F6",
-    borderRadius: 10,
-    paddingVertical: 12,
-    alignItems: "center",
   },
   primaryButtonPressed: {
     backgroundColor: "#2563EB",
   },
   primaryButtonText: {
     color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  secondaryButton: {
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+  },
+  secondaryButtonPressed: {
+    backgroundColor: "#E5E7EB",
+  },
+  secondaryButtonText: {
+    color: "#111827",
     fontSize: 16,
     fontWeight: "600",
   },
