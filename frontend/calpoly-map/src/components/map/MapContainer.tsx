@@ -223,6 +223,8 @@ export function MapContainer({
 
   const searchPanelHeight = useSharedValue<number>(0);
   const windowHeight = Dimensions.get("window").height;
+  const [routingSearchSheetOpen, setRoutingSearchSheetOpen] = useState(false);
+
 
   // Hide the recenter button when the bottom sheet extends past it
   const locationButtonStyle = useAnimatedStyle(() => {
@@ -598,13 +600,15 @@ export function MapContainer({
           cameraMove={handleCameraMove}
           cameraFitRoute={handleCameraFitRoute}
           bottomSheetPosition={searchPanelHeight}
+          routingSearchSheetChange={setRoutingSearchSheetOpen}
           onNavigate={handleNavigate}
         />
       )}
-
-      <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
-        <UserLocationButton />
-      </Animated.View>
+      {!routingSearchSheetOpen &&(
+        <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
+          <UserLocationButton />
+        </Animated.View>
+      )}
 
       <AmenityPopup
         visible={!!selectedAmenity}

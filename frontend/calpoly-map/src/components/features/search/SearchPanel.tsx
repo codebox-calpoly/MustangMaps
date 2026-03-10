@@ -29,6 +29,7 @@ interface Props {
   cameraMove: (coordinates: number[]) => void;
   cameraFitRoute: (start: number[], end: number[]) => void;
   bottomSheetPosition: SharedValue<number>;
+  routingSearchSheetChange: (change : boolean) => void;
   onNavigate: (feature: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
@@ -55,12 +56,13 @@ type SearchRow =
     item: SavedPlace;
   };
 
-export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, routingSearchSheetChange, onNavigate }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
   const routeStartInputRef = useRef<TextInput>(null);
   const routeEndInputRef = useRef<TextInput>(null);
+  const routingSearchInputRef = useRef<TextInput>(null);
 
   const routingSearchSnapPoints = useMemo(() => ["85%"], []);
 
@@ -105,7 +107,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   } = useMapContext();
 
   const snapPoints = useMemo(
-    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    () => routingActive ? ["34%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
     [routingActive],
   );
 
@@ -170,6 +172,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [setSearchQuery],
   );
 
+  const blurRoutingInputs = useCallback(() => {
+    routeStartInputRef.current?.blur();
+    routeEndInputRef.current?.blur();
+    Keyboard.dismiss();
+  }, []);
+
   // Opens the routing search based on which field is selected
   const openRoutingSearchSheet = useCallback(
     (field: "start" | "end") => {
@@ -177,18 +185,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setSearchQuery("");
       setFocused(true);
       setRoutingSearchSheetOpen(true);
+      blurRoutingInputs();
 
       requestAnimationFrame(() => {
         routingSearchSheetRef.current?.snapToIndex(0);
       });
     },
-    [setSearchQuery],
+    [blurRoutingInputs, setSearchQuery],
   );
 
-  const blurRoutingInputs = useCallback(() => {
-    routeStartInputRef.current?.blur();
-    routeEndInputRef.current?.blur();
-  }, []);
+  useEffect(() => {
+  routingSearchSheetChange?.(routingSearchSheetOpen);
+}, [routingSearchSheetOpen, routingSearchSheetChange]);
+
 
   const closeRoutingSearchSheet = useCallback(() => {
     setRoutingSearchSheetOpen(false);
@@ -859,6 +868,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         </View>
 
         <BottomSheetTextInput
+          ref={routingSearchInputRef}
           style={styles.input}
           placeholder={
             activeField === "start"
@@ -870,7 +880,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           autoCorrect={false}
           value={activeField === "start" ? startValue : endValue}
           onChangeText={handleRoutingSearchChange}
-          autoFocus={routingSearchSheetOpen}
           selectTextOnFocus={false}
         />
       </>
@@ -880,10 +889,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       closeRoutingSearchSheet,
       endValue,
       handleRoutingSearchChange,
-      routingSearchSheetOpen,
       startValue,
     ],
   );
+
+  useEffect(() => {
+    if (!routingSearchSheetOpen) {
+      return;
+    }
+
+    const focusTimer = setTimeout(() => {
+      routingSearchInputRef.current?.focus();
+    }, 140);
+
+    return () => {
+      clearTimeout(focusTimer);
+    };
+  }, [activeField, routingSearchSheetOpen]);
 
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
