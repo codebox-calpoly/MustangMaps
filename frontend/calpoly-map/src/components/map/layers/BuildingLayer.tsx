@@ -198,7 +198,7 @@ export function BuildingLayer({
       try {
         setMapDataStatus("buildings", { loading: true, error: null });
         const asset = Asset.fromModule(
-          require("../../../../geojson_files/buildings.geojson"),
+          require("../../../../geojson_files/added-amenities-building.geojson"),
         );
 
         await asset.downloadAsync();
@@ -213,7 +213,7 @@ export function BuildingLayer({
           parsed.type !== "FeatureCollection"
         ) {
           throw new Error(
-            "buildings.geojson is not a valid GeoJSON FeatureCollection",
+            "added-amenities-building.geojson is not a valid GeoJSON FeatureCollection",
           );
         }
 

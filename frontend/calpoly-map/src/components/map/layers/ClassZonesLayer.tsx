@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import type { FeatureCollection } from "geojson";
-import { ShapeSource, CircleLayer, SymbolLayer } from "@maplibre/maplibre-react-native";
+import { ShapeSource, CircleLayer, SymbolLayer, FillLayer, LineLayer } from "@maplibre/maplibre-react-native";
 import { useMapContext } from "../../../context/MapContext";
 
 export function ClassZonesLayer() {
@@ -17,9 +17,9 @@ export function ClassZonesLayer() {
       try {
         setMapDataStatus("class-zones", { loading: true, error: null });
         // From: src/components/map/layers/ClassZonesLayer.tsx
-        // To:   geojson_files/class_zones/class_zones.geojson
+        // To:   geojson_files/class_zones/class_zones2.geojson
         const asset = Asset.fromModule(
-          require("../../../../geojson_files/class_zones/class_zones.geojson")
+          require("../../../../geojson_files/class_zones/class_zones2.geojson")
         );
 
         await asset.downloadAsync();
@@ -29,7 +29,7 @@ export function ClassZonesLayer() {
         const parsed = JSON.parse(text);
 
         if (!parsed || parsed.type !== "FeatureCollection") {
-          throw new Error("class_zones.geojson is not a valid FeatureCollection");
+          throw new Error("class_zones2.geojson is not a valid FeatureCollection");
         }
 
         if (!cancelled) {
@@ -57,25 +57,26 @@ export function ClassZonesLayer() {
 
   return (
     <ShapeSource id="class-zones-source" shape={zoneData}>
-      <CircleLayer
-        id="class-zones-circle"
+
+    
+      <FillLayer
+        id="class-zones-fill"
         style={{
-          circleRadius: 6,
-          circleColor: "#2E86AB",
-          circleStrokeWidth: 1,
-          circleStrokeColor: "#ffffff",
+          fillColor: [
+            "match",
+            ["get", "label"],
+            "Left", "#97e0ff",
+            "Right", "#dbbdff",
+            "#9c9494",
+          ],
+          fillOpacity: 1,
         }}
       />
-      <SymbolLayer
-        id="class-zones-label"
+      <LineLayer
+        id="class-zones-line"
         style={{
-          textField: ["get", "label"],
-          textSize: 12,
-          textOffset: [0, 1.2],
-          textAnchor: "top",
-          textColor: isDark ? "#F9FAFB" : "#111827",
-          textHaloColor: isDark ? "#0B1120" : "#FFFFFF",
-          textHaloWidth: 1,
+          lineColor: "#111827",
+          lineWidth: 1,
         }}
       />
     </ShapeSource>
