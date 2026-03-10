@@ -1490,6 +1490,66 @@
           "type": "Point",
           "coordinates": [-120.655260, 35.296827]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_046",
+          "category": "toilet",
+          "name": "Gym Locker Room",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659941, 35.298414]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_028",
+          "category": "water_fountain",
+          "name": "Stairs Water Fountain",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660309, 35.298386]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_029",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Recreation Center",
+          "level": 2,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660270, 35.298515]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_030",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659402, 35.298481]
+        }
       }
     ]
   }
