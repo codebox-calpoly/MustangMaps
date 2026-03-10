@@ -1550,6 +1550,36 @@
           "type": "Point",
           "coordinates": [-120.659402, 35.298481]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_031",
+          "category": "water_fountain",
+          "name": "Bioresource & Agricultural Engineering Water Fountain",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661747, 35.302998]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_047",
+          "category": "toilet",
+          "name": "Bioresource & Agricultural Engineering Bathroom",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661688, 35.302991]
+        }
       }
     ]
   }
