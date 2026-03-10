@@ -229,6 +229,44 @@ export function MapContainer({
     [],
   );
 
+  const getFeatureBounds = useCallback(
+    (
+      feature: Feature<Geometry, GeoJsonProperties>,
+    ): { ne: [number, number]; sw: [number, number] } | null => {
+      const geom = feature.geometry;
+
+      let ring: number[][] | null = null;
+
+      if (geom.type === "Polygon") {
+        ring = geom.coordinates[0] ?? null;
+      } else if (geom.type === "MultiPolygon") {
+        ring = geom.coordinates[0]?.[0] ?? null;
+      }
+
+      if (!ring || ring.length === 0) {
+        return null;
+      }
+
+      let minLng = Infinity;
+      let maxLng = -Infinity;
+      let minLat = Infinity;
+      let maxLat = -Infinity;
+
+      for (const [lng, lat] of ring) {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      }
+
+      return {
+        ne: [maxLng, maxLat],
+        sw: [minLng, minLat],
+      };
+    },
+    [],
+  );
+
   const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
     if (!selectedBuilding) return null;
 
@@ -647,24 +685,30 @@ export function MapContainer({
   const handleSelectClassroom = useCallback(
     (room: string) => {
       const zone = findZoneByClassroom(room);
-      if (!zone) {
+      if (!zone || !cameraRef.current) {
         return;
       }
 
       const label = zone.properties?.label;
       setSelectedClassZoneLabel(typeof label === "string" ? label : null);
 
+      const bounds = getFeatureBounds(zone);
+      if (bounds) {
+        cameraRef.current.fitBounds(bounds.ne, bounds.sw, [80, 40, 140, 40], 800);
+        return;
+      }
+
       const center = featureCenter(zone);
-      if (center && cameraRef.current) {
+      if (center) {
         const safeCenter = clampCoordinate(center);
         cameraRef.current.setCamera({
           centerCoordinate: safeCenter,
-          zoomLevel: 19,
+          zoomLevel: 18,
           animationDuration: 800,
         });
       }
     },
-    [clampCoordinate, featureCenter, findZoneByClassroom],
+    [clampCoordinate, featureCenter, findZoneByClassroom, getFeatureBounds],
   );
 
   return (

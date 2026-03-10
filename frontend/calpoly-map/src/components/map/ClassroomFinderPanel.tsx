@@ -35,6 +35,7 @@ export function ClassroomFinderPanel({
       });
     } else {
       setQuery("");
+      sheetRef.current?.close();
     }
   }, [visible]);
 
@@ -50,6 +51,10 @@ export function ClassroomFinderPanel({
     );
   }, [classrooms, query]);
 
+  const handlePressClose = () => {
+    sheetRef.current?.close();
+  };
+
   if (!visible) {
     return null;
   }
@@ -57,7 +62,7 @@ export function ClassroomFinderPanel({
   return (
     <BottomSheet
       ref={sheetRef}
-      index={2}
+      index={-1}
       snapPoints={snapPoints}
       enableDynamicSizing={false}
       animatedPosition={bottomSheetPosition}
@@ -66,7 +71,8 @@ export function ClassroomFinderPanel({
       keyboardBlurBehavior="restore"
       enableContentPanningGesture
       enableHandlePanningGesture
-      enablePanDownToClose={false}
+      enablePanDownToClose
+      onClose={onClose}
     >
       <View style={styles.container}>
         <View style={styles.header}>
@@ -78,8 +84,8 @@ export function ClassroomFinderPanel({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close classroom finder"
-              hitSlop={10}
-              onPress={onClose}
+              hitSlop={16}
+              onPress={handlePressClose}
               style={({ pressed }) => [
                 styles.closeButton,
                 pressed && styles.closeButtonPressed,
@@ -167,14 +173,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#D1D5DB",
+    zIndex: 10,
+    elevation: 10,
   },
   closeButtonPressed: {
     backgroundColor: "#E5E7EB",
