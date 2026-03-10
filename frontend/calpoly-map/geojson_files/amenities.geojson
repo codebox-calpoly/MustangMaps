@@ -1580,6 +1580,96 @@
           "type": "Point",
           "coordinates": [-120.661688, 35.302991]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_048",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662291, 35.300988]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_032",
+          "category": "water_fountain",
+          "name": "Mathematics and Science (38) Floor 1 Water Fountain",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662291, 35.300988]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_049",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662223, 35.30154]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_033",
+          "category": "water_fountain",
+          "name": "Mathematics and Science (38) Floor 1 Water Fountain",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662359, 35.302025]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_050",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662233, 35.301017]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_051",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662248, 35.30166]
+        }
       }
     ]
   }
