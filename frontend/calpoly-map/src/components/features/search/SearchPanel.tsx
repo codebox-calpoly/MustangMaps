@@ -228,17 +228,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
 
   // averages the middle of a building based off all its constituent coordinates
   const middle = useCallback((coordinates: number[][]) => {
+    if (coordinates.length === 0) return [0, 0];
     let result: number[] = [0.0, 0.0];
-    let count = 0;
 
     coordinates.forEach((position: number[]) => {
       result[0] += position[0];
       result[1] += position[1];
-      count++;
     });
 
-    result[0] /= count;
-    result[1] /= count;
+    result[0] /= coordinates.length;
+    result[1] /= coordinates.length;
     return result;
   }, []);
 
