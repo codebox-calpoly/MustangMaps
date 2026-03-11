@@ -95,11 +95,8 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     Boolean(routeStart && routeEnd && activePath && !routeError);
 
   const {
-    history,
     favorites,
     addToHistory,
-    removeFromHistory,
-    clearHistory,
     toggleFavorite,
     isFavorite,
   } = useSavedPlaces();
@@ -232,9 +229,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setMainSearchInput(place.name);
 
       if (!isMyLocation) {
-        const matchingFeature = data.find(
-          (f) => f.properties?.name === place.name,
-        );
+        const matchingFeature = data.find((f) => {
+          const rawName = f.properties?.name;
+          if (!rawName) return false;
+          if (place.ref && f.properties?.ref === place.ref) return true;
+          return stripBuildingNumber(rawName) === place.name;
+        });
         if (matchingFeature) {
           selectBuilding(matchingFeature as Feature<Geometry, GeoJsonProperties>);
         }
@@ -252,6 +252,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       isValidCoordinate,
       selectBuilding,
       setSearchQuery,
+      stripBuildingNumber,
     ],
   );
 
@@ -265,17 +266,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const sections = useMemo(() => {
     const list: SearchSection[] = [];
-    if (favorites.length > 0 && (focused || searchQuery.trim().length > 0)) {
+    const hasQuery = searchQuery.trim().length > 0;
+    if (!hasQuery && favorites.length > 0 && focused) {
       list.push({ title: "Favorites", data: favorites, kind: "favorite" as const });
     }
-    if (history.length > 0 && (focused || searchQuery.trim().length > 0)) {
-      list.push({ title: "History", data: history, kind: "history" as const });
-    }
-    if (focused || searchQuery.trim().length > 0) {
+    if (focused || hasQuery) {
       list.push({ title: "Results", data: resultsAsPlaces, kind: "result" as const });
     }
     return list;
-  }, [favorites, history, focused, resultsAsPlaces, searchQuery]);
+  }, [favorites, focused, resultsAsPlaces, searchQuery]);
 
   const dismissThreshold = Dimensions.get("window").height * 0.58;
   const dismissKeyboard = useCallback(() => { Keyboard.dismiss(); }, []);
@@ -307,11 +306,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         return (
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, dark && { color: "#D1D5DB" }]}>{item.section.title}</Text>
-            {item.section.kind === "history" && (
-              <Pressable onPress={clearHistory} style={styles.sectionAction}>
-                <Text style={styles.sectionActionText}>Clear</Text>
-              </Pressable>
-            )}
           </View>
         );
       }
@@ -337,16 +331,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
                 {isFavorite(place.id) ? "♥" : "♡"}
               </Text>
             </Pressable>
-            {item.sectionKind === "history" && (
-              <Pressable onPress={() => removeFromHistory(place.id)} style={styles.iconButton}>
-                <Text style={styles.removeIcon}>✕</Text>
-              </Pressable>
-            )}
           </View>
         </Pressable>
       );
     },
-    [clearHistory, dark, handleSelectPlace, isFavorite, removeFromHistory, toggleFavorite],
+    [dark, handleSelectPlace, isFavorite, toggleFavorite],
   );
 
   const extractSearchRowKey = useCallback((item: SearchRow) => item.id, []);
