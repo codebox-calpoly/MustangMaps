@@ -1670,6 +1670,36 @@
           "type": "Point",
           "coordinates": [-120.662248, 35.30166]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_052",
+          "category": "toilet",
+          "name": "Engineering South Bathroom",
+          "building": "Engineering South",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660836, 35.299123]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_034",
+          "category": "water_fountain",
+          "name": "Engineering South Water Fountain",
+          "building": "Engineering South",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660849, 35.299120]
+        }
       }
     ]
   }
