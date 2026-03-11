@@ -43,7 +43,7 @@ import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
-import { BuildingPopup } from "./BuildingPopup";
+
 import { ClassroomFinderPanel } from "./ClassroomFinderPanel";
 
 import Animated, {
@@ -824,20 +824,13 @@ export function MapContainer({
           cameraFitRoute={handleCameraFitRoute}
           bottomSheetPosition={searchPanelHeight}
           onNavigate={handleNavigate}
+          onOpenClassroomFinder={handleOpenClassroomFinder}
         />
       )}
 
       <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
         <UserLocationButton />
       </Animated.View>
-
-      <BuildingPopup
-        visible={!!selectedBuilding}
-        building={selectedBuilding}
-        onClose={clearSelection}
-        onNavigate={handleNavigate}
-        onOpenClassroomFinder={handleOpenClassroomFinder}
-      />
 
       <AmenityPopup
         visible={!!selectedAmenity}

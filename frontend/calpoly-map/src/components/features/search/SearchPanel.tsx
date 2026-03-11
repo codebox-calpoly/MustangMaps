@@ -30,6 +30,7 @@ interface Props {
   cameraFitRoute: (start: number[], end: number[]) => void;
   bottomSheetPosition: SharedValue<number>;
   onNavigate: (feature: Feature<Geometry, GeoJsonProperties>) => void;
+  onOpenClassroomFinder: (building: Feature<Geometry, GeoJsonProperties>) => void;
 }
 
 type SectionKind = "favorite" | "history" | "result";
@@ -55,7 +56,7 @@ type SearchRow =
       item: SavedPlace;
     };
 
-export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate, onOpenClassroomFinder }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const routingSearchSheetRef = useRef<BottomSheet>(null);
@@ -572,20 +573,36 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               </Pressable>
             </View>
 
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Directions to ${selectedBuildingName}`}
-              onPress={() => {
-                onNavigate(selectedBuilding);
-                clearSelection();
-              }}
-              style={({ pressed }) => [
-                styles.buildingDirectionsButton,
-                pressed && styles.buildingDirectionsButtonPressed,
-              ]}
-            >
-              <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
-            </Pressable>
+            <View style={styles.buildingActionsRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Directions to ${selectedBuildingName}`}
+                onPress={() => {
+                  onNavigate(selectedBuilding);
+                  clearSelection();
+                }}
+                style={({ pressed }) => [
+                  styles.buildingDirectionsButton,
+                  pressed && styles.buildingDirectionsButtonPressed,
+                ]}
+              >
+                <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Find classroom in ${selectedBuildingName}`}
+                onPress={() => {
+                  onOpenClassroomFinder(selectedBuilding);
+                }}
+                style={({ pressed }) => [
+                  styles.buildingFindClassroomButton,
+                  pressed && styles.buildingFindClassroomButtonPressed,
+                ]}
+              >
+                <Text style={styles.buildingFindClassroomButtonText}>Find Classroom</Text>
+              </Pressable>
+            </View>
           </View>
         );
       }
@@ -1427,6 +1444,28 @@ const styles = StyleSheet.create({
   },
   buildingDirectionsButtonText: {
     color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  buildingActionsRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  buildingFindClassroomButton: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+  },
+  buildingFindClassroomButtonPressed: {
+    backgroundColor: "#E5E7EB",
+  },
+  buildingFindClassroomButtonText: {
+    color: "#111827",
     fontSize: 15,
     fontWeight: "700",
   },
