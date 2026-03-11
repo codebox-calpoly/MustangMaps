@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { Dimensions, Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
@@ -412,12 +413,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             {routingActive ? "Directions" : "Search"}
           </Text>
           {routingActive && (
-            <Pressable
+            <TouchableOpacity
               onPress={() => { clearRoute(); setSearchQuery(""); }}
               style={styles.clearChip}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              activeOpacity={0.6}
             >
               <Text style={styles.clearChipText}>✕</Text>
-            </Pressable>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -597,7 +600,7 @@ const styles = StyleSheet.create({
   handleStyle: {
     position: "absolute",
     left: -20,
-    paddingBottom: 30,
+    paddingBottom: 10,
     paddingHorizontal: screenWidth / 2,
   },
   inputSpacer: {
@@ -630,6 +633,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     flexWrap: "wrap",
+    paddingHorizontal: 16,
   },
   accessibleToggle: {
     flexDirection: "row",
@@ -680,16 +684,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   clearChip: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "#F3F4F6",
     justifyContent: "center" as const,
     alignItems: "center" as const,
   },
   clearChipText: {
     color: "#6B7280",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   statusRow: {
@@ -772,6 +776,7 @@ const styles = StyleSheet.create({
     flexDirection: "row" as const,
     justifyContent: "space-between" as const,
     alignItems: "center" as const,
+    paddingHorizontal: 16,
   },
   directionHeader: {
     fontSize: 25,
