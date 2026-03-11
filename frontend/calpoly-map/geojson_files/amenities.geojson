@@ -1805,6 +1805,111 @@
           "type": "Point",
           "coordinates": [-120.658300, 35.298835]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_058",
+          "category": "toilet",
+          "name": "Science Bathroom",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660171, 35.300496]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_035",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659772, 35.300686]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_036",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660214, 35.300228]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_037",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660512, 35.300213]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_038",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659901, 35.300256]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_039",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659567, 35.300310]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_059",
+          "category": "toilet",
+          "name": "Science Bathroom",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660238, 35.300561]
+        }
       }
     ]
   }
