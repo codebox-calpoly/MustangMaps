@@ -17,7 +17,7 @@ const AMENITY_ICONS: Record<string, any> = {
 };
 
 // Main component to render the amenities layer on the map
-export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
+export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes: string[]; visible?: boolean }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
   const { setMapDataStatus, mapDataRetryToken } = useMapContext();
 
@@ -81,15 +81,18 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     ] as any;
   }, []);
 
+  // When not visible, use a filter that matches nothing so native layers stay mounted
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
-  const filter = amenityTypes.length === 0
-    ? ["has", "category"] // Show all features that have a category property
-    : [
-        "in",
-        ["get", "category"],
-        ["literal", amenityTypes],
-      ];
+  const filter = !visible
+    ? ["==", ["get", "category"], "__hidden__"]
+    : amenityTypes.length === 0
+      ? ["has", "category"]
+      : [
+          "in",
+          ["get", "category"],
+          ["literal", amenityTypes],
+        ];
 
   if (!amenityData) return null;
 

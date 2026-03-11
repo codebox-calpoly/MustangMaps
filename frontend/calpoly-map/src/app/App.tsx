@@ -123,13 +123,10 @@ function MapScreen({
       buildingOptions={buildingOptions}
       amenityOptions={amenityOptions}
     >
-      <BuildingLayer buildingTypes={buildingTypeIds} />
-      <ClassZonesLayer />
-      {/* Only render amenities when in amenities mode or when filters are selected */}
-      {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
-        <AmenitiesLayer amenityTypes={amenityTypeIds} />
-      )}
-      <RouteLineLayer />
+      <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
+      <ClassZonesLayer key="class-zones" />
+      <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} visible={mapMode === "amenities"} />
+      <RouteLineLayer key="route-line" />
     </MapContainer>
   );
 }
