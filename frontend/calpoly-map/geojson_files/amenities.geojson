@@ -1775,6 +1775,36 @@
           "type": "Point",
           "coordinates": [-120.664118, 35.298530]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_057",
+          "category": "toilet",
+          "name": "Robert E. Mott Physical Education",
+          "building": "Robert E. Mott Physical Education",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659091, 35.298483]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_057",
+          "category": "toilet",
+          "name": "Robert E. Mott Physical Education",
+          "building": "Robert E. Mott Physical Education",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658300, 35.298835]
+        }
       }
     ]
   }
