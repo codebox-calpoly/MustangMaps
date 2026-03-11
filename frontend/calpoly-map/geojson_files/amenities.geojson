@@ -1700,6 +1700,51 @@
           "type": "Point",
           "coordinates": [-120.660849, 35.299120]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_053",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 1",
+          "building": "Graphic Arts",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.66149, 35.299205]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_054",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 2",
+          "building": "Graphic Arts",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661949, 35.299167]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_054",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 2",
+          "building": "Graphic Arts",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661900, 35.299142]
+        }
       }
     ]
   }
