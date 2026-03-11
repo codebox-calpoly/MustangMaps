@@ -97,6 +97,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
     clearRoute,
     setUserLocation,
   } = useMapContext();
+
+  const routingActiveRef = useRef(false);
+  useEffect(() => {
+    routingActiveRef.current = routingActive;
+  }, [routingActive]);
+
   const summaryVisible =
     routingActive &&
     Boolean(routeStart && routeEnd && activePath && !routeError);
@@ -693,17 +699,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   // Auto-fill start as "My location" when routing becomes active
   useEffect(() => {
     if (
-      routingActive &&
-      !hasAutoFilledStart &&
-      userLocation &&
-      !routeStart &&
-      startValue.length === 0
+      !routingActiveRef.current ||
+      !routingActive ||
+      hasAutoFilledStart ||
+      !userLocation ||
+      routeStart ||
+      startValue.length > 0
     ) {
-      setRouteStart(userLocation);
-      setStartValue("My location");
-      setRouteStartIsCurrentLocation(true);
-      setHasAutoFilledStart(true);
+      return;
     }
+    setRouteStart(userLocation);
+    setStartValue("My location");
+    setRouteStartIsCurrentLocation(true);
+    setHasAutoFilledStart(true);
   }, [
     hasAutoFilledStart,
     routingActive,
@@ -778,7 +786,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition }:
   }, [routingActive, selectedBuilding]);
 
   useEffect(() => {
-    if (!routingActive || !routeDestination) {
+    if (!routingActiveRef.current || !routingActive || !routeDestination) {
       return;
     }
 
