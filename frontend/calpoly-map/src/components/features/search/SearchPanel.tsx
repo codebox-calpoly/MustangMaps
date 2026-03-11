@@ -407,9 +407,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
     return (
       <>
-        <Text style={[styles.directionHeader, dark && { color: "#F9FAFB" }]}>
-          {routingActive ? "Directions" : "Search"}
-        </Text>
+        <View style={styles.directionHeaderRow}>
+          <Text style={[styles.directionHeader, dark && { color: "#F9FAFB" }]}>
+            {routingActive ? "Directions" : "Search"}
+          </Text>
+          {routingActive && (
+            <Pressable
+              onPress={() => { clearRoute(); setSearchQuery(""); }}
+              style={styles.clearChip}
+            >
+              <Text style={styles.clearChipText}>✕</Text>
+            </Pressable>
+          )}
+        </View>
 
         {!routingActive && <View style={styles.inputSpacer} />}
 
@@ -435,13 +445,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               </View>
               <Text style={styles.accessibleToggleText}>Accessible Routes Only</Text>
               <Text style={styles.accessibleToggleIcon}>♿</Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => { clearRoute(); setSearchQuery(""); }}
-              style={styles.clearChip}
-            >
-              <Text style={styles.clearChipText}>Clear</Text>
             </Pressable>
           </View>
         ) : (
@@ -677,16 +680,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   clearChip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#FCA5A5",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#FEE2E2",
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
   },
   clearChipText: {
-    color: "#B91C1C",
-    fontSize: 12,
+    color: "#6B7280",
+    fontSize: 16,
     fontWeight: "600",
   },
   statusRow: {
@@ -764,6 +767,11 @@ const styles = StyleSheet.create({
     color: "#1D4ED8",
     fontSize: 12,
     fontWeight: "600",
+  },
+  directionHeaderRow: {
+    flexDirection: "row" as const,
+    justifyContent: "space-between" as const,
+    alignItems: "center" as const,
   },
   directionHeader: {
     fontSize: 25,
