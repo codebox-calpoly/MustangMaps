@@ -29,11 +29,7 @@ export function ClassroomFinderPanel({
   const snapPoints = useMemo(() => ["28%", "50%", "65%", "85%"], []);
 
   useEffect(() => {
-    if (visible) {
-      requestAnimationFrame(() => {
-        sheetRef.current?.snapToIndex(2);
-      });
-    } else {
+    if (!visible) {
       setQuery("");
       sheetRef.current?.close();
     }
@@ -62,7 +58,7 @@ export function ClassroomFinderPanel({
   return (
     <BottomSheet
       ref={sheetRef}
-      index={-1}
+      index={2}
       snapPoints={snapPoints}
       enableDynamicSizing={false}
       animatedPosition={bottomSheetPosition}
@@ -126,6 +122,7 @@ export function ClassroomFinderPanel({
               onPress={() => {
                 setQuery(String(item));
                 onSelectClassroom(String(item));
+                sheetRef.current?.snapToIndex(0);
               }}
             >
               <Text style={styles.resultText}>{item}</Text>
