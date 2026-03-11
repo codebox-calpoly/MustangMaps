@@ -29,6 +29,16 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
   { id: "elevator", label: "Elevators" },
 ];
 
+function ThemedSafeArea({ children }: { children: React.ReactNode }) {
+  const { mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: dark ? "#111827" : "#FFFFFF" }}>
+      {children}
+    </SafeAreaView>
+  );
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -36,12 +46,12 @@ export default function App() {
         <LocationProvider>
         <MapProvider>
           <SavedPlacesProvider>
-            <SafeAreaView style={{ flex: 1 }}>
+            <ThemedSafeArea>
               <MapScreen
                 buildingOptions={BUILDING_OPTIONS}
                 amenityOptions={AMENITY_OPTIONS}
               />
-            </SafeAreaView>
+            </ThemedSafeArea>
           </SavedPlacesProvider>
         </MapProvider>
         </LocationProvider>
@@ -134,11 +144,11 @@ function MapScreen({
       buildingOptions={buildingOptions}
       amenityOptions={amenityOptions}
     >
-      <BuildingLayer buildingTypes={buildingTypeIds} />
-      <ClassZonesLayer />
-      {mapMode === "buildings" && <FavoritesLayer />}
-      <AmenitiesLayer amenityTypes={amenityTypeIds} />
-      <RouteLineLayer />
+      <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
+      <ClassZonesLayer key="class-zones" />
+      {mapMode === "buildings" && <FavoritesLayer key="favorites" />}
+      <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} />
+      <RouteLineLayer key="route-line" />
     </MapContainer>
   );
 }

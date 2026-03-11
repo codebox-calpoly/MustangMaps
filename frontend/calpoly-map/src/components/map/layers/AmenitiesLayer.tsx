@@ -164,11 +164,9 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
 
   const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
 
-  const activeShape = !amenityData
+  const activeShape = !amenityData || mapMode !== "amenities"
     ? EMPTY_FC
-    : (mapMode === "amenities" || amenityTypes.length > 0)
-      ? (highlightedAmenities ?? amenityData)
-      : EMPTY_FC;
+    : (highlightedAmenities ?? amenityData);
 
   return (
     <>

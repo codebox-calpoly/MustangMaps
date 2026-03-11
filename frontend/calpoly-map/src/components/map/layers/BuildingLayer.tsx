@@ -120,7 +120,8 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
 
   const normalizedBuildingTypes = useMemo(
     () => buildingTypes.map((value) => normalizeValue(value)),
@@ -303,15 +304,15 @@ export function BuildingLayer({
         id="buildings-fill"
         filter={buildingFilter}
         style={{
-          fillColor: "green",
-          fillOpacity: 0.25,
+          fillColor: dark ? "#4ADE80" : "green",
+          fillOpacity: dark ? 0.4 : 0.25,
         }}
       />
       <LineLayer
         id="buildings-outline"
         filter={buildingFilter}
         style={{
-          lineColor: "#111827",
+          lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
         }}
       />

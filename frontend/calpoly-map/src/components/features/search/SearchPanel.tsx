@@ -80,7 +80,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     setRouteAccessibleOnly,
     setRouteRequested,
     clearRoute,
+    mapStyle,
   } = useMapContext();
+
+  const dark = mapStyle === "dark";
 
   const snapPoints = useMemo(
     () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
@@ -303,7 +306,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       if (item.type === "header") {
         return (
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{item.section.title}</Text>
+            <Text style={[styles.sectionTitle, dark && { color: "#D1D5DB" }]}>{item.section.title}</Text>
             {item.section.kind === "history" && (
               <Pressable onPress={clearHistory} style={styles.sectionAction}>
                 <Text style={styles.sectionActionText}>Clear</Text>
@@ -318,14 +321,14 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         <Pressable
           onPress={() => handleSelectPlace(place)}
           style={({ pressed }) => [
-            { backgroundColor: pressed ? "#D2E6FF" : "white" },
+            { backgroundColor: pressed ? (dark ? "#2A2F38" : "#D2E6FF") : (dark ? "#1C1F26" : "white") },
             styles.itemContainer,
           ]}
         >
           <View style={styles.itemMeta}>
-            <Text style={styles.buildingName}>{place.name}</Text>
+            <Text style={[styles.buildingName, dark && { color: "#F9FAFB" }]}>{place.name}</Text>
             {place.ref && (
-              <Text style={styles.buildingNumber}>Building {place.ref}</Text>
+              <Text style={[styles.buildingNumber, dark && { color: "#9CA3AF" }]}>Building {place.ref}</Text>
             )}
           </View>
           <View style={styles.itemActions}>
@@ -343,7 +346,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         </Pressable>
       );
     },
-    [clearHistory, handleSelectPlace, isFavorite, removeFromHistory, toggleFavorite],
+    [clearHistory, dark, handleSelectPlace, isFavorite, removeFromHistory, toggleFavorite],
   );
 
   const extractSearchRowKey = useCallback((item: SearchRow) => item.id, []);
@@ -386,16 +389,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         <View style={styles.buildingInfoCard}>
           <View style={styles.buildingInfoHeader}>
             <View style={styles.buildingInfoText}>
-              <Text style={styles.buildingInfoName}>{selectedBuildingName}</Text>
-              <Text style={styles.buildingInfoSubtitle}>{selectedBuildingSubtitle}</Text>
+              <Text style={[styles.buildingInfoName, dark && { color: "#F9FAFB" }]}>{selectedBuildingName}</Text>
+              <Text style={[styles.buildingInfoSubtitle, dark && { color: "#9CA3AF" }]}>{selectedBuildingSubtitle}</Text>
             </View>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close building info"
               onPress={clearSelection}
-              style={styles.buildingInfoClose}
+              style={[styles.buildingInfoClose, dark && { backgroundColor: "#2A2F38", borderColor: "#3A4048" }]}
             >
-              <Text style={styles.buildingInfoCloseText}>✕</Text>
+              <Text style={[styles.buildingInfoCloseText, dark && { color: "#9CA3AF" }]}>✕</Text>
             </Pressable>
           </View>
           <Pressable
@@ -415,7 +418,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
     return (
       <>
-        <Text style={styles.directionHeader}>
+        <Text style={[styles.directionHeader, dark && { color: "#F9FAFB" }]}>
           {routingActive ? "Directions" : "Search"}
         </Text>
 
@@ -454,8 +457,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           </View>
         ) : (
           <BottomSheetTextInput
-            style={styles.input}
+            style={[styles.input, dark && { backgroundColor: "#2A2F38", borderColor: "#3A4048", color: "#F9FAFB" }]}
             placeholder="Type Destination Here..."
+            placeholderTextColor={dark ? "#6B7280" : undefined}
             clearButtonMode="always"
             autoCapitalize="none"
             autoCorrect={false}
@@ -479,10 +483,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         )}
 
         {summaryVisible && (
-          <View style={styles.routeSummaryContainer}>
+          <View style={[styles.routeSummaryContainer, dark && { backgroundColor: "#2A2F38", borderColor: "#3A4048" }]}>
             <View style={styles.routeSummaryLeft}>
-              <Text style={styles.routeSummaryTime}>{formatTime()}</Text>
-              <Text style={styles.routeSummaryMeta}>
+              <Text style={[styles.routeSummaryTime, dark && { color: "#F9FAFB" }]}>{formatTime()}</Text>
+              <Text style={[styles.routeSummaryMeta, dark && { color: "#9CA3AF" }]}>
                 {formatDistance()} • {formatETA()}
               </Text>
             </View>
@@ -495,6 +499,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     clearRoute,
     clearSelection,
     commitSearch,
+    dark,
     handleSearch,
     mainSearchInput,
     onNavigate,
@@ -574,8 +579,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         handleStyle={styles.handleStyle}
         keyboardBehavior="extend"
         keyboardBlurBehavior="none"
+        backgroundStyle={dark ? { backgroundColor: "#1C1F26" } : undefined}
+        handleIndicatorStyle={dark ? { backgroundColor: "#6B7280" } : undefined}
       >
-        <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+        <View style={[styles.fixedHeader, dark && { backgroundColor: "#1C1F26" }]}>{renderMainSheetHeader()}</View>
         <BottomSheetFlatList
           data={!routingActive && !selectedBuilding ? searchRows : []}
           keyExtractor={extractSearchRowKey}
