@@ -1745,6 +1745,36 @@
           "type": "Point",
           "coordinates": [-120.661900, 35.299142]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_055",
+          "category": "toilet",
+          "name": "Student Services",
+          "building": "Student Services",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664020, 35.298662]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_056",
+          "category": "toilet",
+          "name": "Student Services",
+          "building": "Student Services",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664118, 35.298530]
+        }
       }
     ]
   }
