@@ -7,7 +7,7 @@ export function RouteLineLayer() {
   const { activePath, routeStart, routeEnd } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
-    if (!activePath || activePath.path.length < 2) {
+    if (!activePath || !activePath.path || activePath.path.length < 2) {
       return null;
     }
     return {
