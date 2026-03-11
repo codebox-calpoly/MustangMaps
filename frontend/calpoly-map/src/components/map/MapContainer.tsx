@@ -389,7 +389,7 @@ export function MapContainer({
         handleCameraMove(center);
       }
     }
-  }, []);
+  }, [selectBuilding, handleCameraMove]);
 
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
