@@ -313,6 +313,7 @@ export function findPath(
 
       const pathCoords: [number, number][] = [];
       const segments: RouteSegment[] = [];
+      if (nodePath.length === 0) return null;
       appendCoordinates(pathCoords, [graph.nodes[nodePath[0]].coordinates]);
 
       for (let i = 0; i < edgePath.length; i += 1) {
@@ -320,6 +321,7 @@ export function findPath(
         const edge = graph.edges[edgeId];
         const fromNodeId = nodePath[i];
         const toNodeId = nodePath[i + 1];
+        if (!edge || !graph.nodes[fromNodeId] || !graph.nodes[toNodeId]) continue;
         const fromCoord = graph.nodes[fromNodeId].coordinates;
         const toCoord = graph.nodes[toNodeId].coordinates;
 
