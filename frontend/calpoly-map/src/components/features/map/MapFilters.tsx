@@ -70,12 +70,15 @@ export function MapFilters({
             <Pressable
               key={mode}
               onPress={() => {
+                if (mode === mapMode) return;
                 onMapModeChange(mode);
                 if (mode === "routing") {
                   setRoutingActive(true);
                 } else {
                   setRoutingActive(false);
-                  clearRoute();
+                  if (mapMode === "routing") {
+                    clearRoute();
+                  }
                 }
               }}
               style={[styles.chip, mapMode === mode && styles.chipActive]}

@@ -84,15 +84,15 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
   // When not visible, use a filter that matches nothing so native layers stay mounted
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
-  const filter = !visible
-    ? ["==", ["get", "category"], "__hidden__"]
-    : amenityTypes.length === 0
-      ? ["has", "category"]
-      : [
-          "in",
-          ["get", "category"],
-          ["literal", amenityTypes],
-        ];
+  const filter = useMemo(() => {
+    if (!visible) {
+      return ["==", ["get", "category"], "__hidden__"];
+    }
+    if (amenityTypes.length === 0) {
+      return ["has", "category"];
+    }
+    return ["in", ["get", "category"], ["literal", amenityTypes]];
+  }, [visible, amenityTypes]);
 
   if (!amenityData) return null;
 
