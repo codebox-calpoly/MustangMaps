@@ -191,6 +191,22 @@ export function BuildingLayer({
     return ["any", ...checks] as const;
   }, [normalizedBuildingTypes]);
 
+  const buildingFillOpacity = useMemo(() => {
+    if (!buildingFilter) {
+      return 0.3;
+    }
+    
+    return ["case", buildingFilter, 0.3, 0.08] as const;
+  }, [buildingFilter]);
+
+  const buildingOutlineOpacity = useMemo(() => {
+    if (!buildingFilter) {
+      return 1;
+    }
+
+    return ["case", buildingFilter, 1, 0.35] as const;
+  }, [buildingFilter]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -255,18 +271,17 @@ export function BuildingLayer({
     >
       <FillLayer
         id="buildings-fill"
-        filter={buildingFilter}
         style={{
           fillColor: "green",
-          fillOpacity: 0.25,
+          fillOpacity: buildingFillOpacity,
         }}
       />
       <LineLayer
         id="buildings-outline"
-        filter={buildingFilter}
         style={{
           lineColor: "#111827",
           lineWidth: 1,
+          lineOpacity: buildingOutlineOpacity,
         }}
       />
     </ShapeSource>
