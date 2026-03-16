@@ -167,21 +167,20 @@ export function BuildingLayer({
   }, [buildingData]);
 
   const buildingFilter = useMemo(() => {
-    // "All" or no selected building types should show every building.
-    if (normalizedBuildingTypes.length === 0) {
-      return undefined;
-    }
+    const allChecks = {
+      academic: ["==", ["get", "filter_academic"], true] as const,
+      residential: ["==", ["get", "filter_residential"], true] as const,
+      dining: ["==", ["get", "filter_dining"], true] as const,
+    };
 
-    const checks: any[] = [];
-    if (normalizedBuildingTypes.includes("academic")) {
-      checks.push(["==", ["get", "filter_academic"], true]);
-    }
-    if (normalizedBuildingTypes.includes("residential")) {
-      checks.push(["==", ["get", "filter_residential"], true]);
-    }
-    if (normalizedBuildingTypes.includes("dining")) {
-      checks.push(["==", ["get", "filter_dining"], true]);
-    }
+    const selectedTypes =
+      normalizedBuildingTypes.length === 0
+        ? Object.keys(allChecks)
+        : normalizedBuildingTypes.filter(
+            (type): type is keyof typeof allChecks => type in allChecks,
+          );
+
+    const checks = selectedTypes.map((type) => allChecks[type]);
 
     if (checks.length === 0) {
       // Unknown filter values should match nothing.
