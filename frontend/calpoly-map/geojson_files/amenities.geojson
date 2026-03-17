@@ -1910,6 +1910,66 @@
           "type": "Point",
           "coordinates": [-120.660238, 35.300561]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_060",
+          "category": "toilet",
+          "name": "Cotchett Floor 1, 2, 3 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664410, 35.300507]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_061",
+          "category": "toilet",
+          "name": "Cotchett Floor 1 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664384, 35.300330]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_062",
+          "category": "toilet",
+          "name": "Cotchett Floor 2 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664527, 35.300339]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_062",
+          "category": "toilet",
+          "name": "Cotchett Floor 2, 3 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": [2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664287, 35.299983]
+        }
       }
     ]
   }
