@@ -168,21 +168,20 @@ export function BuildingLayer({
   }, [buildingData]);
 
   const buildingFilter = useMemo(() => {
-    // "All" or no selected building types should show every building.
-    if (normalizedBuildingTypes.length === 0) {
-      return undefined;
-    }
+    const allChecks = {
+      academic: ["==", ["get", "filter_academic"], true] as const,
+      residential: ["==", ["get", "filter_residential"], true] as const,
+      dining: ["==", ["get", "filter_dining"], true] as const,
+    };
 
-    const checks: any[] = [];
-    if (normalizedBuildingTypes.includes("academic")) {
-      checks.push(["==", ["get", "filter_academic"], true]);
-    }
-    if (normalizedBuildingTypes.includes("residential")) {
-      checks.push(["==", ["get", "filter_residential"], true]);
-    }
-    if (normalizedBuildingTypes.includes("dining")) {
-      checks.push(["==", ["get", "filter_dining"], true]);
-    }
+    const selectedTypes =
+      normalizedBuildingTypes.length === 0
+        ? Object.keys(allChecks)
+        : normalizedBuildingTypes.filter(
+            (type): type is keyof typeof allChecks => type in allChecks,
+          );
+
+    const checks = selectedTypes.map((type) => allChecks[type]);
 
     if (checks.length === 0) {
       // Unknown filter values should match nothing.
@@ -191,6 +190,22 @@ export function BuildingLayer({
 
     return ["any", ...checks] as const;
   }, [normalizedBuildingTypes]);
+
+  const buildingFillOpacity = useMemo(() => {
+    if (!buildingFilter) {
+      return 0.3;
+    }
+    
+    return ["case", buildingFilter, 0.3, 0.08] as const;
+  }, [buildingFilter]);
+
+  const buildingOutlineOpacity = useMemo(() => {
+    if (!buildingFilter) {
+      return 1;
+    }
+
+    return ["case", buildingFilter, 1, 0.35] as const;
+  }, [buildingFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -302,18 +317,17 @@ export function BuildingLayer({
     >
       <FillLayer
         id="buildings-fill"
-        filter={buildingFilter}
         style={{
-          fillColor: dark ? "#4ADE80" : "green",
-          fillOpacity: dark ? 0.4 : 0.25,
+          fillColor: "green",
+          fillOpacity: buildingFillOpacity,
         }}
       />
       <LineLayer
         id="buildings-outline"
-        filter={buildingFilter}
         style={{
           lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
+          lineOpacity: buildingOutlineOpacity,
         }}
       />
     </ShapeSource>
