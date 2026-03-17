@@ -43,16 +43,16 @@ interface SearchSection {
 
 type SearchRow =
   | {
-      id: string;
-      type: "header";
-      section: SearchSection;
-    }
+    id: string;
+    type: "header";
+    section: SearchSection;
+  }
   | {
-      id: string;
-      type: "item";
-      sectionKind: SectionKind;
-      item: SavedPlace;
-    };
+    id: string;
+    type: "item";
+    sectionKind: SectionKind;
+    item: SavedPlace;
+  };
 
 export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate }: Props) {
   const sheetRef = useRef<BottomSheet>(null);
@@ -113,6 +113,25 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [],
   );
 
+  const normalizeSearchText = (value: string) => value.trim().toLowerCase();
+
+  // splits buildingName (38) into buildingName and 38
+  const parseBuildingName = (rawName: string, rawRef?: string) => {
+    const normalizedName = rawName.replace(/\s+/g, " ").trim();
+    const trailingRefMatch = normalizedName.match(/\(([^()]+)\)\s*$/);
+
+    const parsedRef = trailingRefMatch?.[1]?.trim();
+    const displayName =
+      trailingRefMatch && trailingRefMatch.index !== undefined
+        ? normalizedName.slice(0, trailingRefMatch.index).trim()
+        : normalizedName;
+
+    return {
+      displayName: displayName || normalizedName,
+      buildingRef: rawRef?.trim() || parsedRef || undefined,
+    };
+  };
+
   const handleSearch = useCallback(
     (input: string) => {
       setMainSearchInput(input);
@@ -131,22 +150,43 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const data = geoData.features;
 
+  // Filter safely with plain string matching (no user-input RegExp).
   const filteredData = useMemo(() => {
+    const query = normalizeSearchText(searchQuery);
+
     const filtered = data.filter((item) => {
-      const name = item.properties?.name;
-      if (!name) return false;
-      const q = searchQuery.toLowerCase();
-      if (name.toLowerCase().match(q)) return true;
-      const ref = item.properties?.ref as string | undefined;
-      if (ref && ref === searchQuery.trim()) return true;
-      return false;
+      const rawName = String(item.properties?.name ?? "");
+      if (!rawName) return false;
+
+      const rawRef =
+        typeof item.properties?.ref === "string"
+          ? item.properties.ref
+          : undefined;
+
+      const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
+
+      if (query.length === 0) return true;
+
+      const normalizedDisplayName = normalizeSearchText(displayName);
+      const normalizedRawName = normalizeSearchText(rawName);
+      const normalizedRef = normalizeSearchText(buildingRef ?? "");
+
+      return (
+        normalizedDisplayName.includes(query) ||
+        normalizedRawName.includes(query) ||
+        (normalizedRef.length > 0 &&
+          (normalizedRef.includes(query) ||
+            `building ${normalizedRef}`.includes(query)))
+      );
     });
+
     return filtered.sort((a, b) => {
-      const nameA = a.properties?.name ?? "";
-      const nameB = b.properties?.name ?? "";
+      const nameA = String(a.properties?.name ?? "");
+      const nameB = String(b.properties?.name ?? "");
       return nameA.localeCompare(nameB);
     });
   }, [data, searchQuery]);
+
 
   const buildPlaceId = useCallback((name: string, coord: number[]) => {
     const [lng, lat] = coord;
@@ -187,17 +227,25 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const placeFromFeature = useCallback(
     (feature: any): SavedPlace | null => {
       const ring = getRingCoordinates(feature.geometry as Geometry);
-      if (!ring || ring.length === 0) return null;
+      if (!ring || ring.length === 0) {
+        return null;
+      }
+
       const coord = middle(ring) as [number, number];
-      const rawName = feature.properties?.name ?? "Unknown";
-      const name = stripBuildingNumber(rawName);
-      const ref = (feature.properties?.ref as string | undefined) ?? extractBuildingRef(rawName);
+      const rawName = String(feature.properties?.name ?? "Unknown");
+      const rawRef =
+        typeof feature.properties?.ref === "string"
+          ? feature.properties.ref
+          : undefined;
+
+      const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
+
       return {
-        id: buildPlaceId(name, coord),
-        name,
+        id: buildPlaceId(displayName, coord),
+        name: displayName,
         coordinate: coord,
         updatedAt: 0,
-        ref,
+        ref: buildingRef,
       };
     },
     [buildPlaceId, extractBuildingRef, getRingCoordinates, middle, stripBuildingNumber],
@@ -229,15 +277,24 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       setSearchQuery(place.name);
       setMainSearchInput(place.name);
 
-      if (!isMyLocation) {
-        const matchingFeature = data.find((f) => {
-          const rawName = f.properties?.name;
-          if (!rawName) return false;
-          if (place.ref && f.properties?.ref === place.ref) return true;
-          return stripBuildingNumber(rawName) === place.name;
-        });
-        if (matchingFeature) {
-          selectBuilding(matchingFeature as Feature<Geometry, GeoJsonProperties>);
+        // Find the matching GeoJSON feature and select it to show a marker
+        if (!isMyLocation) {
+          const matchingFeature = data.find((f) => {
+            const rawName = String(f.properties?.name ?? "");
+            const rawRef =
+              typeof f.properties?.ref === "string" ? f.properties.ref : undefined;
+            const { displayName, buildingRef } = parseBuildingName(rawName, rawRef);
+
+            if (displayName !== place.name) return false;
+            if (place.ref && buildingRef) return place.ref === buildingRef;
+            return true;
+          });
+
+          if (matchingFeature) {
+            selectBuilding(
+              matchingFeature as Feature<Geometry, GeoJsonProperties>,
+            );
+          }
         }
       }
 
@@ -589,6 +646,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           removeClippedSubviews={false}
           style={styles.resultsList}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
+          ListHeaderComponent={
+            <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+          }
+          stickyHeaderIndices={[0]}
         />
       </BottomSheet>
     </View>
