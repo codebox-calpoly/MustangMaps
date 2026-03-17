@@ -35,9 +35,9 @@
           "fetch",
           "remote-notification"
         ],
-        "NSLocationAlwaysUsageDescription": "App requires geolocation to improve the quality of the service",
-        "NSLocationWhenInUseUsageDescription": "This app requires access to your location when open.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow MustangMaps to use your location even when you're not using the app."
+        "NSLocationAlwaysUsageDescription": "MustangMaps uses your location to show your position on the campus map and provide turn-by-turn walking directions, even when the app is in the background.",
+        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location to show where you are on the Cal Poly campus map and guide you to buildings, amenities, and destinations.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "MustangMaps uses your location to show your position on the campus map and continue navigating to your destination when you switch to another app."
       }
     },
     "android": {
