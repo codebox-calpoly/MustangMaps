@@ -2060,6 +2060,21 @@
           "type": "Point",
           "coordinates": [-120.662059, 35.303106]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "Agricultural Sciences Bathrooms",
+          "building": "Agricultural Sciences",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662895, 35.302838]
+        }
       }
     ]
   }
