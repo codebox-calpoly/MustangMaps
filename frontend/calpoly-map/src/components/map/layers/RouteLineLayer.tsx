@@ -55,7 +55,7 @@ export function RouteLineLayer() {
   } = useMapContext();
 
   const lineCollection = useMemo<FeatureCollection<LineString> | null>(() => {
-    if (!activePath || activePath.path.length < 2) {
+    if (!activePath || !activePath.path || activePath.path.length < 2) {
       return null;
     }
 

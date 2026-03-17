@@ -69,6 +69,10 @@ export function MapContainer({
     end: [number, number];
   } | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const mapReadyRef = useRef(false);
+  useEffect(() => {
+    mapReadyRef.current = mapReady;
+  }, [mapReady]);
   const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
@@ -318,7 +322,7 @@ export function MapContainer({
           setTimeout(() => {
             const retryMap = mapRef.current;
             const retryCamera = cameraRef.current;
-            if (!mapReady || !retryMap || !retryCamera) {
+            if (!mapReadyRef.current || !retryMap || !retryCamera) {
               return;
             }
             retryCamera.flyTo(safeLoc, 250);
@@ -368,7 +372,7 @@ export function MapContainer({
         setTimeout(() => {
           const retryMap = mapRef.current;
           const retryCamera = cameraRef.current;
-          if (!mapReady || !retryMap || !retryCamera) {
+          if (!mapReadyRef.current || !retryMap || !retryCamera) {
             return;
           }
           retryCamera.fitBounds(ne, sw, padding, 250);

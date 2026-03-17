@@ -27,7 +27,7 @@ const DISPLAYED_AMENITY_CATEGORIES = [
 ] as const;
 
 // Main component to render the amenities layer on the map
-export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
+export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes: string[]; visible?: boolean }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
   const { setMapDataStatus, mapDataRetryToken, selectAmenity, selectedBuilding, mapMode } = useMapContext();
 
@@ -107,6 +107,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     ] as any;
   }, []);
 
+  // When not visible, use a filter that matches nothing so native layers stay mounted
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
   // Expand "bathroom" to also match "toilet" (GeoJSON uses "toilet" as the category)
