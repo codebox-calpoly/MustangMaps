@@ -2045,6 +2045,21 @@
           "type": "Point",
           "coordinates": [-120.658397, 35.301660]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_067",
+          "category": "toilet",
+          "name": "Bioresource and Agricultural Engineering Bathroom",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662059, 35.303106]
+        }
       }
     ]
   }
