@@ -2000,6 +2000,21 @@
           "type": "Point",
           "coordinates": [-120.664195, 35.300855]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_066",
+          "category": "toilet",
+          "name": "Administration Bathroom",
+          "building": "Administration",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658397, 35.301660]
+        }
       }
     ]
   }
