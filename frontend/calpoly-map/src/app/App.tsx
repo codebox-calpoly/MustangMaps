@@ -68,7 +68,6 @@ function MapScreen({
   amenityOptions: AmenityFilterOption[];
 }) {
   const {
-    mapMode,
     buildingTypeIds,
     amenityTypeIds,
     routeStart,
@@ -146,7 +145,7 @@ function MapScreen({
     >
       <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
       <ClassZonesLayer key="class-zones" />
-      {mapMode === "buildings" && <FavoritesLayer key="favorites" />}
+      <FavoritesLayer key="favorites" />
       <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} />
       <RouteLineLayer key="route-line" />
     </MapContainer>
