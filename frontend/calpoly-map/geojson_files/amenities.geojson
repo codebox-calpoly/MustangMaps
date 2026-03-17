@@ -2015,6 +2015,36 @@
           "type": "Point",
           "coordinates": [-120.6647, 35.3000129]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_066",
+          "category": "toilet",
+          "name": "Architecture and Environmental Design Bathroom",
+          "building": "Architecture and Environmental Design",
+          "level": [1, 2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664195, 35.300855]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "Administration Bathroom",
+          "building": "Administration",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658397, 35.301660]
+        }
       }
     ]
   }
