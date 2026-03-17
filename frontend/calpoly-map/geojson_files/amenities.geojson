@@ -2075,6 +2075,36 @@
           "type": "Point",
           "coordinates": [-120.662895, 35.302838]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "VGs Floor 1 Bathroom",
+          "building": "112 Vista Grande Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655930, 35.299161]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "VGs Floor 2 Bathroom",
+          "building": "112 Vista Grande Dining Complex",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655610, 35.299352]
+        }
       }
     ]
   }
