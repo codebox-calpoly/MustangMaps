@@ -13,8 +13,8 @@
         }
       ]
     ],
-    "name": "MustangMaps Dev",
-    "slug": "mustangmaps-dev-sbalaji524",
+    "name": "MustangMaps",
+    "slug": "mustangmaps",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,7 +27,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sbalaji524.mustangmaps.dev.v2",
+      "bundleIdentifier": "com.mustangmaps.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
