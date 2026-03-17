@@ -11,7 +11,6 @@ import {
 import {
   ActivityIndicator,
   Dimensions,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,7 +18,6 @@ import {
   View,
 } from "react-native";
 import { SearchPanel } from "../features/search/SearchPanel";
-import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -41,6 +39,10 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { useSavedPlaces } from "../../context/SavedPlacesContext";
+import {
+  featureCenter as featureCenterUtil,
+  buildSelectedBuildingMarker,
+} from "../../lib/map/markerPlacement";
 
 // Disable telemetry
 setAccessToken(null);
@@ -89,12 +91,11 @@ export function MapContainer({
     setRouteStart,
     setRouteStartIsCurrentLocation,
     setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
-    navigationMode,
-    hasArrived,
-    dismissArrival,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -143,45 +144,12 @@ export function MapContainer({
     retryMapData();
   }, [retryMapData]);
 
-  const featureCenter = useCallback(
-    (feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
-      const geom = feature.geometry;
-      if (geom.type === "Point") {
-        return geom.coordinates as [number, number];
-      }
-      let ring: number[][] | null = null;
-      if (geom.type === "Polygon") {
-        ring = geom.coordinates[0] ?? null;
-      } else if (geom.type === "MultiPolygon") {
-        ring = geom.coordinates[0]?.[0] ?? null;
-      }
-      if (!ring || ring.length === 0) return null;
-      let sumLng = 0;
-      let sumLat = 0;
-      for (const pt of ring) {
-        sumLng += pt[0];
-        sumLat += pt[1];
-      }
-      return [sumLng / ring.length, sumLat / ring.length];
-    },
-    [],
-  );
+  const featureCenter = featureCenterUtil;
 
-  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
-    if (!selectedBuilding) return null;
-    const center = featureCenter(selectedBuilding);
-    if (!center) return null;
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: { type: "Point", coordinates: center },
-          properties: {},
-        },
-      ],
-    };
-  }, [featureCenter, selectedBuilding]);
+  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(
+    () => buildSelectedBuildingMarker(selectedBuilding),
+    [selectedBuilding],
+  );
 
   // Hide the selected-building marker when that building already exists in favorites.
   const selectedBuildingIsFavorite = useMemo(() => {
@@ -271,7 +239,7 @@ export function MapContainer({
     setFollowUser(true);
 
     // If zoomed out, zoom in to street level while centering
-    const MIN_RECENTER_ZOOM = 15;
+    const MIN_RECENTER_ZOOM = 17;
     try {
       const currentZoom = await map.getZoom();
       if (currentZoom < MIN_RECENTER_ZOOM) {
@@ -444,14 +412,25 @@ export function MapContainer({
     }
   }, [fitRouteBounds, mapReady]);
 
+  const featureJustSelectedRef = useRef(false);
+
   const handleBuildingPress = useCallback(
     (feature: any) => {
       // Handle building press from BuildingLayer
       const properties = feature.properties;
       if (properties && (properties.building || properties.amenity)) {
+        featureJustSelectedRef.current = true;
+        setTimeout(() => { featureJustSelectedRef.current = false; }, 200);
         const building = feature as Feature<Geometry, GeoJsonProperties>;
         selectBuilding(building);
-        const center = featureCenter(building);
+        // Prefer tap coordinates for camera centering so the view stays
+        // anchored to where the user actually tapped.
+        const tapLng = building.properties?._tapLng as number | undefined;
+        const tapLat = building.properties?._tapLat as number | undefined;
+        const center =
+          tapLng != null && tapLat != null
+            ? [tapLng, tapLat]
+            : featureCenter(building);
         if (center) {
           handleCameraMove(center);
         }
@@ -469,14 +448,20 @@ export function MapContainer({
         setRouteStart(null);
         setRouteStartIsCurrentLocation(false);
       }
+      const center = featureCenter(feature);
+      if (center) {
+        setRouteEnd(center);
+        setRouteRequested(true);
+      }
       setRoutingActive(true);
       setRouteDestination(feature);
-      setMapMode("routing");
     },
     [
+      featureCenter,
       isValidCoordinate,
-      setMapMode,
       setRouteDestination,
+      setRouteEnd,
+      setRouteRequested,
       setRouteStart,
       setRouteStartIsCurrentLocation,
       setRoutingActive,
@@ -489,17 +474,20 @@ export function MapContainer({
       const map = mapRef.current;
       if (!map) return;
 
+      // ShapeSource.onPress fires before MapView.onPress for the same tap.
+      // Skip clearing when a building/amenity was just selected.
+      if (featureJustSelectedRef.current) return;
+
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
       }
-      clearAmenitySelection();
 
       if (onMapPress) {
         onMapPress(feature);
       }
     },
-    [clearSelection, clearAmenitySelection, onMapPress],
+    [clearSelection, onMapPress],
   );
 
   return (
@@ -551,18 +539,16 @@ export function MapContainer({
         )}
       </MapView>
 
-      {!navigationMode && (
-        <MapFilters
-          mapMode={mapMode}
-          onMapModeChange={setMapMode}
-          buildingTypeIds={buildingTypeIds}
-          onBuildingTypesChange={setBuildingTypeIds}
-          amenityTypeIds={amenityTypeIds}
-          onAmenityTypesChange={setAmenityTypeIds}
-          buildingOptions={buildingOptions}
-          amenityOptions={amenityOptions}
-        />
-      )}
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingTypeIds={buildingTypeIds}
+        onBuildingTypesChange={setBuildingTypeIds}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -591,16 +577,12 @@ export function MapContainer({
         </View>
       )}
 
-      {navigationMode ? (
-        <NavigationUI />
-      ) : (
-        <SearchPanel
-          cameraMove={handleCameraMove}
-          cameraFitRoute={handleCameraFitRoute}
-          bottomSheetPosition={searchPanelHeight}
-          onNavigate={handleNavigate}
-        />
-      )}
+      <SearchPanel
+        cameraMove={handleCameraMove}
+        cameraFitRoute={handleCameraFitRoute}
+        bottomSheetPosition={searchPanelHeight}
+        onNavigate={handleNavigate}
+      />
 
       <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
         <UserLocationButton />
@@ -614,31 +596,6 @@ export function MapContainer({
         onNavigate={handleNavigate}
       />
 
-      <Modal
-        visible={hasArrived}
-        transparent
-        animationType="fade"
-        onRequestClose={dismissArrival}
-      >
-        <View style={styles.arrivalOverlay}>
-          <View style={styles.arrivalCard}>
-            <Text style={styles.arrivalTitle}>You have arrived!</Text>
-            <Text style={styles.arrivalSubtitle}>
-              You have reached your destination.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={dismissArrival}
-              style={({ pressed }) => [
-                styles.arrivalButton,
-                pressed && styles.arrivalButtonPressed,
-              ]}
-            >
-              <Text style={styles.arrivalButtonText}>Done</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

@@ -22,7 +22,7 @@ export function FavoritesLayer({
   const favoritePoints = useMemo<FeatureCollection<
     Point,
     GeoJsonProperties
-  > | null>(() => {
+  >>(() => {
     const features = favorites
       .filter((place) => place.id !== "my-location")
       .map((place) => ({
@@ -38,10 +38,6 @@ export function FavoritesLayer({
           coordinates: place.coordinate,
         },
       }));
-
-    if (features.length === 0) {
-      return null;
-    }
 
     return {
       type: "FeatureCollection",
@@ -70,10 +66,6 @@ export function FavoritesLayer({
     },
     [onBuildingPress],
   );
-
-  if (!favoritePoints) {
-    return null;
-  }
 
   return (
     <>
