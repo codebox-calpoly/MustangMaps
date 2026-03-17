@@ -1985,6 +1985,36 @@
           "type": "Point",
           "coordinates": [-120.664919, 35.300012]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_040",
+          "category": "water_fountain",
+          "name": "Orfalea College Of Business Water Fountain",
+          "building": "Orfalea College Of Business Building",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664758, 35.299805]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_065",
+          "category": "toilet",
+          "name": "OCobb Floor 1 Bathroom",
+          "building": "Orfalea College Of Business Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.6647, 35.3000129]
+        }
       }
     ]
   }
