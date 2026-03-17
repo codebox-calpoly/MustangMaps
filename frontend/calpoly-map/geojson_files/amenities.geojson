@@ -1166,14 +1166,14 @@
         "properties": {
           "id": "toilet_042",
           "category": "toilet",
-          "name": "Aero Hangar Bathroom",
-          "building": "Aero Hanger",
+          "name": "Research Development Center Bathroom",
+          "building": "Research Development Center",
           "level": 1,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.665118, 35.304758]
+          "coordinates": [-120.664905, 35.305439]
         }
       },
       {
@@ -1181,14 +1181,14 @@
         "properties": {
           "id": "water_fountain_025",
           "category": "water_fountain",
-          "name": "Aero Hangar Water Fountain",
-          "building": "Aero Hanger",
+          "name": "Research Development Center Water Fountain",
+          "building": "Research Development Center",
           "level": 1,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.665051, 35.305624]
+          "coordinates": [-120.664851, 35.305687]
         }
       },
       {
