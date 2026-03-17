@@ -120,7 +120,8 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
 
   const normalizedBuildingTypes = useMemo(
     () => buildingTypes.map((value) => normalizeValue(value)),
@@ -244,12 +245,58 @@ export function BuildingLayer({
     <ShapeSource
       id="buildings-source"
       shape={categorizedBuildingData}
+      hitbox={{ width: 20, height: 20 }}
       onPress={(event) => {
-        if (event.features && event.features.length > 0) {
-          const feature = event.features[0];
-          console.log('Building tapped:', feature.properties?.name);
-          onBuildingPress?.(feature);
+        if (!event.features || event.features.length === 0) return true;
+
+        const tap = event.coordinates;
+        let best = event.features[0];
+
+        if (tap && event.features.length > 1) {
+          const px = tap.longitude;
+          const py = tap.latitude;
+
+          // Ray-casting point-in-polygon test
+          const pointInRing = (ring: number[][]) => {
+            let inside = false;
+            for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+              const xi = ring[i][0], yi = ring[i][1];
+              const xj = ring[j][0], yj = ring[j][1];
+              if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+                inside = !inside;
+              }
+            }
+            return inside;
+          };
+
+          const getRings = (f: any): number[][][] => {
+            const geom = f.geometry;
+            if (!geom?.coordinates) return [];
+            if (geom.type === "Polygon") return geom.coordinates;
+            if (geom.type === "MultiPolygon") return geom.coordinates.flat();
+            return [];
+          };
+
+          // First pass: find the feature whose polygon contains the tap point
+          for (const f of event.features) {
+            const rings = getRings(f);
+            if (rings.length > 0 && pointInRing(rings[0])) {
+              best = f;
+              break;
+            }
+          }
         }
+
+        // Attach the actual tap coordinates so the marker can be placed
+        // exactly where the user tapped instead of at the polygon centroid.
+        const withTap = {
+          ...best,
+          properties: {
+            ...(best.properties ?? {}),
+            ...(tap ? { _tapLng: tap.longitude, _tapLat: tap.latitude } : {}),
+          },
+        };
+        onBuildingPress?.(withTap);
         return true;
       }}
     >
@@ -257,15 +304,15 @@ export function BuildingLayer({
         id="buildings-fill"
         filter={buildingFilter}
         style={{
-          fillColor: "green",
-          fillOpacity: 0.25,
+          fillColor: dark ? "#4ADE80" : "green",
+          fillOpacity: dark ? 0.4 : 0.25,
         }}
       />
       <LineLayer
         id="buildings-outline"
         filter={buildingFilter}
         style={{
-          lineColor: "#111827",
+          lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
         }}
       />
