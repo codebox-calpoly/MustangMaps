@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
@@ -40,6 +40,20 @@ export function MapFilters({
   const { clearSelection, mapStyle, setMapStyle } = useMapContext();
   const dark = mapStyle === "dark";
 
+  // Guard against rapid-fire tab switches that can crash the native map layers.
+  const lastSwitchRef = useRef(0);
+  const handleModeChange = useCallback(
+    (mode: MapMode) => {
+      if (mode === mapMode) return;
+      const now = Date.now();
+      if (now - lastSwitchRef.current < 300) return;
+      lastSwitchRef.current = now;
+      onMapModeChange(mode);
+      clearSelection();
+    },
+    [clearSelection, mapMode, onMapModeChange],
+  );
+
   const activeOptions = mapMode === "buildings" ? buildingOptions : amenityOptions;
   const activeSet = mapMode === "buildings" ? buildingSet : amenitySet;
   const activeTypeIds = mapMode === "buildings" ? buildingTypeIds : amenityTypeIds;
@@ -54,7 +68,7 @@ export function MapFilters({
             {(["buildings", "amenities"] as MapMode[]).map((mode) => (
               <Pressable
                 key={mode}
-                onPress={() => { onMapModeChange(mode); clearSelection(); }}
+                onPress={() => handleModeChange(mode)}
                 style={[
                   styles.segment,
                   mapMode === mode && (dark ? styles.segmentActiveDark : styles.segmentActive),

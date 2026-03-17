@@ -26,6 +26,10 @@ const DISPLAYED_AMENITY_CATEGORIES = [
   "lift",
 ] as const;
 
+// Stable empty collection — avoids creating a new object reference on every
+// render, which would cause the native ShapeSource to re-process unnecessarily.
+const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
+
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes: string[]; visible?: boolean }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
@@ -152,8 +156,6 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
     },
     [selectAmenity],
   );
-
-  const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
 
   const activeShape = !amenityData || mapMode !== "amenities"
     ? EMPTY_FC
