@@ -40,6 +40,8 @@ interface MapContextValue {
   routeRequested: boolean;
   routeStartIsCurrentLocation: boolean;
   routeAccessibleOnly: boolean;
+  trackingMode: boolean;
+  navigationMode: boolean;
   selectBuilding: (building: SelectedBuilding) => void;
   clearSelection: () => void;
   selectAmenity: (amenity: Feature<Geometry, GeoJsonProperties>, levels: number[]) => void;
@@ -101,6 +103,10 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [routeStartIsCurrentLocation, setRouteStartIsCurrentLocation] =
     useState(false);
   const [routeAccessibleOnly, setRouteAccessibleOnly] = useState(false);
+
+  // Tracking mode: active when a route has been computed and routing is on
+  const trackingMode = routingActive && activePath !== null;
+  const navigationMode = trackingMode;
 
   // Keep routeStart in sync with live location when starting from current position.
   // Only use locations with reasonable accuracy (≤20m) so the route doesn't start
@@ -197,6 +203,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeRequested,
       routeStartIsCurrentLocation,
       routeAccessibleOnly,
+      trackingMode,
+      navigationMode,
       selectBuilding,
       clearSelection,
       selectAmenity,
@@ -246,6 +254,8 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       routeRequested,
       routeStartIsCurrentLocation,
       routeAccessibleOnly,
+      trackingMode,
+      navigationMode,
       selectBuilding,
       clearSelection,
       selectAmenity,
