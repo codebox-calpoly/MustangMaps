@@ -140,7 +140,7 @@ export function MapContainer({
     (async () => {
       try {
         const asset = Asset.fromModule(
-          require("../../../geojson_files/class_zones/class_zones2.geojson")
+          require("../../../geojson_files/class_zones/class_zones.geojson")
         );
 
         await asset.downloadAsync();
@@ -150,7 +150,7 @@ export function MapContainer({
         const parsed = JSON.parse(text);
 
         if (!parsed || parsed.type !== "FeatureCollection") {
-          throw new Error("class_zones2.geojson is not a valid FeatureCollection");
+          throw new Error("class_zones.geojson is not a valid FeatureCollection");
         }
 
         if (!cancelled) {
