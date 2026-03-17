@@ -1959,7 +1959,7 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_062",
+          "id": "toilet_063",
           "category": "toilet",
           "name": "Cotchett Floor 2, 3 Bathroom",
           "building": "Cotchett Education Building",
@@ -1969,6 +1969,21 @@
         "geometry": {
           "type": "Point",
           "coordinates": [-120.664287, 35.299983]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_064",
+          "category": "toilet",
+          "name": "OCobb Floor 1, 2, 3, 4 Bathrooms",
+          "building": "Orfalea College Of Business Building",
+          "level": [1, 2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664919, 35.300012]
         }
       }
     ]
