@@ -248,7 +248,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         ref: buildingRef,
       };
     },
-    [buildPlaceId, extractBuildingRef, getRingCoordinates, middle, stripBuildingNumber],
+    [buildPlaceId, getRingCoordinates, middle],
   );
 
   const myLocationPlace = useMemo<SavedPlace | null>(() => {
@@ -296,7 +296,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             );
           }
         }
-      }
 
       addToHistory(place);
       cameraMove(place.coordinate);
@@ -634,7 +633,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         backgroundStyle={dark ? { backgroundColor: "#1C1F26" } : undefined}
         handleIndicatorStyle={dark ? { backgroundColor: "#6B7280" } : undefined}
       >
-        <View style={[styles.fixedHeader, dark && { backgroundColor: "#1C1F26" }]}>{renderMainSheetHeader()}</View>
         <BottomSheetFlatList
           data={!routingActive && !selectedBuilding ? searchRows : []}
           keyExtractor={extractSearchRowKey}
@@ -647,7 +645,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           style={styles.resultsList}
           contentContainerStyle={[styles.resultsListContent, searchRows.length === 0 && { paddingBottom: 0 }]}
           ListHeaderComponent={
-            <View style={styles.fixedHeader}>{renderMainSheetHeader()}</View>
+            <View style={[styles.fixedHeader, dark && { backgroundColor: "#1C1F26" }]}>{renderMainSheetHeader()}</View>
           }
           stickyHeaderIndices={[0]}
         />
