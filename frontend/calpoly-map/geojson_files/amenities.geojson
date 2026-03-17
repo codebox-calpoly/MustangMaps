@@ -1985,6 +1985,21 @@
           "type": "Point",
           "coordinates": [-120.664919, 35.300012]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_065",
+          "category": "toilet",
+          "name": "Architecture and Environmental Design Bathroom",
+          "building": "Architecture and Environmental Design",
+          "level": [1, 2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664195, 35.300855]
+        }
       }
     ]
   }
