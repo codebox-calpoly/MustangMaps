@@ -10,6 +10,7 @@ import {
 } from "@maplibre/maplibre-react-native";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Platform,
   Pressable,
@@ -443,9 +444,29 @@ export function MapContainer({
     [featureCenter, handleCameraMove, selectBuilding],
   );
 
+  const CAL_POLY_BOUNDS = {
+    minLng: -120.670,
+    maxLng: -120.650,
+    minLat: 35.295,
+    maxLat: 35.315,
+  };
+
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
       if (userLocation && isValidCoordinate(userLocation)) {
+        const [lng, lat] = userLocation;
+        const inBounds =
+          lng >= CAL_POLY_BOUNDS.minLng &&
+          lng <= CAL_POLY_BOUNDS.maxLng &&
+          lat >= CAL_POLY_BOUNDS.minLat &&
+          lat <= CAL_POLY_BOUNDS.maxLat;
+        if (!inBounds) {
+          Alert.alert(
+            "Outside Campus",
+            "Please do not route outside of Cal Poly.",
+          );
+          return;
+        }
         setRouteStart(userLocation);
         setRouteStartIsCurrentLocation(true);
       } else {
