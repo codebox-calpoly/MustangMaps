@@ -178,6 +178,7 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
+          aboveLayerID="buildings-outline"
           filter={filter as any}
           style={{
             iconImage: iconImageExpression,
