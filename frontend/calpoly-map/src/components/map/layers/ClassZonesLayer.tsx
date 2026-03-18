@@ -8,22 +8,30 @@ import {
 
 interface ClassZonesLayerProps {
   zoneData: FeatureCollection | null;
-  selectedZoneLabel?: string | null;
+  selectedZoneId?: string | null;
+  selectedZoneBuildingId?: string | null;
 }
 
 export function ClassZonesLayer({
   zoneData,
-  selectedZoneLabel = null,
+  selectedZoneId = null,
+  selectedZoneBuildingId = null,
 }: ClassZonesLayerProps) {
-  if (!zoneData || !selectedZoneLabel) {
+  if (!zoneData || !selectedZoneId || !selectedZoneBuildingId) {
     return null;
   }
+
+  const zoneFilter = [
+    "all",
+    ["==", ["get", "zone_id"], selectedZoneId],
+    ["==", ["get", "building_id"], selectedZoneBuildingId],
+  ] as const;
 
   return (
     <ShapeSource id="class-zones-source" shape={zoneData}>
       <FillLayer
         id="class-zones-fill"
-        filter={["==", ["get", "label"], selectedZoneLabel]}
+        filter={zoneFilter}
         style={{
           fillColor: "#FCD34D",
           fillOpacity: 0.45,
@@ -31,7 +39,7 @@ export function ClassZonesLayer({
       />
       <LineLayer
         id="class-zones-line"
-        filter={["==", ["get", "label"], selectedZoneLabel]}
+        filter={zoneFilter}
         style={{
           lineColor: "#F59E0B",
           lineWidth: 3,

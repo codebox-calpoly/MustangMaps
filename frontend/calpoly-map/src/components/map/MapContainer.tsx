@@ -43,7 +43,6 @@ import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
-
 import { ClassroomFinderPanel } from "./ClassroomFinderPanel";
 
 import Animated, {
@@ -124,7 +123,8 @@ export function MapContainer({
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
     useState<Feature<Geometry, GeoJsonProperties> | null>(null);
   const [classZones, setClassZones] = useState<FeatureCollection | null>(null);
-  const [selectedClassZoneLabel, setSelectedClassZoneLabel] = useState<string | null>(null);
+  const [selectedClassZoneId, setSelectedClassZoneId] = useState<string | null>(null);
+  const [selectedClassZoneBuildingId, setSelectedClassZoneBuildingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -263,6 +263,23 @@ export function MapContainer({
         ne: [maxLng, maxLat],
         sw: [minLng, minLat],
       };
+    },
+    [],
+  );
+
+  const getBuildingFeatureId = useCallback(
+    (feature: Feature<Geometry, GeoJsonProperties> | null): string | null => {
+      if (!feature) return null;
+
+      const rootId =
+        typeof (feature as any).id === "string" ? (feature as any).id : null;
+
+      const propId =
+        typeof feature.properties?.["@id"] === "string"
+          ? String(feature.properties?.["@id"])
+          : null;
+
+      return rootId ?? propId ?? null;
     },
     [],
   );
@@ -594,7 +611,8 @@ export function MapContainer({
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
-        setSelectedClassZoneLabel(null);
+        setSelectedClassZoneId(null);
+        setSelectedClassZoneBuildingId(null);
       }
 
       clearAmenitySelection();
@@ -612,11 +630,25 @@ export function MapContainer({
 
   const findZoneByClassroom = useCallback(
     (room: string): Feature<Geometry, GeoJsonProperties> | null => {
-      if (!classZones) return null;
+      if (!classZones || !classroomFinderBuilding) return null;
 
       const normalizedTarget = normalizeRoom(room);
+      const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
+
+      if (!selectedBuildingId) {
+        return null;
+      }
 
       for (const feature of classZones.features) {
+        const zoneBuildingId =
+          typeof feature.properties?.building_id === "string"
+            ? String(feature.properties.building_id)
+            : null;
+
+        if (zoneBuildingId !== selectedBuildingId) {
+          continue;
+        }
+
         const classrooms = feature.properties?.classrooms;
 
         if (
@@ -631,7 +663,7 @@ export function MapContainer({
 
       return null;
     },
-    [classZones, normalizeRoom],
+    [classZones, classroomFinderBuilding, getBuildingFeatureId, normalizeRoom],
   );
 
   const classroomsForSelectedBuilding = useMemo(() => {
@@ -639,22 +671,19 @@ export function MapContainer({
       return [];
     }
 
-    const selectedBuildingName = String(
-      classroomFinderBuilding.properties?.name ?? ""
-    )
-      .trim()
-      .toLowerCase();
+    const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
 
-    if (!selectedBuildingName) {
+    if (!selectedBuildingId) {
       return [];
     }
 
     const matchingFeatures = classZones.features.filter((feature) => {
-      const zoneBuildingName = String(feature.properties?.building_name ?? "")
-        .trim()
-        .toLowerCase();
+      const zoneBuildingId =
+        typeof feature.properties?.building_id === "string"
+          ? String(feature.properties.building_id)
+          : null;
 
-      return zoneBuildingName === selectedBuildingName;
+      return zoneBuildingId === selectedBuildingId;
     });
 
     const allClassrooms = matchingFeatures.flatMap((feature) => {
@@ -665,10 +694,12 @@ export function MapContainer({
     return Array.from(new Set(allClassrooms.map(String))).sort((a, b) =>
       a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" })
     );
-  }, [classZones, classroomFinderBuilding]);
+  }, [classZones, classroomFinderBuilding, getBuildingFeatureId]);
 
   const handleOpenClassroomFinder = useCallback(
     (building: Feature<Geometry, GeoJsonProperties>) => {
+      setSelectedClassZoneId(null);
+      setSelectedClassZoneBuildingId(null);
       setClassroomFinderBuilding(building);
       setClassroomFinderVisible(true);
       clearSelection();
@@ -678,7 +709,8 @@ export function MapContainer({
 
   const handleCloseClassroomFinder = useCallback(() => {
     setClassroomFinderVisible(false);
-    setSelectedClassZoneLabel(null);
+    setSelectedClassZoneId(null);
+    setSelectedClassZoneBuildingId(null);
     setClassroomFinderBuilding(null);
   }, []);
 
@@ -689,8 +721,18 @@ export function MapContainer({
         return;
       }
 
-      const label = zone.properties?.label;
-      setSelectedClassZoneLabel(typeof label === "string" ? label : null);
+      const zoneId =
+        typeof zone.properties?.zone_id === "string"
+          ? String(zone.properties.zone_id)
+          : null;
+
+      const buildingId =
+        typeof zone.properties?.building_id === "string"
+          ? String(zone.properties.building_id)
+          : null;
+
+      setSelectedClassZoneId(zoneId);
+      setSelectedClassZoneBuildingId(buildingId);
 
       const bounds = getFeatureBounds(zone);
       if (bounds) {
@@ -742,7 +784,8 @@ export function MapContainer({
             return React.cloneElement(child, {
               onBuildingPress: handleBuildingPress,
               zoneData: classZones,
-              selectedZoneLabel: selectedClassZoneLabel,
+              selectedZoneId: selectedClassZoneId,
+              selectedZoneBuildingId: selectedClassZoneBuildingId,
             } as any);
           }
           return child;

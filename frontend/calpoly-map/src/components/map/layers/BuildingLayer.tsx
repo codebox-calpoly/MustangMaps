@@ -198,7 +198,7 @@ export function BuildingLayer({
       try {
         setMapDataStatus("buildings", { loading: true, error: null });
         const asset = Asset.fromModule(
-          require("../../../../geojson_files/added-amenities-building.geojson"),
+          require("../../../../geojson_files/buildings.geojson"),
         );
 
         await asset.downloadAsync();
