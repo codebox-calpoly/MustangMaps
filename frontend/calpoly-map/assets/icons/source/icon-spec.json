@@ -23,32 +23,45 @@
     {
       "id": "water-fountain",
       "filename": "water-fountain.png",
-      "fillColor": "#0891B2",
+      "fillColor": "#a8ffe5",
       "glyph": "water"
     },
     {
-      "id": "bathroom",
-      "filename": "bathroom.png",
-      "fillColor": "#2563EB",
-      "glyph": "bathroom"
+      "id": "bathroom-men",
+      "filename": "bathroom-men.png",
+      "fillColor": "#99dbff",
+      "glyph": "bathroom-men"
+    },
+    {
+      "id": "bathroom-women",
+      "filename": "bathroom-women.png",
+      "fillColor": "#edb0ff",
+      "glyph": "bathroom-women"
+    },
+    {
+      "id": "bathroom-both",
+      "filename": "bathroom-both.png",
+      "leftFillColor": "#99dbff",
+      "rightFillColor": "#edb0ff",
+      "glyph": "bathroom-both"
     },
     {
       "id": "printer",
       "filename": "printer.png",
-      "fillColor": "#D97706",
+      "fillColor": "#ffd2a8",
       "glyph": "printer"
     },
     {
       "id": "elevator",
       "filename": "elevator.png",
-      "fillColor": "#7C3AED",
+      "fillColor": "#beffba",
       "glyph": "elevator"
     },
     {
       "id": "favorites",
       "filename": "favorites.png",
-      "fillColor": "#F99CBB",
-      "glyph":"favorites"
+      "fillColor": "#caa8ff",
+      "glyph": "favorites"
     }
   ]
 }
