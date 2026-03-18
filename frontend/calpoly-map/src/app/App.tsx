@@ -4,7 +4,6 @@ import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
-import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import { FavoritesLayer } from '../components/map/layers/FavoritesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
@@ -145,7 +144,7 @@ function MapScreen({
       amenityOptions={amenityOptions}
     >
       <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
-      <ClassZonesLayer key="class-zones" />
+      {/* <ClassZonesLayer key="class-zones" /> */}
       {mapMode === "buildings" && <FavoritesLayer key="favorites" />}
       <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} />
       <RouteLineLayer key="route-line" />
