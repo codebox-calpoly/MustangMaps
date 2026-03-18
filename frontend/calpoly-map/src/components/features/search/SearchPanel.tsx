@@ -16,7 +16,7 @@ import {
   useAnimatedReaction,
   type SharedValue,
 } from "react-native-reanimated";
-import { runOnJS } from "react-native-worklets";
+import { runOnJS } from "react-native-reanimated";
 
 import { useMapContext } from "../../../context/MapContext";
 import {
@@ -196,13 +196,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const middle = useCallback((coordinates: number[][]) => {
     if (coordinates.length === 0) return [0, 0];
     let result: number[] = [0.0, 0.0];
-    let count = 0;
     coordinates.forEach((position: number[]) => {
       result[0] += position[0];
       result[1] += position[1];
     });
-    result[0] /= count;
-    result[1] /= count;
+    result[0] /= coordinates.length;
+    result[1] /= coordinates.length;
     return result;
   }, []);
 
@@ -309,7 +308,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
       isValidCoordinate,
       selectBuilding,
       setSearchQuery,
-      stripBuildingNumber,
     ],
   );
 
@@ -569,77 +567,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     summaryVisible,
   ]);
 
-  const renderRoutingSearchHeader = useCallback(
-    () => (
-      <>
-        <View style={styles.routingSearchHeader}>
-          <Text style={styles.routingSearchPanelTitle}>
-            Search for{" "}
-            {activeField === "start" ? "starting point" : "destination"}
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Close search panel"
-            onPress={closeRoutingSearchSheet}
-            style={styles.routingSearchCloseButton}
-          >
-            <Text style={styles.routingSearchCloseButtonText}>X</Text>
-          </Pressable>
-        </View>
-
-        <BottomSheetTextInput
-          style={styles.input}
-          placeholder={
-            activeField === "start"
-              ? "Search starting point"
-              : "Search destination"
-          }
-          clearButtonMode="always"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={activeField === "start" ? startValue : endValue}
-          onChangeText={handleRoutingSearchChange}
-          autoFocus={routingSearchSheetOpen}
-          selectTextOnFocus={false}
-        />
-      </>
-    ),
-    [
-      activeField,
-      closeRoutingSearchSheet,
-      endValue,
-      handleRoutingSearchChange,
-      routingSearchSheetOpen,
-      startValue,
-    ],
-  );
-
-  // Auto-fill start as "My location" when routing becomes active
-  useEffect(() => {
-    if (
-      !routingActiveRef.current ||
-      !routingActive ||
-      hasAutoFilledStart ||
-      !userLocation ||
-      routeStart ||
-      startValue.length > 0
-    ) {
-      return;
-    }
-    setRouteStart(userLocation);
-    setStartValue("My location");
-    setRouteStartIsCurrentLocation(true);
-    setHasAutoFilledStart(true);
-  }, [
-    hasAutoFilledStart,
-    routingActive,
-    userLocation,
-    routeStart,
-    setHasAutoFilledStart,
-    setRouteStart,
-    startValue,
-    setRouteStartIsCurrentLocation,
-  ]);
 
   // Reset routing UI when routing is turned off
   useEffect(() => {
@@ -697,50 +624,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     sheetRef.current?.snapToIndex(2);
   }, [routingActive, selectedBuilding]);
 
-  useEffect(() => {
-    if (!routingActiveRef.current || !routingActive || !routeDestination) {
-      return;
-    }
-
-    const destination = placeFromFeature(routeDestination);
-    if (!destination || !isValidCoordinate(destination.coordinate)) {
-      setRouteDestination(null);
-      return;
-    }
-
-    setRouteEnd(destination.coordinate);
-    setEndValue(destination.name);
-    setRouteRequested(Boolean(routeStart && destination.coordinate));
-    setFocused(false);
-    setSearchQuery("");
-    setRouteDestination(null);
-  }, [
-    isValidCoordinate,
-    placeFromFeature,
-    routeDestination,
-    routeStart,
-    routingActive,
-    setRouteDestination,
-    setRouteEnd,
-    setRouteRequested,
-    setSearchQuery,
-  ]);
-
-  const selectedBuildingName = selectedBuilding?.properties?.name ?? "Unknown Building";
-  const selectedBuildingNumber =
-    String(
-      selectedBuilding?.properties?.ref ??
-      selectedBuilding?.properties?.["building:ref"] ??
-      selectedBuilding?.properties?.["addr:housenumber"] ??
-      "N/A",
-    );
-  const selectedBuildingSubtitle =
-    String(
-      selectedBuilding?.properties?.["university-function"] ??
-      selectedBuilding?.properties?.amenity ??
-      selectedBuilding?.properties?.building ??
-      "Campus building",
-    );
 
   return (
     <View style={{ flex: 1 }}>
