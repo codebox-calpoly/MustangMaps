@@ -167,19 +167,20 @@ export function BuildingLayer({
     } as FeatureCollection;
   }, [buildingData]);
 
+  // When "All" is selected (no specific types), show every building at full
+  // opacity. When a specific category is active, dim buildings outside it.
   const buildingFilter = useMemo(() => {
+    if (normalizedBuildingTypes.length === 0) return null;
+
     const allChecks = {
       academic: ["==", ["get", "filter_academic"], true] as const,
       residential: ["==", ["get", "filter_residential"], true] as const,
       dining: ["==", ["get", "filter_dining"], true] as const,
     };
 
-    const selectedTypes =
-      normalizedBuildingTypes.length === 0
-        ? Object.keys(allChecks)
-        : normalizedBuildingTypes.filter(
-            (type): type is keyof typeof allChecks => type in allChecks,
-          );
+    const selectedTypes = normalizedBuildingTypes.filter(
+      (type): type is keyof typeof allChecks => type in allChecks,
+    );
 
     const checks = selectedTypes.map((type) => allChecks[type]);
 
@@ -192,18 +193,12 @@ export function BuildingLayer({
   }, [normalizedBuildingTypes]);
 
   const buildingFillOpacity = useMemo(() => {
-    if (!buildingFilter) {
-      return 0.3;
-    }
-    
+    if (!buildingFilter) return 0.3;
     return ["case", buildingFilter, 0.3, 0.08] as const;
   }, [buildingFilter]);
 
   const buildingOutlineOpacity = useMemo(() => {
-    if (!buildingFilter) {
-      return 1;
-    }
-
+    if (!buildingFilter) return 1;
     return ["case", buildingFilter, 1, 0.35] as const;
   }, [buildingFilter]);
 

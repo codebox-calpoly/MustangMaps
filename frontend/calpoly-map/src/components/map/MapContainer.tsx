@@ -100,6 +100,7 @@ export function MapContainer({
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
+    trackingMode,
   } = useMapContext();
   const mapStyleUrl =
     mapStyle === "dark"
@@ -119,6 +120,14 @@ export function MapContainer({
     setUserLocation([longitude, latitude]);
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
+
+  // When tracking mode activates, force follow-user (but keep gestures enabled
+  // so the user can still pan/zoom to inspect the route).
+  useEffect(() => {
+    if (trackingMode) {
+      setFollowUser(true);
+    }
+  }, [trackingMode]);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -420,6 +429,10 @@ export function MapContainer({
 
   const handleBuildingPress = useCallback(
     (feature: any) => {
+      // Ignore building taps during tracking mode so the user can't
+      // accidentally select a building while following a route.
+      if (trackingMode) return;
+
       // Handle building press from BuildingLayer
       const properties = feature.properties;
       if (properties && (properties.building || properties.amenity)) {
@@ -440,7 +453,7 @@ export function MapContainer({
         }
       }
     },
-    [featureCenter, handleCameraMove, selectBuilding],
+    [featureCenter, handleCameraMove, selectBuilding, trackingMode],
   );
 
   const handleNavigate = useCallback(
