@@ -324,6 +324,7 @@ export function BuildingLayer({
         style={{
           fillColor: "#36a33a",
           fillOpacity: buildingFillOpacity,
+          fillOpacityTransition: { duration: 0, delay: 0 },
         }}
       />
       <LineLayer
@@ -332,6 +333,7 @@ export function BuildingLayer({
           lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
           lineOpacity: buildingOutlineOpacity,
+          lineOpacityTransition: { duration: 0, delay: 0 },
         }}
       />
     </ShapeSource>
