@@ -200,7 +200,7 @@ export function BuildingLayer({
       return 0.3;
     }
     
-    return ["case", buildingFilter, 0.3, 0.08] as const;
+    return ["case", buildingFilter, 0.7, 0.3] as const;
   }, [buildingFilter]);
 
   const buildingOutlineOpacity = useMemo(() => {
@@ -322,7 +322,7 @@ export function BuildingLayer({
       <FillLayer
         id="buildings-fill"
         style={{
-          fillColor: "green",
+          fillColor: "#36a33a",
           fillOpacity: buildingFillOpacity,
         }}
       />
