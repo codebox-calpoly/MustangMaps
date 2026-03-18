@@ -158,6 +158,7 @@ export function BuildingLayer({
           ...feature,
           properties: {
             ...(feature.properties ?? {}),
+            filter_all: true,
             filter_academic: categories.has("academic"),
             filter_residential: categories.has("residential"),
             filter_dining: categories.has("dining"),
@@ -179,7 +180,7 @@ export function BuildingLayer({
       normalizedBuildingTypes.includes("all");
 
     if (includesAll) {
-      return ["==", 1, 1] as const;
+      return ["==", ["get", "filter_all"], true] as const;
     }
 
     const selectedTypes = normalizedBuildingTypes.filter(
@@ -324,7 +325,7 @@ export function BuildingLayer({
         style={{
           fillColor: "#36a33a",
           fillOpacity: buildingFillOpacity,
-          fillOpacityTransition: { duration: 0, delay: 0 },
+          fillOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
       <LineLayer
@@ -333,7 +334,7 @@ export function BuildingLayer({
           lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
           lineOpacity: buildingOutlineOpacity,
-          lineOpacityTransition: { duration: 0, delay: 0 },
+          lineOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
     </ShapeSource>
