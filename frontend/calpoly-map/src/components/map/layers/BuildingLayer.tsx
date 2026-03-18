@@ -174,18 +174,22 @@ export function BuildingLayer({
       dining: ["==", ["get", "filter_dining"], true] as const,
     };
 
-    const selectedTypes =
-      normalizedBuildingTypes.length === 0
-        ? Object.keys(allChecks)
-        : normalizedBuildingTypes.filter(
-            (type): type is keyof typeof allChecks => type in allChecks,
-          );
+    const includesAll =
+      normalizedBuildingTypes.length === 0 ||
+      normalizedBuildingTypes.includes("all");
+
+    if (includesAll) {
+      return ["==", 1, 1] as const;
+    }
+
+    const selectedTypes = normalizedBuildingTypes.filter(
+      (type): type is keyof typeof allChecks => type in allChecks,
+    );
 
     const checks = selectedTypes.map((type) => allChecks[type]);
 
     if (checks.length === 0) {
-      // Unknown filter values should match nothing.
-      return ["==", 1, 0] as const;
+      return ["==", 1, 1] as const;
     }
 
     return ["any", ...checks] as const;
