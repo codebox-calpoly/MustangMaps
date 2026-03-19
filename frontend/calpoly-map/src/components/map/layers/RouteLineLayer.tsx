@@ -48,7 +48,6 @@ function flatDistSq(a: Coord, b: Coord): number {
 export function RouteLineLayer() {
   const {
     activePath,
-    routeStart,
     routeEnd,
     navigationMode,
     userLocation,
@@ -126,31 +125,26 @@ export function RouteLineLayer() {
     };
   }, [activePath, navigationMode, userLocation]);
 
-  // Hide start/end dots during navigation (user location marker is sufficient)
-  const pointCollection = useMemo<FeatureCollection<Point> | null>(() => {
-    if (navigationMode) {
-      return null;
-    }
-    if (!routeStart && !routeEnd) {
-      return null;
-    }
-    const features: Feature<Point>[] = [];
-    if (routeStart) {
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: routeStart },
-        properties: { kind: "start" },
-      });
-    }
-    if (routeEnd) {
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: routeEnd },
-        properties: { kind: "end" },
-      });
-    }
-    return { type: "FeatureCollection", features };
-  }, [navigationMode, routeStart, routeEnd]);
+  // Destination marker: placed at the last point of the active path so it
+  // sits exactly where the route line terminates, not at the raw building center.
+  const destinationMarker = useMemo<FeatureCollection<Point> | null>(() => {
+    if (navigationMode) return null;
+    const end =
+      activePath?.path?.length
+        ? activePath.path[activePath.path.length - 1]
+        : routeEnd;
+    if (!end) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: end },
+          properties: {},
+        },
+      ],
+    };
+  }, [navigationMode, activePath, routeEnd]);
 
   return (
     <>
@@ -166,23 +160,24 @@ export function RouteLineLayer() {
           />
         </ShapeSource>
       )}
-      {pointCollection && (
-        <ShapeSource id="route-points-source" shape={pointCollection}>
+      {destinationMarker && (
+        <ShapeSource id="route-destination-source" shape={destinationMarker}>
+          {/* Outer red ring */}
           <CircleLayer
-            id="route-points"
+            id="route-destination-outer"
             style={{
-              circleColor: [
-                "match",
-                ["get", "kind"],
-                "start",
-                "#10B981",
-                "end",
-                "#EF4444",
-                "#6B7280",
-              ],
-              circleRadius: 6,
-              circleStrokeWidth: 2,
+              circleColor: "#EF4444",
+              circleRadius: 11,
+              circleStrokeWidth: 2.5,
               circleStrokeColor: "#FFFFFF",
+            }}
+          />
+          {/* Inner white dot */}
+          <CircleLayer
+            id="route-destination-inner"
+            style={{
+              circleColor: "#FFFFFF",
+              circleRadius: 4,
             }}
           />
         </ShapeSource>

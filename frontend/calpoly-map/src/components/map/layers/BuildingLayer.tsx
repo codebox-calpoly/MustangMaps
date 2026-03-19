@@ -158,6 +158,7 @@ export function BuildingLayer({
           ...feature,
           properties: {
             ...(feature.properties ?? {}),
+            filter_all: true,
             filter_academic: categories.has("academic"),
             filter_residential: categories.has("residential"),
             filter_dining: categories.has("dining"),
@@ -178,6 +179,14 @@ export function BuildingLayer({
       dining: ["==", ["get", "filter_dining"], true] as const,
     };
 
+    const includesAll =
+      normalizedBuildingTypes.length === 0 ||
+      normalizedBuildingTypes.includes("all");
+
+    if (includesAll) {
+      return ["==", ["get", "filter_all"], true] as const;
+    }
+
     const selectedTypes = normalizedBuildingTypes.filter(
       (type): type is keyof typeof allChecks => type in allChecks,
     );
@@ -185,16 +194,18 @@ export function BuildingLayer({
     const checks = selectedTypes.map((type) => allChecks[type]);
 
     if (checks.length === 0) {
-      // Unknown filter values should match nothing.
-      return ["==", 1, 0] as const;
+      return ["==", 1, 1] as const;
     }
 
     return ["any", ...checks] as const;
   }, [normalizedBuildingTypes]);
 
   const buildingFillOpacity = useMemo(() => {
-    if (!buildingFilter) return 0.3;
-    return ["case", buildingFilter, 0.3, 0.08] as const;
+    if (!buildingFilter) {
+      return 0.3;
+    }
+    
+    return ["case", buildingFilter, 0.7, 0.3] as const;
   }, [buildingFilter]);
 
   const buildingOutlineOpacity = useMemo(() => {
@@ -313,8 +324,9 @@ export function BuildingLayer({
       <FillLayer
         id="buildings-fill"
         style={{
-          fillColor: "green",
+          fillColor: "#36a33a",
           fillOpacity: buildingFillOpacity,
+          fillOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
       <LineLayer
@@ -323,6 +335,7 @@ export function BuildingLayer({
           lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
           lineOpacity: buildingOutlineOpacity,
+          lineOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
     </ShapeSource>

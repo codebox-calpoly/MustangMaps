@@ -87,7 +87,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const dark = mapStyle === "dark";
 
   const snapPoints = useMemo(
-    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "22%", "35%", "55%", "75%"],
     [routingActive],
   );
 
@@ -580,10 +580,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     }
   }, [routingActive, setSearchQuery]);
 
-  // Expand sheet when a building is selected so the info card is visible
+  // Expand sheet when a building is selected so the info card is visible;
+  // snap back to default search size when selection is cleared
   useEffect(() => {
     if (selectedBuilding && !routingActive) {
       sheetRef.current?.snapToIndex(1);
+    } else if (!selectedBuilding && !routingActive) {
+      sheetRef.current?.snapToIndex(0);
     }
   }, [selectedBuilding, routingActive]);
 
@@ -621,7 +624,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     if (!selectedBuilding || routingActive) {
       return;
     }
-    sheetRef.current?.snapToIndex(2);
+    sheetRef.current?.snapToIndex(1);
   }, [routingActive, selectedBuilding]);
 
 
@@ -850,8 +853,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   buildingInfoCard: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: 8,
+    gap: 10,
   },
   buildingInfoHeader: {
     flexDirection: "row",

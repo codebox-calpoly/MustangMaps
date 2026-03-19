@@ -10,6 +10,7 @@ import {
 } from "@maplibre/maplibre-react-native";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Platform,
   Pressable,
@@ -64,6 +65,7 @@ export function MapContainer({
   const cameraRef = useRef<CameraRef | null>(null);
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
+  const programmaticMoveRef = useRef(false);
   const pendingRouteFitRef = useRef<{
     start: [number, number];
     end: [number, number];
@@ -94,9 +96,11 @@ export function MapContainer({
     retryMapData,
     setRouteStart,
     setRouteStartIsCurrentLocation,
+    routeDestination,
     setRouteDestination,
     setRouteEnd,
     setRouteRequested,
+    routingActive,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
@@ -111,7 +115,7 @@ export function MapContainer({
   const { favorites, isFavorite } = useSavedPlaces();
   const userLocation =
     latitude != null && longitude != null ? [longitude, latitude] : null;
-  const [followUser, setFollowUser] = useState<boolean>(false);
+  const recenterSeqRef = useRef(0);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -121,11 +125,10 @@ export function MapContainer({
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
 
-  // When tracking mode activates, force follow-user (but keep gestures enabled
-  // so the user can still pan/zoom to inspect the route).
+  // When tracking mode activates, recenter on the user's location.
   useEffect(() => {
     if (trackingMode) {
-      setFollowUser(true);
+      recenterOnUser();
     }
   }, [trackingMode]);
 
@@ -162,6 +165,11 @@ export function MapContainer({
   const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(
     () => buildSelectedBuildingMarker(selectedBuilding),
     [selectedBuilding],
+  );
+
+  const destinationMarker = useMemo<FeatureCollection<Point> | null>(
+    () => (routingActive ? buildSelectedBuildingMarker(routeDestination) : null),
+    [routingActive, routeDestination],
   );
 
   // Hide the selected-building marker when that building already exists in favorites.
@@ -215,87 +223,51 @@ export function MapContainer({
     };
   }, []);
 
-  // Show user location button if we have a valid location, and center map on tap.
   function UserLocationButton() {
     if (!userLocation) {
-      return;
+      return null;
     }
     return (
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Center User Location"
-        onPress={toggleFollowUser}
-        style={[styles.locationButton, followUser && styles.locationButtonActive]}
+        onPress={recenterOnUser}
+        style={styles.locationButton}
       >
         <View style={styles.locationIcon}>
           <View style={styles.locationIconRing} />
-          <View style={[styles.locationIconDot, followUser && styles.locationIconDotActive]} />
+          <View style={styles.locationIconDot} />
         </View>
       </Pressable>
     );
   }
 
-  // Toggle follow user mode on/off. When on, the map will center on the user's location and follow it as it moves.
-  const toggleFollowUser = async () => {
+  // Recenter map on user location. Each press fires a new setCamera call
+  // unconditionally so rapid taps always work — the last one wins.
+  const recenterOnUser = () => {
     const camera = cameraRef.current;
-    const map = mapRef.current;
-    if (!userLocation || !mapReady || !map || !camera) {
+    if (!userLocation || !mapReady || !camera) {
       return;
     }
 
-    if (followUser) {
-      setFollowUser(false);
-      return;
-    }
+    const seq = ++recenterSeqRef.current;
+    const safeLoc = clampCoordinate([userLocation[0], userLocation[1]]);
 
-    lastCameraStopRef.current = null;
-    setFollowUser(true);
-
-    // If zoomed out, zoom in to street level while centering
-    const MIN_RECENTER_ZOOM = 17;
-    try {
-      const currentZoom = await map.getZoom();
-      if (currentZoom < MIN_RECENTER_ZOOM) {
-        const safeLoc = clampCoordinate(userLocation as [number, number]);
-        cameraBusyRef.current = true;
-        camera.setCamera({
-          centerCoordinate: safeLoc,
-          zoomLevel: 17,
-          animationDuration: 350,
-        });
-        setTimeout(() => {
-          cameraBusyRef.current = false;
-        }, 400);
-        return;
+    programmaticMoveRef.current = true;
+    // Vary duration slightly so MapLibre's native bridge never deduplicates
+    // consecutive calls to the same destination.
+    camera.setCamera({
+      centerCoordinate: safeLoc,
+      zoomLevel: 18,
+      animationDuration: 350 + (seq % 10),
+    });
+    setTimeout(() => {
+      // Only clear the flag if no newer recenter has started.
+      if (recenterSeqRef.current === seq) {
+        programmaticMoveRef.current = false;
       }
-    } catch {
-      // Fall through to default panning behavior
-    }
-
-    handleCameraMove(userLocation);
+    }, 400);
   };
-
-  // Center map on user location when it changes, but only if follow user mode is active.
-  useEffect(() => {
-    if (!userLocation || !followUser) {
-      return;
-    }
-    handleCameraMove(userLocation);
-  }, [userLocation]);
-
-  // Disable follow user mode if the user manually moves the map.
-  const handleRegionChange = useCallback(
-    (feature: any) => {
-      if (!followUser) {
-        return;
-      }
-      if (feature?.properties?.isUserInteraction) {
-        setFollowUser(false);
-        lastCameraStopRef.current = null;
-      }
-    },
-    [followUser],
-  );
 
   const handleCameraMove = useCallback(
     async (loc: number[]) => {
@@ -310,23 +282,23 @@ export function MapContainer({
 
       try {
         const safeLoc = clampCoordinate(loc as [number, number]);
-        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
-        if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
+        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}`;
+        // Skip if the camera is already animating to this exact location.
+        if (cameraBusyRef.current && lastCameraStopRef.current === stopKey) {
           return;
         }
         cameraBusyRef.current = true;
+        programmaticMoveRef.current = true;
         lastCameraStopRef.current = stopKey;
         requestAnimationFrame(() => {
           camera.flyTo(safeLoc, 250);
-          camera.setCamera({
-            animationDuration: 250,
-          });
           setTimeout(() => {
             cameraBusyRef.current = false;
+            programmaticMoveRef.current = false;
           }, 300);
         });
 
-        // Retry camera movement on IOS after delay
+        // Retry camera movement on iOS after delay
         if (Platform.OS === "ios") {
           setTimeout(() => {
             const retryMap = mapRef.current;
@@ -334,9 +306,11 @@ export function MapContainer({
             if (!mapReadyRef.current || !retryMap || !retryCamera) {
               return;
             }
+            programmaticMoveRef.current = true;
             retryCamera.flyTo(safeLoc, 250);
             setTimeout(() => {
               cameraBusyRef.current = false;
+              programmaticMoveRef.current = false;
             }, 300);
           }, 320);
         }
@@ -347,6 +321,7 @@ export function MapContainer({
     },
     [clampCoordinate, isValidCoordinate, mapReady],
   );
+
 
   const fitRouteBounds = useCallback(
     (start: [number, number], end: [number, number]) => {
@@ -456,9 +431,29 @@ export function MapContainer({
     [featureCenter, handleCameraMove, selectBuilding, trackingMode],
   );
 
+  const CAL_POLY_BOUNDS = {
+    minLng: -120.670,
+    maxLng: -120.650,
+    minLat: 35.295,
+    maxLat: 35.315,
+  };
+
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
       if (userLocation && isValidCoordinate(userLocation)) {
+        const [lng, lat] = userLocation;
+        const inBounds =
+          lng >= CAL_POLY_BOUNDS.minLng &&
+          lng <= CAL_POLY_BOUNDS.maxLng &&
+          lat >= CAL_POLY_BOUNDS.minLat &&
+          lat <= CAL_POLY_BOUNDS.maxLat;
+        if (!inBounds) {
+          Alert.alert(
+            "Outside Campus",
+            "Please do not route outside of Cal Poly.",
+          );
+          return;
+        }
         setRouteStart(userLocation);
         setRouteStartIsCurrentLocation(true);
       } else {
@@ -523,7 +518,6 @@ export function MapContainer({
           mapRef.current?.setSourceVisibility(false, "carto", "building");
           setMapReady(true);
         }}
-        onRegionWillChange={handleRegionChange}
       >
         <UserLocationMarker />
         <Camera
@@ -545,6 +539,19 @@ export function MapContainer({
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
+              style={{
+                circleRadius: 10,
+                circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
+        {destinationMarker && (
+          <ShapeSource id="destination-marker-source" shape={destinationMarker}>
+            <CircleLayer
+              id="destination-marker"
               style={{
                 circleRadius: 10,
                 circleColor: "#EF4444",
@@ -731,12 +738,6 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: "#6B7280",
-  },
-  locationIconDotActive: {
-    backgroundColor: "#2563EB",
-  },
-  locationButtonActive: {
-    borderColor: "#2563EB",
   },
   arrivalOverlay: {
     flex: 1,

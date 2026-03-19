@@ -141,30 +141,20 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
 
   const handlePress = useCallback(
     (event: any) => {
-      if (!event.features || event.features.length === 0 || !amenityData) return;
+      if (!event.features || event.features.length === 0) return;
       const feature = event.features[0];
-      const category = feature.properties?.category;
-      const building = feature.properties?.building;
+      const rawLevel = feature.properties?.level;
 
-      // Find all levels where this amenity category exists in the same building
-      const levels: number[] = [];
-      for (const f of amenityData.features) {
-        if (
-          f.properties?.category === category &&
-          f.properties?.building === building &&
-          f.properties?.level != null
-        ) {
-          const level = Number(f.properties.level);
-          if (!levels.includes(level)) {
-            levels.push(level);
-          }
-        }
+      let levels: number[] = [];
+      if (Array.isArray(rawLevel)) {
+        levels = rawLevel.map(Number).sort((a, b) => a - b);
+      } else if (rawLevel != null) {
+        levels = [Number(rawLevel)];
       }
-      levels.sort((a, b) => a - b);
 
       selectAmenity(feature, levels);
     },
-    [amenityData, selectAmenity],
+    [selectAmenity],
   );
 
   const activeShape = !amenityData || mapMode !== "amenities"
@@ -180,6 +170,7 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
+          aboveLayerID="buildings-outline"
           filter={filter as any}
           style={{
             iconImage: iconImageExpression,
