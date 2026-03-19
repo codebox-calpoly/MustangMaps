@@ -87,7 +87,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const dark = mapStyle === "dark";
 
   const snapPoints = useMemo(
-    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "35%", "55%", "75%"],
+    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "22%", "35%", "55%", "75%"],
     [routingActive],
   );
 
@@ -621,7 +621,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     if (!selectedBuilding || routingActive) {
       return;
     }
-    sheetRef.current?.snapToIndex(2);
+    sheetRef.current?.snapToIndex(1);
   }, [routingActive, selectedBuilding]);
 
 
@@ -850,8 +850,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   buildingInfoCard: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: 8,
+    gap: 10,
   },
   buildingInfoHeader: {
     flexDirection: "row",

@@ -7,7 +7,6 @@ import { BuildingLayer } from '../components/map/layers/BuildingLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import { FavoritesLayer } from '../components/map/layers/FavoritesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
-import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import type { BuildingFilterOption, AmenityFilterOption } from '../components/features/map/MapFilters';
 import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
