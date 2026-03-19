@@ -96,9 +96,11 @@ export function MapContainer({
     retryMapData,
     setRouteStart,
     setRouteStartIsCurrentLocation,
+    routeDestination,
     setRouteDestination,
     setRouteEnd,
     setRouteRequested,
+    routingActive,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
@@ -163,6 +165,11 @@ export function MapContainer({
   const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(
     () => buildSelectedBuildingMarker(selectedBuilding),
     [selectedBuilding],
+  );
+
+  const destinationMarker = useMemo<FeatureCollection<Point> | null>(
+    () => (routingActive ? buildSelectedBuildingMarker(routeDestination) : null),
+    [routingActive, routeDestination],
   );
 
   // Hide the selected-building marker when that building already exists in favorites.
@@ -532,6 +539,19 @@ export function MapContainer({
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
+              style={{
+                circleRadius: 10,
+                circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
+        {destinationMarker && (
+          <ShapeSource id="destination-marker-source" shape={destinationMarker}>
+            <CircleLayer
+              id="destination-marker"
               style={{
                 circleRadius: 10,
                 circleColor: "#EF4444",
