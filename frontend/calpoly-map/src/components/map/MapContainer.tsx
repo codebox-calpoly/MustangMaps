@@ -123,11 +123,10 @@ export function MapContainer({
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
 
-  // When tracking mode activates, force follow-user (but keep gestures enabled
-  // so the user can still pan/zoom to inspect the route).
+  // When tracking mode activates, recenter on the user's location.
   useEffect(() => {
     if (trackingMode) {
-      setFollowUser(true);
+      recenterOnUser();
     }
   }, [trackingMode]);
 
