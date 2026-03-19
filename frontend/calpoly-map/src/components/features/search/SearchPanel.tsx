@@ -580,10 +580,13 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     }
   }, [routingActive, setSearchQuery]);
 
-  // Expand sheet when a building is selected so the info card is visible
+  // Expand sheet when a building is selected so the info card is visible;
+  // snap back to default search size when selection is cleared
   useEffect(() => {
     if (selectedBuilding && !routingActive) {
       sheetRef.current?.snapToIndex(1);
+    } else if (!selectedBuilding && !routingActive) {
+      sheetRef.current?.snapToIndex(0);
     }
   }, [selectedBuilding, routingActive]);
 
