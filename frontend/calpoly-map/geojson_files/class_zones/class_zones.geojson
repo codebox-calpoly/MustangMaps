@@ -7611,7 +7611,295 @@
         ]
       ]
     }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "building_id": "way/45600398",
+      "building_name": "Bioresource and Agricultural Engineering",
+      "description": "By Cal Poly Irrigation Training and Research",
+      "floor": 1,
+      "zone_id": "8_left",
+      "label": "Left side, 1st floor",
+      "classrooms": [
+        "7",
+        "7A",
+        "7B",
+        "6",
+        "6A",
+        "6B",
+        "5",
+        "5A",
+        "5B",
+        "5C",
+        "4A",
+        "4D",
+        "66A",
+        "66B",
+        "66C",
+        "66D",
+        "55A",
+        "55B",
+        "S241",
+        "44E",
+        "44F",
+        "44G"
+      ]
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -120.6623306,
+            35.3040602
+          ],
+          [
+            -120.6625824,
+            35.30401
+          ],
+          [
+            -120.6624256,
+            35.303450999999995
+          ],
+          [
+            -120.66217395000001,
+            35.30349975
+          ],
+          [
+            -120.6623306,
+            35.3040602
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "building_id": "way/45600398",
+      "building_name": "Bioresource and Agricultural Engineering",
+      "description": "By Cal Poly Irrigation Training and Research",
+      "floor": 1,
+      "zone_id": "8_right",
+      "label": "Right side, 1st floor",
+      "classrooms": [
+        "44H",
+        "S231",
+        "33",
+        "33A",
+        "33C",
+        "33D",
+        "33E",
+        "33F",
+        "33G",
+        "33H",
+        "33I",
+        "33J",
+        "33K",
+        "33L",
+        "22",
+        "C221",
+        "22A",
+        "22B",
+        "22C",
+        "22D",
+        "22E",
+        "22F",
+        "22G",
+        "22H",
+        "22I",
+        "22J",
+        "22K",
+        "22L",
+        "22M",
+        "22N",
+        "22O",
+        "E221",
+        "11D",
+        "11E",
+        "4",
+        "4B",
+        "4C",
+        "C131",
+        "C132",
+        "S131",
+        "3A",
+        "3B",
+        "3C",
+        "3D",
+        "3E",
+        "3F",
+        "3G",
+        "3H",
+        "3I",
+        "3J",
+        "3K",
+        "1",
+        "C121",
+        "S121",
+        "C122",
+        "1A",
+        "1B",
+        "1C",
+        "2",
+        "2A",
+        "2B",
+        "2C",
+        "2D",
+        "2E",
+        "2F",
+        "2G",
+        "2H"
+      ]
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -120.6624256,
+            35.303450999999995
+          ],
+          [
+            -120.6622688,
+            35.302892
+          ],
+          [
+            -120.6620173,
+            35.3029393
+          ],
+          [
+            -120.66217395000001,
+            35.30349975
+          ],
+          [
+            -120.6624256,
+            35.303450999999995
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "building_id": "way/45600405",
+      "building_name": "Bioresource and Agricultural Engineering",
+      "description": "BRAE Department",
+      "floor": 1,
+      "zone_id": "8_brae_left",
+      "label": "Left side, 1st floor",
+      "classrooms": [
+        "110",
+        "111",
+        "112",
+        "113",
+        "114",
+        "115",
+        "116",
+        "117",
+        "119",
+        "120",
+        "121",
+        "122",
+        "123",
+        "122A",
+        "123A",
+        "123B",
+        "123C"
+      ]
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -120.6614958,
+            35.3030654
+          ],
+          [
+            -120.6614041,
+            35.3030817
+          ],
+          [
+            -120.661451,
+            35.3032509
+          ],
+          [
+            -120.6617827,
+            35.3031881
+          ],
+          [
+            -120.6617486,
+            35.3030743
+          ],
+          [
+            -120.6618314,
+            35.3030535
+          ],
+          [
+            -120.6618187233655,
+            35.30300799922729
+          ],
+          [
+            -120.6614958,
+            35.3030654
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "type": "Feature",
+    "properties": {
+      "building_id": "way/45600405",
+      "building_name": "Bioresource and Agricultural Engineering",
+      "description": "BRAE Department",
+      "floor": 1,
+      "zone_id": "8_brae_right",
+      "label": "Right side, 1st floor",
+      "classrooms": [
+        "108",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106"
+      ]
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -120.6614958,
+            35.3030654
+          ],
+          [
+            -120.6618187233655,
+            35.30300799922729
+          ],
+          [
+            -120.6617995,
+            35.302939
+          ],
+          [
+            -120.6614779,
+            35.3029978
+          ],
+          [
+            -120.6614958,
+            35.3030654
+          ]
+        ]
+      ]
+    }
   }
+
+
 
 
 

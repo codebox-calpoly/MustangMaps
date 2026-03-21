@@ -1378,49 +1378,7 @@
       },
       "id": "way/45600397"
     },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600398",
-        "addr:city": "San Luis Obispo",
-        "addr:housenumber": "8A",
-        "addr:postcode": "93407",
-        "addr:street": "Grand",
-        "building": "university",
-        "description": "By Cal Poly Irrigation Training and Research",
-        "name": "Bioresource and Agricultural Engineering",
-        "ref": "8",
-        "amenity": "engineering_building"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6625824,
-              35.30401
-            ],
-            [
-              -120.6622688,
-              35.302892
-            ],
-            [
-              -120.6620173,
-              35.3029393
-            ],
-            [
-              -120.6623306,
-              35.3040602
-            ],
-            [
-              -120.6625824,
-              35.30401
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600398"
-    },
+    
     {
       "type": "Feature",
       "properties": {
@@ -1659,63 +1617,6 @@
         ]
       },
       "id": "way/45600403"
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "@id": "way/45600405",
-        "addr:city": "San Luis Obispo",
-        "amenity": "engineering_building",
-        "building": "university",
-        "description": "BRAE Department",
-        "name": "Bioresource and Agricultural Engineering",
-        "ref": "8",
-        "wheelchair": "yes"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6617827,
-              35.3031881
-            ],
-            [
-              -120.6617486,
-              35.3030743
-            ],
-            [
-              -120.6618314,
-              35.3030535
-            ],
-            [
-              -120.6617995,
-              35.302939
-            ],
-            [
-              -120.6614779,
-              35.3029978
-            ],
-            [
-              -120.6614958,
-              35.3030654
-            ],
-            [
-              -120.6614041,
-              35.3030817
-            ],
-            [
-              -120.661451,
-              35.3032509
-            ],
-            [
-              -120.6617827,
-              35.3031881
-            ]
-          ]
-        ]
-      },
-      "id": "way/45600405"
     },
     {
       "type": "Feature",
