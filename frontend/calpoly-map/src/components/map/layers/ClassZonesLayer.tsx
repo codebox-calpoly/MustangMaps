@@ -17,15 +17,20 @@ export function ClassZonesLayer({
   selectedZoneId = null,
   selectedZoneBuildingId = null,
 }: ClassZonesLayerProps) {
-  if (!zoneData || !selectedZoneId || !selectedZoneBuildingId) {
+  if (!zoneData) {
     return null;
   }
 
-  const zoneFilter = [
-    "all",
-    ["==", ["get", "zone_id"], selectedZoneId],
-    ["==", ["get", "building_id"], selectedZoneBuildingId],
-  ] as const;
+  // Always keep the ShapeSource mounted so the GeoJSON data stays loaded.
+  // When no zone is selected, use an impossible filter to hide everything.
+  const zoneFilter =
+    selectedZoneId && selectedZoneBuildingId
+      ? ([
+          "all",
+          ["==", ["get", "zone_id"], selectedZoneId],
+          ["==", ["get", "building_id"], selectedZoneBuildingId],
+        ] as const)
+      : (["==", ["get", "zone_id"], "__none__"] as const);
 
   return (
     <ShapeSource id="class-zones-source" shape={zoneData}>
