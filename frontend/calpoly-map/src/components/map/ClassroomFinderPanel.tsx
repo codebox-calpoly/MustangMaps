@@ -39,7 +39,7 @@ export function ClassroomFinderPanel({
     const normalizedQuery = query.trim().toLowerCase();
 
     if (!normalizedQuery) {
-      return classrooms.slice(0, 50);
+      return classrooms;
     }
 
     return classrooms.filter((room) =>
