@@ -48,11 +48,11 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { useSavedPlaces } from "../../context/SavedPlacesContext";
 import {
   featureCenter as featureCenterUtil,
   buildSelectedBuildingMarker,
 } from "../../lib/map/markerPlacement";
+import { NavigationUI } from "../features/navigation/NavigationUI";
 
 // Disable telemetry
 setAccessToken(null);
@@ -115,6 +115,7 @@ export function MapContainer({
     setUserLocation,
     setLocationAccuracy,
     trackingMode,
+    navigationMode,
   } = useMapContext();
 
   const mapStyleUrl =
@@ -324,58 +325,7 @@ export function MapContainer({
     };
   }, []);
 
-  const handleCameraMove = useCallback(
-    async (loc: number[]) => {
-      const map = mapRef.current;
-      const camera = cameraRef.current;
-
-      if (!mapReady || !map || !camera) {
-        return;
-      }
-      if (!isValidCoordinate(loc)) {
-        return;
-      }
-
-      try {
-        const safeLoc = clampCoordinate(loc as [number, number]);
-        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}:17`;
-
-        if (cameraBusyRef.current || lastCameraStopRef.current === stopKey) {
-          return;
-        }
-
-        cameraBusyRef.current = true;
-        lastCameraStopRef.current = stopKey;
-
-        requestAnimationFrame(() => {
-          camera.flyTo(safeLoc, 250);
-          camera.setCamera({
-            animationDuration: 250,
-          });
-          setTimeout(() => {
-            cameraBusyRef.current = false;
-          }, 300);
-        });
-
-        if (Platform.OS === "ios") {
-          setTimeout(() => {
-            const retryMap = mapRef.current;
-            const retryCamera = cameraRef.current;
-            if (!mapReady || !retryMap || !retryCamera) {
-              return;
-            }
-            retryCamera.flyTo(safeLoc, 250);
-            setTimeout(() => {
-              cameraBusyRef.current = false;
-            }, 300);
-          }, 320);
-        }
-      } catch {
-        cameraBusyRef.current = false;
-      }
-    },
-    [clampCoordinate, isValidCoordinate, mapReady],
-  );
+  const recenterSeqRef = useRef(0);
 
   function UserLocationButton() {
     if (!userLocation) {
