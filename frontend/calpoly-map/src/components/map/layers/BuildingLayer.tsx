@@ -120,7 +120,8 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
 
   const normalizedBuildingTypes = useMemo(
     () => buildingTypes.map((value) => normalizeValue(value)),
@@ -157,6 +158,7 @@ export function BuildingLayer({
           ...feature,
           properties: {
             ...(feature.properties ?? {}),
+            filter_all: true,
             filter_academic: categories.has("academic"),
             filter_residential: categories.has("residential"),
             filter_dining: categories.has("dining"),
@@ -166,30 +168,50 @@ export function BuildingLayer({
     } as FeatureCollection;
   }, [buildingData]);
 
+  // When "All" is selected (no specific types), show every building at full
+  // opacity. When a specific category is active, dim buildings outside it.
   const buildingFilter = useMemo(() => {
-    // "All" or no selected building types should show every building.
-    if (normalizedBuildingTypes.length === 0) {
-      return undefined;
+    if (normalizedBuildingTypes.length === 0) return null;
+
+    const allChecks = {
+      academic: ["==", ["get", "filter_academic"], true] as const,
+      residential: ["==", ["get", "filter_residential"], true] as const,
+      dining: ["==", ["get", "filter_dining"], true] as const,
+    };
+
+    const includesAll =
+      normalizedBuildingTypes.length === 0 ||
+      normalizedBuildingTypes.includes("all");
+
+    if (includesAll) {
+      return ["==", ["get", "filter_all"], true] as const;
     }
 
-    const checks: any[] = [];
-    if (normalizedBuildingTypes.includes("academic")) {
-      checks.push(["==", ["get", "filter_academic"], true]);
-    }
-    if (normalizedBuildingTypes.includes("residential")) {
-      checks.push(["==", ["get", "filter_residential"], true]);
-    }
-    if (normalizedBuildingTypes.includes("dining")) {
-      checks.push(["==", ["get", "filter_dining"], true]);
-    }
+    const selectedTypes = normalizedBuildingTypes.filter(
+      (type): type is keyof typeof allChecks => type in allChecks,
+    );
+
+    const checks = selectedTypes.map((type) => allChecks[type]);
 
     if (checks.length === 0) {
-      // Unknown filter values should match nothing.
-      return ["==", 1, 0] as const;
+      return ["==", 1, 1] as const;
     }
 
     return ["any", ...checks] as const;
   }, [normalizedBuildingTypes]);
+
+  const buildingFillOpacity = useMemo(() => {
+    if (!buildingFilter) {
+      return 0.3;
+    }
+    
+    return ["case", buildingFilter, 0.7, 0.3] as const;
+  }, [buildingFilter]);
+
+  const buildingOutlineOpacity = useMemo(() => {
+    if (!buildingFilter) return 1;
+    return ["case", buildingFilter, 1, 0.35] as const;
+  }, [buildingFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -244,29 +266,76 @@ export function BuildingLayer({
     <ShapeSource
       id="buildings-source"
       shape={categorizedBuildingData}
+      hitbox={{ width: 20, height: 20 }}
       onPress={(event) => {
-        if (event.features && event.features.length > 0) {
-          const feature = event.features[0];
-          console.log('Building tapped:', feature.properties?.name);
-          onBuildingPress?.(feature);
+        if (!event.features || event.features.length === 0) return true;
+
+        const tap = event.coordinates;
+        let best = event.features[0];
+
+        if (tap && event.features.length > 1) {
+          const px = tap.longitude;
+          const py = tap.latitude;
+
+          // Ray-casting point-in-polygon test
+          const pointInRing = (ring: number[][]) => {
+            let inside = false;
+            for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+              const xi = ring[i][0], yi = ring[i][1];
+              const xj = ring[j][0], yj = ring[j][1];
+              if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+                inside = !inside;
+              }
+            }
+            return inside;
+          };
+
+          const getRings = (f: any): number[][][] => {
+            const geom = f.geometry;
+            if (!geom?.coordinates) return [];
+            if (geom.type === "Polygon") return geom.coordinates;
+            if (geom.type === "MultiPolygon") return geom.coordinates.flat();
+            return [];
+          };
+
+          // First pass: find the feature whose polygon contains the tap point
+          for (const f of event.features) {
+            const rings = getRings(f);
+            if (rings.length > 0 && pointInRing(rings[0])) {
+              best = f;
+              break;
+            }
+          }
         }
+
+        // Attach the actual tap coordinates so the marker can be placed
+        // exactly where the user tapped instead of at the polygon centroid.
+        const withTap = {
+          ...best,
+          properties: {
+            ...(best.properties ?? {}),
+            ...(tap ? { _tapLng: tap.longitude, _tapLat: tap.latitude } : {}),
+          },
+        };
+        onBuildingPress?.(withTap);
         return true;
       }}
     >
       <FillLayer
         id="buildings-fill"
-        filter={buildingFilter}
         style={{
-          fillColor: "green",
-          fillOpacity: 0.25,
+          fillColor: "#36a33a",
+          fillOpacity: buildingFillOpacity,
+          fillOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
       <LineLayer
         id="buildings-outline"
-        filter={buildingFilter}
         style={{
-          lineColor: "#111827",
+          lineColor: dark ? "#86EFAC" : "#111827",
           lineWidth: 1,
+          lineOpacity: buildingOutlineOpacity,
+          lineOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
     </ShapeSource>

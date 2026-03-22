@@ -26,8 +26,12 @@ const DISPLAYED_AMENITY_CATEGORIES = [
   "lift",
 ] as const;
 
+// Stable empty collection — avoids creating a new object reference on every
+// render, which would cause the native ShapeSource to re-process unnecessarily.
+const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
+
 // Main component to render the amenities layer on the map
-export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
+export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes: string[]; visible?: boolean }) {
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
   const { setMapDataStatus, mapDataRetryToken, selectAmenity, selectedBuilding, mapMode } = useMapContext();
 
@@ -107,6 +111,7 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
     ] as any;
   }, []);
 
+  // When not visible, use a filter that matches nothing so native layers stay mounted
   // If no amenity types are selected, show all amenities
   // Otherwise, filter to only show selected types
   // Expand "bathroom" to also match "toilet" (GeoJSON uses "toilet" as the category)
@@ -136,43 +141,36 @@ export function AmenitiesLayer({ amenityTypes }: { amenityTypes: string[] }) {
 
   const handlePress = useCallback(
     (event: any) => {
-      if (!event.features || event.features.length === 0 || !amenityData) return;
+      if (!event.features || event.features.length === 0) return;
       const feature = event.features[0];
-      const category = feature.properties?.category;
-      const building = feature.properties?.building;
+      const rawLevel = feature.properties?.level;
 
-      // Find all levels where this amenity category exists in the same building
-      const levels: number[] = [];
-      for (const f of amenityData.features) {
-        if (
-          f.properties?.category === category &&
-          f.properties?.building === building &&
-          f.properties?.level != null
-        ) {
-          const level = Number(f.properties.level);
-          if (!levels.includes(level)) {
-            levels.push(level);
-          }
-        }
+      let levels: number[] = [];
+      if (Array.isArray(rawLevel)) {
+        levels = rawLevel.map(Number).sort((a, b) => a - b);
+      } else if (rawLevel != null) {
+        levels = [Number(rawLevel)];
       }
-      levels.sort((a, b) => a - b);
 
       selectAmenity(feature, levels);
     },
-    [amenityData, selectAmenity],
+    [selectAmenity],
   );
 
-  if (!amenityData) return null;
+  const activeShape = !amenityData || mapMode !== "amenities"
+    ? EMPTY_FC
+    : (highlightedAmenities ?? amenityData);
 
   return (
     <>
       {/* Load icon images */}
       <Images images={AMENITY_ICONS} />
 
-      <ShapeSource id="amenities-source" shape={highlightedAmenities ?? amenityData} onPress={handlePress}>
+      <ShapeSource id="amenities-source" shape={activeShape} onPress={handlePress}>
         {/* Icon-based symbol layer */}
         <SymbolLayer
           id="amenities-layer"
+          aboveLayerID="buildings-outline"
           filter={filter as any}
           style={{
             iconImage: iconImageExpression,

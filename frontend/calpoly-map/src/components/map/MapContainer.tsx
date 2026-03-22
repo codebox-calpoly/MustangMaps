@@ -10,8 +10,8 @@ import {
 } from "@maplibre/maplibre-react-native";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -22,7 +22,6 @@ import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 
 import { SearchPanel } from "../features/search/SearchPanel";
-import { NavigationUI } from "../features/navigation/NavigationUI";
 import {
   MapFilters,
   type AmenityFilterOption,
@@ -49,6 +48,11 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { useSavedPlaces } from "../../context/SavedPlacesContext";
+import {
+  featureCenter as featureCenterUtil,
+  buildSelectedBuildingMarker,
+} from "../../lib/map/markerPlacement";
 
 // Disable telemetry
 setAccessToken(null);
@@ -70,14 +74,19 @@ export function MapContainer({
   const cameraRef = useRef<CameraRef | null>(null);
   const lastCameraStopRef = useRef<string | null>(null);
   const cameraBusyRef = useRef(false);
+  const programmaticMoveRef = useRef(false);
   const pendingRouteFitRef = useRef<{
     start: [number, number];
     end: [number, number];
   } | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
-  const [mapGesturesEnabled] = useState(true);
-
+  const mapReadyRef = useRef(false);
+  useEffect(() => {
+    mapReadyRef.current = mapReady;
+  }, [mapReady]);
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
+  const [mapGesturesEnabled, setMapGesturesEnabled] = useState(true);
   const {
     selectedBuilding,
     selectBuilding,
@@ -97,13 +106,15 @@ export function MapContainer({
     retryMapData,
     setRouteStart,
     setRouteStartIsCurrentLocation,
+    routeDestination,
     setRouteDestination,
+    setRouteEnd,
+    setRouteRequested,
+    routingActive,
     setRoutingActive,
     setUserLocation,
     setLocationAccuracy,
-    navigationMode,
-    hasArrived,
-    dismissArrival,
+    trackingMode,
   } = useMapContext();
 
   const mapStyleUrl =
@@ -198,35 +209,11 @@ export function MapContainer({
     retryMapData();
   }, [retryMapData]);
 
-  const featureCenter = useCallback(
-    (feature: Feature<Geometry, GeoJsonProperties>): [number, number] | null => {
-      const geom = feature.geometry;
+  const featureCenter = featureCenterUtil;
 
-      if (geom.type === "Point") {
-        return geom.coordinates as [number, number];
-      }
-
-      let ring: number[][] | null = null;
-
-      if (geom.type === "Polygon") {
-        ring = geom.coordinates[0] ?? null;
-      } else if (geom.type === "MultiPolygon") {
-        ring = geom.coordinates[0]?.[0] ?? null;
-      }
-
-      if (!ring || ring.length === 0) return null;
-
-      let sumLng = 0;
-      let sumLat = 0;
-
-      for (const pt of ring) {
-        sumLng += pt[0];
-        sumLat += pt[1];
-      }
-
-      return [sumLng / ring.length, sumLat / ring.length];
-    },
-    [],
+  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(
+    () => buildSelectedBuildingMarker(selectedBuilding),
+    [selectedBuilding],
   );
 
   const getFeatureBounds = useCallback(
@@ -284,23 +271,10 @@ export function MapContainer({
     [],
   );
 
-  const selectedBuildingMarker = useMemo<FeatureCollection<Point> | null>(() => {
-    if (!selectedBuilding) return null;
-
-    const center = featureCenter(selectedBuilding);
-    if (!center) return null;
-
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: { type: "Point", coordinates: center },
-          properties: {},
-        },
-      ],
-    };
-  }, [featureCenter, selectedBuilding]);
+  const destinationMarker = useMemo<FeatureCollection<Point> | null>(
+    () => (routingActive ? buildSelectedBuildingMarker(routeDestination) : null),
+    [routingActive, routeDestination],
+  );
 
   const selectedBuildingIsFavorite = useMemo(() => {
     if (!selectedBuilding) {
@@ -412,76 +386,97 @@ export function MapContainer({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Center User Location"
-        onPress={toggleFollowUser}
-        style={[styles.locationButton, followUser && styles.locationButtonActive]}
+        onPress={recenterOnUser}
+        style={styles.locationButton}
       >
         <View style={styles.locationIcon}>
           <View style={styles.locationIconRing} />
-          <View style={[styles.locationIconDot, followUser && styles.locationIconDotActive]} />
+          <View style={styles.locationIconDot} />
         </View>
       </Pressable>
     );
   }
 
-  const toggleFollowUser = async () => {
+  // Recenter map on user location. Each press fires a new setCamera call
+  // unconditionally so rapid taps always work — the last one wins.
+  const recenterOnUser = () => {
     const camera = cameraRef.current;
-    const map = mapRef.current;
-
-    if (!userLocation || !mapReady || !map || !camera) {
+    if (!userLocation || !mapReady || !camera) {
       return;
     }
 
-    if (followUser) {
-      setFollowUser(false);
-      return;
-    }
+    const seq = ++recenterSeqRef.current;
+    const safeLoc = clampCoordinate([userLocation[0], userLocation[1]]);
 
-    lastCameraStopRef.current = null;
-    setFollowUser(true);
-
-    const MIN_RECENTER_ZOOM = 15;
-
-    try {
-      const currentZoom = await map.getZoom();
-      if (currentZoom < MIN_RECENTER_ZOOM) {
-        const safeLoc = clampCoordinate(userLocation as [number, number]);
-        cameraBusyRef.current = true;
-        camera.setCamera({
-          centerCoordinate: safeLoc,
-          zoomLevel: 17,
-          animationDuration: 350,
-        });
-        setTimeout(() => {
-          cameraBusyRef.current = false;
-        }, 400);
-        return;
+    programmaticMoveRef.current = true;
+    // Vary duration slightly so MapLibre's native bridge never deduplicates
+    // consecutive calls to the same destination.
+    camera.setCamera({
+      centerCoordinate: safeLoc,
+      zoomLevel: 18,
+      animationDuration: 350 + (seq % 10),
+    });
+    setTimeout(() => {
+      // Only clear the flag if no newer recenter has started.
+      if (recenterSeqRef.current === seq) {
+        programmaticMoveRef.current = false;
       }
-    } catch {
-      // Fall through
-    }
-
-    handleCameraMove(userLocation);
+    }, 400);
   };
 
-  useEffect(() => {
-    if (!userLocation || !followUser) {
-      return;
-    }
-    handleCameraMove(userLocation);
-  }, [userLocation, followUser, handleCameraMove]);
-
-  const handleRegionChange = useCallback(
-    (feature: any) => {
-      if (!followUser) {
+  const handleCameraMove = useCallback(
+    async (loc: number[]) => {
+      const map = mapRef.current;
+      const camera = cameraRef.current;
+      if (!mapReady || !map || !camera) {
         return;
       }
-      if (feature?.properties?.isUserInteraction) {
-        setFollowUser(false);
-        lastCameraStopRef.current = null;
+      if (!isValidCoordinate(loc)) {
+        return;
+      }
+
+      try {
+        const safeLoc = clampCoordinate(loc as [number, number]);
+        const stopKey = `${safeLoc[0].toFixed(6)}:${safeLoc[1].toFixed(6)}`;
+        // Skip if the camera is already animating to this exact location.
+        if (cameraBusyRef.current && lastCameraStopRef.current === stopKey) {
+          return;
+        }
+        cameraBusyRef.current = true;
+        programmaticMoveRef.current = true;
+        lastCameraStopRef.current = stopKey;
+        requestAnimationFrame(() => {
+          camera.flyTo(safeLoc, 250);
+          setTimeout(() => {
+            cameraBusyRef.current = false;
+            programmaticMoveRef.current = false;
+          }, 300);
+        });
+
+        // Retry camera movement on iOS after delay
+        if (Platform.OS === "ios") {
+          setTimeout(() => {
+            const retryMap = mapRef.current;
+            const retryCamera = cameraRef.current;
+            if (!mapReadyRef.current || !retryMap || !retryCamera) {
+              return;
+            }
+            programmaticMoveRef.current = true;
+            retryCamera.flyTo(safeLoc, 250);
+            setTimeout(() => {
+              cameraBusyRef.current = false;
+              programmaticMoveRef.current = false;
+            }, 300);
+          }, 320);
+        }
+      } catch {
+        // Ignore transient zoom errors to keep taps safe.
+        cameraBusyRef.current = false;
       }
     },
-    [followUser],
+    [clampCoordinate, isValidCoordinate, mapReady],
   );
+
 
   const fitRouteBounds = useCallback(
     (start: [number, number], end: [number, number]) => {
@@ -516,7 +511,7 @@ export function MapContainer({
         setTimeout(() => {
           const retryMap = mapRef.current;
           const retryCamera = cameraRef.current;
-          if (!mapReady || !retryMap || !retryCamera) {
+          if (!mapReadyRef.current || !retryMap || !retryCamera) {
             return;
           }
           retryCamera.fitBounds(ne, sw, padding, 250);
@@ -559,14 +554,29 @@ export function MapContainer({
     }
   }, [fitRouteBounds, mapReady]);
 
+  const featureJustSelectedRef = useRef(false);
+
   const handleBuildingPress = useCallback(
     (feature: any) => {
+      // Ignore building taps during tracking mode so the user can't
+      // accidentally select a building while following a route.
+      if (trackingMode) return;
+
+      // Handle building press from BuildingLayer
       const properties = feature.properties;
       if (properties && (properties.building || properties.amenity)) {
+        featureJustSelectedRef.current = true;
+        setTimeout(() => { featureJustSelectedRef.current = false; }, 200);
         const building = feature as Feature<Geometry, GeoJsonProperties>;
         selectBuilding(building);
-
-        const center = featureCenter(building);
+        // Prefer tap coordinates for camera centering so the view stays
+        // anchored to where the user actually tapped.
+        const tapLng = building.properties?._tapLng as number | undefined;
+        const tapLat = building.properties?._tapLat as number | undefined;
+        const center =
+          tapLng != null && tapLat != null
+            ? [tapLng, tapLat]
+            : featureCenter(building);
         if (center) {
           handleCameraMove(center);
         }
@@ -576,26 +586,52 @@ export function MapContainer({
         onBuildingPress(feature);
       }
     },
-    [featureCenter, handleCameraMove, onBuildingPress, selectBuilding],
+    [featureCenter, handleCameraMove, onBuildingPress, selectBuilding, trackingMode],
   );
+
+  const CAL_POLY_BOUNDS = {
+    minLng: -120.670,
+    maxLng: -120.650,
+    minLat: 35.295,
+    maxLat: 35.315,
+  };
 
   const handleNavigate = useCallback(
     (feature: Feature<Geometry, GeoJsonProperties>) => {
       if (userLocation && isValidCoordinate(userLocation)) {
+        const [lng, lat] = userLocation;
+        const inBounds =
+          lng >= CAL_POLY_BOUNDS.minLng &&
+          lng <= CAL_POLY_BOUNDS.maxLng &&
+          lat >= CAL_POLY_BOUNDS.minLat &&
+          lat <= CAL_POLY_BOUNDS.maxLat;
+        if (!inBounds) {
+          Alert.alert(
+            "Outside Campus",
+            "Please do not route outside of Cal Poly.",
+          );
+          return;
+        }
         setRouteStart(userLocation);
         setRouteStartIsCurrentLocation(true);
       } else {
         setRouteStart(null);
         setRouteStartIsCurrentLocation(false);
       }
+      const center = featureCenter(feature);
+      if (center) {
+        setRouteEnd(center);
+        setRouteRequested(true);
+      }
       setRoutingActive(true);
       setRouteDestination(feature);
-      setMapMode("routing");
     },
     [
+      featureCenter,
       isValidCoordinate,
-      setMapMode,
       setRouteDestination,
+      setRouteEnd,
+      setRouteRequested,
       setRouteStart,
       setRouteStartIsCurrentLocation,
       setRoutingActive,
@@ -607,6 +643,10 @@ export function MapContainer({
     async (feature: Feature<Geometry, GeoJsonProperties>) => {
       const map = mapRef.current;
       if (!map) return;
+
+      // ShapeSource.onPress fires before MapView.onPress for the same tap.
+      // Skip clearing when a building/amenity was just selected.
+      if (featureJustSelectedRef.current) return;
 
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
@@ -767,7 +807,6 @@ export function MapContainer({
           mapRef.current?.setSourceVisibility(false, "carto", "building");
           setMapReady(true);
         }}
-        onRegionWillChange={handleRegionChange}
       >
         <UserLocationMarker />
 
@@ -804,20 +843,31 @@ export function MapContainer({
             />
           </ShapeSource>
         )}
+        {destinationMarker && (
+          <ShapeSource id="destination-marker-source" shape={destinationMarker}>
+            <CircleLayer
+              id="destination-marker"
+              style={{
+                circleRadius: 10,
+                circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
       </MapView>
 
-      {!navigationMode && (
-        <MapFilters
-          mapMode={mapMode}
-          onMapModeChange={setMapMode}
-          buildingTypeIds={buildingTypeIds}
-          onBuildingTypesChange={setBuildingTypeIds}
-          amenityTypeIds={amenityTypeIds}
-          onAmenityTypesChange={setAmenityTypeIds}
-          buildingOptions={buildingOptions}
-          amenityOptions={amenityOptions}
-        />
-      )}
+      <MapFilters
+        mapMode={mapMode}
+        onMapModeChange={setMapMode}
+        buildingTypeIds={buildingTypeIds}
+        onBuildingTypesChange={setBuildingTypeIds}
+        amenityTypeIds={amenityTypeIds}
+        onAmenityTypesChange={setAmenityTypeIds}
+        buildingOptions={buildingOptions}
+        amenityOptions={amenityOptions}
+      />
 
       {(hasLoading || errorMessage) && (
         <View style={styles.statusOverlay} pointerEvents="auto">
@@ -883,31 +933,6 @@ export function MapContainer({
         onNavigate={handleNavigate}
       />
 
-      <Modal
-        visible={hasArrived}
-        transparent
-        animationType="fade"
-        onRequestClose={dismissArrival}
-      >
-        <View style={styles.arrivalOverlay}>
-          <View style={styles.arrivalCard}>
-            <Text style={styles.arrivalTitle}>You have arrived!</Text>
-            <Text style={styles.arrivalSubtitle}>
-              You have reached your destination.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={dismissArrival}
-              style={({ pressed }) => [
-                styles.arrivalButton,
-                pressed && styles.arrivalButtonPressed,
-              ]}
-            >
-              <Text style={styles.arrivalButtonText}>Done</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -1026,12 +1051,6 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: "#6B7280",
-  },
-  locationIconDotActive: {
-    backgroundColor: "#2563EB",
-  },
-  locationButtonActive: {
-    borderColor: "#2563EB",
   },
   arrivalOverlay: {
     flex: 1,

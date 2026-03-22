@@ -6,10 +6,17 @@ import {
   SymbolLayer,
 } from "@maplibre/maplibre-react-native";
 import { useSavedPlaces } from "../../../context/SavedPlacesContext";
+import { useMapContext } from "../../../context/MapContext";
 import geoData from "../../features/search/test.json";
 
 const FAVORITE_ICONS: Record<string, any> = {
   "favorite-star": require("../../../../assets/icons/favorites.png"),
+};
+
+// Stable empty collection so the native ShapeSource doesn't churn on mode switches.
+const EMPTY_FC: FeatureCollection<Point, GeoJsonProperties> = {
+  type: "FeatureCollection",
+  features: [],
 };
 
 export function FavoritesLayer({
@@ -18,11 +25,14 @@ export function FavoritesLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const { favorites } = useSavedPlaces();
+  const { mapMode } = useMapContext();
 
   const favoritePoints = useMemo<FeatureCollection<
     Point,
     GeoJsonProperties
-  > | null>(() => {
+  >>(() => {
+    if (mapMode !== "buildings") return EMPTY_FC;
+
     const features = favorites
       .filter((place) => place.id !== "my-location")
       .map((place) => ({
@@ -39,15 +49,11 @@ export function FavoritesLayer({
         },
       }));
 
-    if (features.length === 0) {
-      return null;
-    }
-
     return {
       type: "FeatureCollection",
       features,
     };
-  }, [favorites]);
+  }, [favorites, mapMode]);
 
   const handlePress = useCallback(
     (event: any) => {
@@ -70,10 +76,6 @@ export function FavoritesLayer({
     },
     [onBuildingPress],
   );
-
-  if (!favoritePoints) {
-    return null;
-  }
 
   return (
     <>

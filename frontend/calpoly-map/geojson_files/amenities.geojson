@@ -7,9 +7,9 @@
         "properties": {
           "id": "toilet_001",
           "category": "toilet",
-          "name": "Floor 2 Bathroom",
+          "name": "Floor 2, 3, 4 Bathroom",
           "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 2,
+          "level": [2, 3, 4],
           "notes": "Replace this example with a real location"
         },
         "geometry": {
@@ -20,76 +20,16 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_002",
-          "category": "toilet",
-          "name": "Floor 3 Bathroom",
-          "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 3,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.660700, 35.301980]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "toilet_003",
-          "category": "toilet",
-          "name": "Floor 4 Bathroom",
-          "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 4,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.660690, 35.301980]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
           "id": "water_fountain_001",
           "category": "water_fountain",
-          "name": "Floor 2 Water Fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
           "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 2,
+          "level": [2, 3, 4],
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
           "coordinates": [-120.660750, 35.301962]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_002",
-          "category": "water_fountain",
-          "name": "Floor 3 Water Fountain",
-          "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 4,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.660740, 35.301962]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_003",
-          "category": "water_fountain",
-          "name": "Floor 4 Water Fountain",
-          "building": "William and Linda Frost Center for Research and Innovation (181)",
-          "level": 4,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.660760, 35.301962]
         }
       },
       {
@@ -110,36 +50,6 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_004",
-          "category": "toilet",
-          "name": "Floor 1 Bathroom (1)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663561, 35.301957]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_004",
-          "category": "water_fountain",
-          "name": "Floor 1 Water Fountain (1)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.663531, 35.301957]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
           "id": "printer_001",
           "category": "printer",
           "name": "Floor 1 Printer",
@@ -155,39 +65,9 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "toilet_005",
-          "category": "toilet",
-          "name": "Floor 1 Bathroom (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.664173, 35.301750]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
-          "id": "water_fountain_005",
-          "category": "water_fountain",
-          "name": "Floor 1 Water Fountain (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 1,
-          "notes": "Replace this example with a real location"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [-120.664140, 35.301750]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {
           "id": "toilet_006",
           "category": "toilet",
-          "name": "Floor 5 Toilet (1)",
+          "name": "Back Toilet (2)",
           "building": "Robert E. Kennedy Library",
           "level": 5,
           "notes": "Replace this example with a real location"
@@ -202,9 +82,9 @@
         "properties": {
           "id": "water_fountain_006",
           "category": "water_fountain",
-          "name": "Floor 5 Water Fountain (1)",
+          "name": "Back Water Fountain (2)",
           "building": "Robert E. Kennedy Library",
-          "level": 5,
+          "level": [1, 2, 3, 4, 5],
           "notes": "Replace this example with a real location"
         },
         "geometry": {
@@ -215,31 +95,1175 @@
       {
         "type": "Feature",
         "properties": {
-          "id": "water_fountain_007",
-          "category": "water_fountain",
-          "name": "Floor 5 Water Fountain (2)",
+          "id": "printer_002",
+          "category": "printer",
+          "name": "Floor 2 Printer",
+          "building": "Robert E. Kennedy Library",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663500, 35.301915]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_008",
+          "category": "toilet",
+          "name": "Floor 1 Toilet",
           "building": "Robert E. Kennedy Library",
           "level": 5,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.663550, 35.301990]
+          "coordinates": [-120.663520, 35.302069]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_007",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": 5,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663535, 35.302065]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_004",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4 Toilet",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663460, 35.301948]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_005",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4, 5 Toilet",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4, 5],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663482, 35.302050]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_004",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663510, 35.302046]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_005",
+          "category": "water_fountain",
+          "name": "Floor 5 Water Fountain",
+          "building": "Robert E. Kennedy Library",
+          "level": 5,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663515, 35.301965]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_002",
+          "category": "toilet",
+          "name": "Floor 2, 3 Toilet",
+          "building": "English",
+          "level": [2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660849, 35.302194]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_002",
+          "category": "water_fountain",
+          "name": "Floor 2, 3 Fountain",
+          "building": "English",
+          "level": [2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660852, 35.302205]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_002",
+          "category": "water_fountain",
+          "name": "Floor 2, 3 Fountain",
+          "building": "English",
+          "level": [2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660852, 35.302205]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_003",
+          "category": "water_fountain",
+          "name": "Floor 2 Fountain",
+          "building": "English",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661062, 35.302468]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_003",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "English",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661632, 35.302260]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_008",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain (2)",
+          "building": "English",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661630, 35.302250]
         }
       },
       {
         "type": "Feature",
         "properties": {
           "id": "toilet_007",
-          "category": "toilet",
-          "name": "Floor 5 Toilet (2)",
-          "building": "Robert E. Kennedy Library",
-          "level": 5,
+          "category": "water_fountain",
+          "name": "Floor 1 Toilet",
+          "building": "English",
+          "level": 1,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.663505, 35.302069]
+          "coordinates": [-120.661655, 35.302350]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_010",
+          "category": "water_fountain",
+          "name": "Floor 1 Toilet",
+          "building": "English",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661294, 35.302329]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_009",
+          "category": "toilet",
+          "name": "Floor 1 Toilet",
+          "building": "English",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661128, 35.302360]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_009",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4, 5, 6 Water Fountain",
+          "building": "Warren J. Baker Center",
+          "level": [2, 3, 4, 5, 6],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660277, 35.301490]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_014",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4, 5, 6 Toilet",
+          "building": "Warren J. Baker Center",
+          "level": [2, 3, 4, 5, 6],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660620, 35.301360]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_011",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Warren J. Baker Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661060, 35.301123]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_010",
+          "category": "toilet",
+          "name": "Floor 1 Toilet",
+          "building": "Warren J. Baker Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661087, 35.301170]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_012",
+          "category": "water_fountain",
+          "name": "Water Fountain 1",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661850, 35.300723]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_011",
+          "category": "toilet",
+          "name": "Toilet 1",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661879, 35.300700]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_013",
+          "category": "water_fountain",
+          "name": "Water Fountain 2",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661586, 35.300568]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_012",
+          "category": "toilet",
+          "name": "Toilet 2",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661428, 35.300451]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_014",
+          "category": "water_fountain",
+          "name": "Water Fountain 3",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661406, 35.300427]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_013",
+          "category": "toilet",
+          "name": "Toilet 3",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661270, 35.300256]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_015",
+          "category": "water_fountain",
+          "name": "Water Fountain 4",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661251, 35.300231]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_016",
+          "category": "water_fountain",
+          "name": "Water Fountain 5",
+          "building": "Engineering East",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661300, 35.299916]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_017",
+          "category": "toilet",
+          "name": "Floor 2, 3, 4 Bathroom",
+          "building": "Clyde P. Fisher Science",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659297, 35.302033]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_017",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659812, 35.301946]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_018",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660008, 35.302]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_018",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Science North",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660039, 35.301996]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_019",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659263, 35.301202]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_020",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659215, 35.301047]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_019",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Faculty Offices East",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659212, 35.301042]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_020",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658466, 35.300401]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_021",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658746, 35.300415]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "printer_003",
+          "category": "printer",
+          "name": "Floor 2 Printer",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658544, 35.300265]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_021",
+          "category": "toilet",
+          "name": "Floor 2 Toilet",
+          "building": "Julian A. McPhee University Union (65)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658854, 35.300381]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "elevator_001",
+          "category": "elevator",
+          "name": "Bonderson Elevator",
+          "building": "Bonderson Projects Center",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664192, 35.302539]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_017",
+          "category": "water_fountain",
+          "name": "Bonderson Floor 1 Water Fountain",
+          "building": "Bonderson Projects Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664189, 35.302500]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_015",
+          "category": "toilet",
+          "name": "Bonderson Floor 1 Bathroom",
+          "building": "Bonderson Projects Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664212, 35.302466]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_016",
+          "category": "toilet",
+          "name": "ATL Bathroom",
+          "building": "Advanced Technologies Laboratory",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665148, 35.302193]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_018",
+          "category": "water_fountain",
+          "name": "ATL Water Fountain",
+          "building": "Advanced Technologies Laboratory",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665108, 35.302176]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_019",
+          "category": "water_fountain",
+          "name": "Reinhold Aerospace Water Fountain",
+          "building": "Reinhold Aerospace",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666168, 35.302638]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_017",
+          "category": "toilet",
+          "name": "Reinhold Aerospace Floor 1 Bathroom",
+          "building": "Reinhold Aerospace",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666143, 35.302641]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_018",
+          "category": "toilet",
+          "name": "Reinhold Aerospace Floor 2 Bathroom",
+          "building": "Reinhold Aerospace",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666190, 35.302623]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "elevator_002",
+          "category": "elevator",
+          "name": "Reinhold Aerospace Elevator",
+          "building": "Reinhold Aerospace",
+          "level": [1,2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.666190, 35.302623]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_022",
+          "category": "water_fountain",
+          "name": "Engineering 13 Water Fountain Floor 1",
+          "building": "Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665207, 35.301656]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_022",
+          "category": "toilet",
+          "name": "Engineering 13 Bathroom Floor 1 and 2",
+          "building": "Engineering",
+          "level": [1,2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665267, 35.301620]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_023",
+          "category": "water_fountain",
+          "name": "Engineering 4 Water Fountain Floor 1, 2, 3",
+          "building": "Engineering IV",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.665039, 35.302908]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_023",
+          "category": "toilet",
+          "name": "Engineering 4 Bathroom Floor 1, 2, 3",
+          "building": "Engineering IV",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664994, 35.302903]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_024",
+          "category": "toilet",
+          "name": "Construction Innovation Bathroom Floor 1, 2, 3",
+          "building": "Construction Innovations Center",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662361, 35.299204]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_024",
+          "category": "water_fountain",
+          "name": "Construction Innovation Water Fountain Floor 1, 2, 3",
+          "building": "Construction Innovations Center",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662349, 35.299177]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_025",
+          "category": "toilet",
+          "name": "Walter F. Dexter Building Floor 1",
+          "building": "Walter F. Dexter Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663922, 35.30085]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_026",
+          "category": "toilet",
+          "name": "Walter F. Dexter Building Floor 2",
+          "building": "Walter F. Dexter Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.66349, 35.30113]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_027",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 1",
+          "building": "Frank E. Pilling Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661828, 35.299949]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_028",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662334, 35.300264]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_029",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662195, 35.300292]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_030",
+          "category": "toilet",
+          "name": "Frank E. Pilling Building Floor 2",
+          "building": "Frank E. Pilling Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662152, 35.299899]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_031",
+          "category": "toilet",
+          "name": "Engineering West Floor 1",
+          "building": "Engineering West Addition",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662651, 35.299736]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_032",
+          "category": "toilet",
+          "name": "Engineering West Floor 3",
+          "building": "Engineering West: City and Regional Planning",
+          "level": 3,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.663417, 35.300181]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_033",
+          "category": "toilet",
+          "name": "Engineering West Floor 3",
+          "building": "Engineering West Addition",
+          "level": 3,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662695, 35.299875]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_034",
+          "category": "toilet",
+          "name": "Davidson Music Center Floor 1, 2",
+          "building": "Davidson Music Center",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658106, 35.299417]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_035",
+          "category": "toilet",
+          "name": "Davidson Music Center Floor 2",
+          "building": "Davidson Music Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65784, 35.299191]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_036",
+          "category": "toilet",
+          "name": "Spanos Theatre Main Level",
+          "building": "Spanos Theatre",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657898, 35.299853]
+        }
+      },
+
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_037",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.65709, 35.299703]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_038",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657131, 35.299153]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_039",
+          "category": "toilet",
+          "name": "PAC Orchestra Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657057, 35.299235]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_040",
+          "category": "toilet",
+          "name": "PAC Balcony Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657265, 35.299206]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_041",
+          "category": "toilet",
+          "name": "PAC Balcony Level",
+          "building": "Christopher Cohan Performing Arts Center",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.657012, 35.299316]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_042",
+          "category": "toilet",
+          "name": "Research Development Center Bathroom",
+          "building": "Research Development Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664905, 35.305439]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_025",
+          "category": "water_fountain",
+          "name": "Research Development Center Water Fountain",
+          "building": "Research Development Center",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664851, 35.305687]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_026",
+          "category": "water_fountain",
+          "name": "1901 Water Fountain",
+          "building": "1901 Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659599, 35.299561]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_043",
+          "category": "toilet",
+          "name": "1901 Bathroom",
+          "building": "1901 Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659630, 35.299561]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_044",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [1,2,3,4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655385, 35.298001]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_045",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [1,2,3,4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655251, 35.297805]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_027",
+          "category": "toilet",
+          "name": "Yak A Bathroom",
+          "building": "172A ts\u0268tkawayu",
+          "level": [2, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655402, 35.297947]
         }
       },
       {
@@ -262,14 +1286,854 @@
         "properties": {
           "id": "printer_001",
           "category": "printer",
-          "name": "Example Printer",
-          "building": "Library",
+          "name": "Pacheco Post Office Printer",
+          "building": "Pacheco Post Office",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655355, 35.297392]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_001",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172B elewexe",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654638, 35.297786]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_001",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "172B elewexe",
+          "level": [2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654683, 35.297718]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_002",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172C ti\u0142hini",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654413, 35.297223]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_002",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172C ti\u0142hini",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654401, 35.297124]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_003",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172C ti\u0142hini",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654190, 35.296952]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_004",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172D t\u0161\u0268\u0142kukun\u0268t\u0161",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.653581, 35.297091]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_003",
+          "category": "water_fountain",
+          "name": "Floor 2, 3, 4 Water Fountain",
+          "building": "172D t\u0161\u0268\u0142kukun\u0268t\u0161",
+          "level": [2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.653648, 35.297023]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_004",
+          "category": "water_fountain",
+          "name": "Floor 1, 2, 3 Water Fountain",
+          "building": "172E nipumu\u0294",
+          "level": [1, 2, 3],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654052, 35.296417]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_005",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3 Bathroom",
+          "building": "172E nipumu\u0294",
+          "level": [1, 2, 3],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654029, 35.296327]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_006",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654686, 35.296891]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_005",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654488, 35.296778]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_007",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172F ts\u0268tqaw\u0268",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.654424, 35.296663]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_006",
+          "category": "water_fountain",
+          "name": "Floor 2, 4 Water Fountain",
+          "building": "172G ts\u0268tpxatu",
+          "level": [2, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655187, 35.296890]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_008",
+          "category": "toilet",
+          "name": "Floor 1, 2, 3, 4 Bathroom",
+          "building": "172G ts\u0268tpxatu",
+          "level": [1, 2, 3, 4],
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655260, 35.296827]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_046",
+          "category": "toilet",
+          "name": "Gym Locker Room",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659941, 35.298414]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_028",
+          "category": "water_fountain",
+          "name": "Stairs Water Fountain",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660309, 35.298386]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_029",
+          "category": "water_fountain",
+          "name": "Floor 2 Water Fountain",
+          "building": "Recreation Center",
+          "level": 2,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660270, 35.298515]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_030",
+          "category": "water_fountain",
+          "name": "Floor 1 Water Fountain",
+          "building": "Recreation Center",
+          "level": 1,
+          "notes": "Inside"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659402, 35.298481]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_031",
+          "category": "water_fountain",
+          "name": "Bioresource & Agricultural Engineering Water Fountain",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661747, 35.302998]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_047",
+          "category": "toilet",
+          "name": "Bioresource & Agricultural Engineering Bathroom",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661688, 35.302991]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_048",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662291, 35.300988]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_032",
+          "category": "water_fountain",
+          "name": "Mathematics and Science (38) Floor 1 Water Fountain",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662291, 35.300988]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_049",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662223, 35.30154]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_033",
+          "category": "water_fountain",
+          "name": "Mathematics and Science (38) Floor 1 Water Fountain",
+          "building": "Mathematics and Science (38)",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662359, 35.302025]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_050",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
           "level": 2,
           "notes": "Replace this example with a real location"
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-120.000000, 35.000000]
+          "coordinates": [-120.662233, 35.301017]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_051",
+          "category": "toilet",
+          "name": "Mathematics and Science (38) Bathroom",
+          "building": "Mathematics and Science (38)",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662248, 35.30166]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_052",
+          "category": "toilet",
+          "name": "Engineering South Bathroom",
+          "building": "Engineering South",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660836, 35.299123]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_034",
+          "category": "water_fountain",
+          "name": "Engineering South Water Fountain",
+          "building": "Engineering South",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660849, 35.299120]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_053",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 1",
+          "building": "Graphic Arts",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.66149, 35.299205]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_054",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 2",
+          "building": "Graphic Arts",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661949, 35.299167]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_054",
+          "category": "toilet",
+          "name": "Graphic Arts Bathroom Floor 2",
+          "building": "Graphic Arts",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.661900, 35.299142]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_055",
+          "category": "toilet",
+          "name": "Student Services",
+          "building": "Student Services",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664020, 35.298662]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_056",
+          "category": "toilet",
+          "name": "Student Services",
+          "building": "Student Services",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664118, 35.298530]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_057",
+          "category": "toilet",
+          "name": "Robert E. Mott Physical Education",
+          "building": "Robert E. Mott Physical Education",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659091, 35.298483]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_057",
+          "category": "toilet",
+          "name": "Robert E. Mott Physical Education",
+          "building": "Robert E. Mott Physical Education",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658300, 35.298835]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_058",
+          "category": "toilet",
+          "name": "Science Bathroom",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660171, 35.300496]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_035",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659772, 35.300686]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_036",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660214, 35.300228]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_037",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660512, 35.300213]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_038",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659901, 35.300256]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_039",
+          "category": "water_fountain",
+          "name": "Science Water Fountain",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.659567, 35.300310]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_059",
+          "category": "toilet",
+          "name": "Science Bathroom",
+          "building": "Science",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660238, 35.300561]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_060",
+          "category": "toilet",
+          "name": "Cotchett Floor 1, 2, 3 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664410, 35.300507]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_061",
+          "category": "toilet",
+          "name": "Cotchett Floor 1 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664384, 35.300330]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_062",
+          "category": "toilet",
+          "name": "Cotchett Floor 2 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664527, 35.300339]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_063",
+          "category": "toilet",
+          "name": "Cotchett Floor 2, 3 Bathroom",
+          "building": "Cotchett Education Building",
+          "level": [2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664287, 35.299983]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_064",
+          "category": "toilet",
+          "name": "OCobb Floor 1, 2, 3, 4 Bathrooms",
+          "building": "Orfalea College Of Business Building",
+          "level": [1, 2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664919, 35.300012]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "water_fountain_040",
+          "category": "water_fountain",
+          "name": "Orfalea College Of Business Water Fountain",
+          "building": "Orfalea College Of Business Building",
+          "level": [2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664758, 35.299805]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_065",
+          "category": "toilet",
+          "name": "OCobb Floor 1 Bathroom",
+          "building": "Orfalea College Of Business Building",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.6647, 35.3000129]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_066",
+          "category": "toilet",
+          "name": "Architecture and Environmental Design Bathroom",
+          "building": "Architecture and Environmental Design",
+          "level": [1, 2, 3, 4],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.664195, 35.300855]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "Administration Bathroom",
+          "building": "Administration",
+          "level": [1, 2],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.658397, 35.301060]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_067",
+          "category": "toilet",
+          "name": "Bioresource and Agricultural Engineering Bathroom",
+          "building": "Bioresource and Agricultural Engineering",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662059, 35.303106]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_068",
+          "category": "toilet",
+          "name": "Agricultural Sciences Bathrooms",
+          "building": "Agricultural Sciences",
+          "level": [1, 2, 3],
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.662895, 35.302838]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_069",
+          "category": "toilet",
+          "name": "VGs Floor 1 Bathroom",
+          "building": "112 Vista Grande Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655930, 35.299161]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_070",
+          "category": "toilet",
+          "name": "VGs Floor 2 Bathroom",
+          "building": "112 Vista Grande Dining Complex",
+          "level": 2,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.655610, 35.299352]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "toilet_071",
+          "category": "toilet",
+          "name": "1901 Bathroom",
+          "building": "1901 Dining Complex",
+          "level": 1,
+          "notes": "Replace this example with a real location"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-120.660092, 35.299595]
         }
       }
     ]

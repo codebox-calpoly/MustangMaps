@@ -4,7 +4,6 @@ import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
 import { BuildingLayer } from '../components/map/layers/BuildingLayer';
-import { ClassZonesLayer } from '../components/map/layers/ClassZonesLayer';
 import { AmenitiesLayer } from '../components/map/layers/AmenitiesLayer';
 import { FavoritesLayer } from '../components/map/layers/FavoritesLayer';
 import { RouteLineLayer } from '../components/map/layers/RouteLineLayer';
@@ -13,6 +12,7 @@ import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
 import { LocationProvider } from "../context/UserLocationContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ClassZonesLayer } from "../components/map/layers/ClassZonesLayer";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All" },
@@ -29,6 +29,16 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
   { id: "elevator", label: "Elevators" },
 ];
 
+function ThemedSafeArea({ children }: { children: React.ReactNode }) {
+  const { mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: dark ? "#111827" : "#FFFFFF" }}>
+      {children}
+    </SafeAreaView>
+  );
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -36,12 +46,12 @@ export default function App() {
         <LocationProvider>
         <MapProvider>
           <SavedPlacesProvider>
-            <SafeAreaView style={{ flex: 1 }}>
+            <ThemedSafeArea>
               <MapScreen
                 buildingOptions={BUILDING_OPTIONS}
                 amenityOptions={AMENITY_OPTIONS}
               />
-            </SafeAreaView>
+            </ThemedSafeArea>
           </SavedPlacesProvider>
         </MapProvider>
         </LocationProvider>
@@ -58,7 +68,6 @@ function MapScreen({
   amenityOptions: AmenityFilterOption[];
 }) {
   const {
-    mapMode,
     buildingTypeIds,
     amenityTypeIds,
     routeStart,
@@ -69,7 +78,6 @@ function MapScreen({
     routeAccessibleOnly,
     setActivePath,
     setRouteError,
-    setGraph,
   } = useMapContext();
   const { graph: loadedGraph, error } = usePathGraph();
 
@@ -78,11 +86,6 @@ function MapScreen({
       setRouteError("Failed to load paths data");
     }
   }, [error, setRouteError]);
-
-  // Push the loaded graph into MapContext so rerouting can access it
-  useEffect(() => {
-    setGraph(loadedGraph);
-  }, [loadedGraph, setGraph]);
 
   useEffect(() => {
     if (!routingActive || !routeRequested || !routeStart || !routeEnd || !loadedGraph) {
@@ -140,14 +143,11 @@ function MapScreen({
       buildingOptions={buildingOptions}
       amenityOptions={amenityOptions}
     >
-      <BuildingLayer buildingTypes={buildingTypeIds} />
-      <ClassZonesLayer />
-      {(mapMode === "buildings" || mapMode === "routing") && <FavoritesLayer />}
-      {/* Only render amenities when in amenities mode or when filters are selected */}
-      {(mapMode === "amenities" || amenityTypeIds.length > 0) && (
-        <AmenitiesLayer amenityTypes={amenityTypeIds} />
-      )}
-      <RouteLineLayer />
+      <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
+      <ClassZonesLayer key="class-zones" />
+      <FavoritesLayer key="favorites" />
+      <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} />
+      <RouteLineLayer key="route-line" />
     </MapContainer>
   );
 }
