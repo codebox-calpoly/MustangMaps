@@ -598,6 +598,10 @@ export function MapContainer({
       // Skip clearing when a building/amenity was just selected.
       if (featureJustSelectedRef.current) return;
 
+      // Don't clear zone selection while the classroom finder is open —
+      // taps on the bottom-sheet list can propagate through to the map.
+      if (classroomFinderVisible) return;
+
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
         clearSelection();
@@ -611,7 +615,7 @@ export function MapContainer({
         onMapPress(feature);
       }
     },
-    [clearAmenitySelection, clearSelection, onMapPress],
+    [classroomFinderVisible, clearAmenitySelection, clearSelection, onMapPress],
   );
 
   const normalizeRoom = useCallback((room: string) => {
@@ -707,7 +711,7 @@ export function MapContainer({
   const handleSelectClassroom = useCallback(
     (room: string) => {
       const zone = findZoneByClassroom(room);
-      if (!zone || !cameraRef.current) {
+      if (!zone) {
         return;
       }
 
@@ -724,20 +728,27 @@ export function MapContainer({
       setSelectedClassZoneId(zoneId);
       setSelectedClassZoneBuildingId(buildingId);
 
-      const bounds = getFeatureBounds(zone);
-      if (bounds) {
-        cameraRef.current.fitBounds(bounds.ne, bounds.sw, [80, 40, 140, 40], 800);
-        return;
-      }
+      const camera = cameraRef.current;
+      if (!camera) return;
 
-      const center = featureCenter(zone);
-      if (center) {
-        const safeCenter = clampCoordinate(center);
-        cameraRef.current.setCamera({
-          centerCoordinate: safeCenter,
-          zoomLevel: 18,
-          animationDuration: 800,
-        });
+      try {
+        const bounds = getFeatureBounds(zone);
+        if (bounds) {
+          camera.fitBounds(bounds.ne, bounds.sw, [80, 40, 140, 40], 800);
+          return;
+        }
+
+        const center = featureCenter(zone);
+        if (center) {
+          const safeCenter = clampCoordinate(center);
+          camera.setCamera({
+            centerCoordinate: safeCenter,
+            zoomLevel: 18,
+            animationDuration: 800,
+          });
+        }
+      } catch (e) {
+        console.warn("handleSelectClassroom camera error:", e);
       }
     },
     [clampCoordinate, featureCenter, findZoneByClassroom, getFeatureBounds],
