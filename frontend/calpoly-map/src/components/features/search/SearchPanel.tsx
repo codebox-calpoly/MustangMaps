@@ -447,17 +447,27 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               <Text style={[styles.buildingInfoCloseText, dark && { color: "#9CA3AF" }]}>✕</Text>
             </Pressable>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Directions to ${selectedBuildingName}`}
-            onPress={() => {
-              onNavigate(selectedBuilding);
-              clearSelection();
-            }}
-            style={styles.buildingDirectionsButton}
-          >
-            <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
-          </Pressable>
+          <View style={styles.buildingActionsRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Directions to ${selectedBuildingName}`}
+              onPress={() => {
+                onNavigate(selectedBuilding);
+                clearSelection();
+              }}
+              style={[styles.buildingDirectionsButton, { flex: 1 }]}
+            >
+              <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Find classroom in ${selectedBuildingName}`}
+              onPress={() => onOpenClassroomFinder(selectedBuilding)}
+              style={styles.buildingFindClassroomButton}
+            >
+              <Text style={styles.buildingFindClassroomButtonText}>Find Classroom</Text>
+            </Pressable>
+          </View>
         </View>
       );
     }

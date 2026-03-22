@@ -60,9 +60,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "sbalaji524",
     "extra": {
       "eas": {
-        "projectId": "93fe3dd3-94e5-4f5a-bc6f-690389d53b30"
+        "projectId": "93a06625-8fae-47fb-8845-e85a6442ef75"
       }
     }
   }
