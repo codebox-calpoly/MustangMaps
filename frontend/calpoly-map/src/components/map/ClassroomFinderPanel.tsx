@@ -48,7 +48,7 @@ export function ClassroomFinderPanel({
   }, [classrooms, query]);
 
   const handlePressClose = () => {
-    sheetRef.current?.close();
+    onClose();
   };
 
   if (!visible) {
@@ -65,7 +65,7 @@ export function ClassroomFinderPanel({
       handleStyle={styles.handleStyle}
       keyboardBehavior="extend"
       keyboardBlurBehavior="restore"
-      enableContentPanningGesture
+      enableContentPanningGesture={false}
       enableHandlePanningGesture
       enablePanDownToClose
       onClose={onClose}
@@ -80,7 +80,7 @@ export function ClassroomFinderPanel({
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close classroom finder"
-              hitSlop={16}
+              hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
               onPress={handlePressClose}
               style={({ pressed }) => [
                 styles.closeButton,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: -20,
     right: -20,
-    paddingBottom: 30,
+    paddingBottom: 10,
   },
   container: {
     flex: 1,
