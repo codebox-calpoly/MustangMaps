@@ -32,6 +32,7 @@ interface Props {
   bottomSheetPosition: SharedValue<number>;
   onNavigate: (feature: Feature<Geometry, GeoJsonProperties>) => void;
   onOpenClassroomFinder: (building: Feature<Geometry, GeoJsonProperties>) => void;
+  buildingsWithClassZones: Set<string>;
 }
 
 type SectionKind = "favorite" | "history" | "result";
@@ -55,7 +56,7 @@ type SearchRow =
     item: SavedPlace;
   };
 
-export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate, onOpenClassroomFinder }: Props) {
+export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, onNavigate, onOpenClassroomFinder, buildingsWithClassZones }: Props) {
   // Bottom sheet controls
   const sheetRef = useRef<BottomSheet>(null);
   const lastFittedRouteRef = useRef<string | null>(null);
@@ -459,14 +460,19 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             >
               <Text style={styles.buildingDirectionsButtonText}>Directions</Text>
             </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Find classroom in ${selectedBuildingName}`}
-              onPress={() => onOpenClassroomFinder(selectedBuilding)}
-              style={styles.buildingFindClassroomButton}
-            >
-              <Text style={styles.buildingFindClassroomButtonText}>Find Classroom</Text>
-            </Pressable>
+            {(() => {
+              const bid = (selectedBuilding as any).id ?? selectedBuilding.properties?.["@id"];
+              return typeof bid === "string" && buildingsWithClassZones.has(bid);
+            })() && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Find classroom in ${selectedBuildingName}`}
+                onPress={() => onOpenClassroomFinder(selectedBuilding)}
+                style={styles.buildingFindClassroomButton}
+              >
+                <Text style={styles.buildingFindClassroomButtonText}>Find Classroom</Text>
+              </Pressable>
+            )}
           </View>
         </View>
       );

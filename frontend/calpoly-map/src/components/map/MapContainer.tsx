@@ -660,6 +660,16 @@ export function MapContainer({
     [classZones, classroomFinderBuilding, getBuildingFeatureId, normalizeRoom],
   );
 
+  const buildingsWithClassZones = useMemo(() => {
+    if (!classZones) return new Set<string>();
+    const ids = new Set<string>();
+    for (const feature of classZones.features) {
+      const bid = feature.properties?.building_id;
+      if (typeof bid === "string") ids.add(bid);
+    }
+    return ids;
+  }, [classZones]);
+
   const classroomsForSelectedBuilding = useMemo(() => {
     if (!classroomFinderBuilding || !classZones) {
       return [];
@@ -879,6 +889,7 @@ export function MapContainer({
           bottomSheetPosition={searchPanelHeight}
           onNavigate={handleNavigate}
           onOpenClassroomFinder={handleOpenClassroomFinder}
+          buildingsWithClassZones={buildingsWithClassZones}
         />
       )}
 
