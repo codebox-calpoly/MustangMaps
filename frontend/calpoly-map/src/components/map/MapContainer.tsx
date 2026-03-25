@@ -131,6 +131,8 @@ export function MapContainer({
 
   const [followUser, setFollowUser] = useState<boolean>(false);
 
+  const [tapMarkerCoord, setTapMarkerCoord] = useState<[number, number] | null>(null);
+
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
     useState<Feature<Geometry, GeoJsonProperties> | null>(null);
@@ -216,6 +218,20 @@ export function MapContainer({
     () => buildSelectedBuildingMarker(selectedBuilding),
     [selectedBuilding],
   );
+
+  const tapMarkerGeoJSON = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!tapMarkerCoord) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Point", coordinates: tapMarkerCoord },
+        },
+      ],
+    };
+  }, [tapMarkerCoord]);
 
   const getFeatureBounds = useCallback(
     (
@@ -517,6 +533,7 @@ export function MapContainer({
       if (properties && (properties.building || properties.amenity)) {
         featureJustSelectedRef.current = true;
         setTimeout(() => { featureJustSelectedRef.current = false; }, 200);
+        setTapMarkerCoord(null);
         const building = feature as Feature<Geometry, GeoJsonProperties>;
         selectBuilding(building);
         // Prefer tap coordinates for camera centering so the view stays
@@ -607,6 +624,12 @@ export function MapContainer({
         clearSelection();
         setSelectedClassZoneId(null);
         setSelectedClassZoneBuildingId(null);
+
+        // Place a generic tap marker where the user tapped
+        const coords = (feature.geometry as any)?.coordinates;
+        if (Array.isArray(coords) && coords.length === 2) {
+          setTapMarkerCoord([coords[0], coords[1]]);
+        }
       }
 
       clearAmenitySelection();
@@ -805,6 +828,19 @@ export function MapContainer({
           <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
             <CircleLayer
               id="selected-building-marker"
+              style={{
+                circleRadius: 10,
+                circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
+        {tapMarkerGeoJSON && !selectedBuilding && (
+          <ShapeSource id="tap-marker-source" shape={tapMarkerGeoJSON}>
+            <CircleLayer
+              id="tap-marker"
               style={{
                 circleRadius: 10,
                 circleColor: "#EF4444",
