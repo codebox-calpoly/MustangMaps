@@ -602,7 +602,9 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   // snap back to default search size when selection is cleared
   useEffect(() => {
     if (selectedBuilding && !routingActive) {
-      sheetRef.current?.snapToIndex(1);
+      requestAnimationFrame(() => {
+        sheetRef.current?.snapToIndex(1);
+      });
     } else if (!selectedBuilding && !routingActive) {
       sheetRef.current?.snapToIndex(0);
     }
@@ -642,7 +644,12 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     if (!selectedBuilding || routingActive) {
       return;
     }
-    sheetRef.current?.snapToIndex(1);
+    // Use setTimeout to ensure the snap happens after the BottomSheet
+    // has fully mounted (e.g. after switching back from ClassroomFinderPanel)
+    const id = setTimeout(() => {
+      sheetRef.current?.snapToIndex(1);
+    }, 50);
+    return () => clearTimeout(id);
   }, [routingActive, selectedBuilding]);
 
 

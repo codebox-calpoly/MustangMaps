@@ -619,13 +619,16 @@ export function MapContainer({
       // taps on the bottom-sheet list can propagate through to the map.
       if (classroomFinderVisible) return;
 
+      // If we reach here, ShapeSource.onPress did NOT select a building
+      // (featureJustSelectedRef would have blocked us). Clear any existing
+      // selection so the user can tap away to deselect.
+      clearSelection();
+      setSelectedClassZoneId(null);
+      setSelectedClassZoneBuildingId(null);
+
+      // Place a generic tap marker where the user tapped (only for non-building areas)
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
-        clearSelection();
-        setSelectedClassZoneId(null);
-        setSelectedClassZoneBuildingId(null);
-
-        // Place a generic tap marker where the user tapped
         const coords = (feature.geometry as any)?.coordinates;
         if (Array.isArray(coords) && coords.length === 2) {
           setTapMarkerCoord([coords[0], coords[1]]);
@@ -729,6 +732,7 @@ export function MapContainer({
       setSelectedClassZoneBuildingId(null);
       setClassroomFinderBuilding(building);
       setClassroomFinderVisible(true);
+      setTapMarkerCoord(null);
       clearSelection();
     },
     [clearSelection],
@@ -739,6 +743,7 @@ export function MapContainer({
     setSelectedClassZoneId(null);
     setSelectedClassZoneBuildingId(null);
     setClassroomFinderBuilding(null);
+    setTapMarkerCoord(null);
   }, []);
 
   const handleSelectClassroom = useCallback(
@@ -825,7 +830,7 @@ export function MapContainer({
         })}
 
         {selectedBuildingMarker && mapMode !== "amenities" && !selectedBuildingIsFavorite && (
-          <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker}>
+          <ShapeSource id="selected-building-marker-source" shape={selectedBuildingMarker} hitbox={{ width: 0, height: 0 }}>
             <CircleLayer
               id="selected-building-marker"
               style={{
@@ -838,7 +843,7 @@ export function MapContainer({
           </ShapeSource>
         )}
         {tapMarkerGeoJSON && !selectedBuilding && (
-          <ShapeSource id="tap-marker-source" shape={tapMarkerGeoJSON}>
+          <ShapeSource id="tap-marker-source" shape={tapMarkerGeoJSON} hitbox={{ width: 0, height: 0 }}>
             <CircleLayer
               id="tap-marker"
               style={{
@@ -851,7 +856,7 @@ export function MapContainer({
           </ShapeSource>
         )}
         {destinationMarker && (
-          <ShapeSource id="destination-marker-source" shape={destinationMarker}>
+          <ShapeSource id="destination-marker-source" shape={destinationMarker} hitbox={{ width: 0, height: 0 }}>
             <CircleLayer
               id="destination-marker"
               style={{

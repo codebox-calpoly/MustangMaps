@@ -266,7 +266,7 @@ export function BuildingLayer({
     <ShapeSource
       id="buildings-source"
       shape={categorizedBuildingData}
-      hitbox={{ width: 10, height: 10 }}
+      hitbox={{ width: 44, height: 44 }}
       onPress={(event) => {
         if (!event.features || event.features.length === 0) return true;
 
@@ -308,7 +308,28 @@ export function BuildingLayer({
           }
         }
 
-        // Tap was outside all building polygons — ignore
+        // If no exact hit, fall back to the smallest-area candidate.
+        // The hitbox already limits candidates to nearby features, so the
+        // smallest polygon is almost always the one the user intended.
+        if (!best && event.features.length > 0) {
+          let minArea = Infinity;
+          for (const f of event.features) {
+            const rings = getRings(f);
+            if (rings.length === 0) continue;
+            const ring = rings[0];
+            // Shoelace formula for polygon area
+            let area = 0;
+            for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+              area += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+            }
+            area = Math.abs(area / 2);
+            if (area < minArea) {
+              minArea = area;
+              best = f;
+            }
+          }
+        }
+
         if (!best) return true;
 
         // Attach the actual tap coordinates so the marker can be placed

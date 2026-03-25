@@ -37,9 +37,8 @@ export function buildSelectedBuildingMarker(
   selectedBuilding: Feature<Geometry, GeoJsonProperties> | null,
 ): FeatureCollection<Point> | null {
   if (!selectedBuilding) return null;
-  const props = selectedBuilding.properties;
-  const tapLng = props?._tapLng as number | undefined;
-  const tapLat = props?._tapLat as number | undefined;
+  const tapLng = selectedBuilding.properties?._tapLng as number | undefined;
+  const tapLat = selectedBuilding.properties?._tapLat as number | undefined;
   const markerCoord: [number, number] | null =
     tapLng != null && tapLat != null
       ? [tapLng, tapLat]
