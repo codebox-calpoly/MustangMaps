@@ -11,7 +11,8 @@
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "name": "MustangMaps",
     "slug": "mustangmaps",

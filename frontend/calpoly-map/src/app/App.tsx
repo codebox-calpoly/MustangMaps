@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { PostHogProvider } from 'posthog-react-native';
 import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
@@ -40,22 +41,29 @@ function ThemedSafeArea({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <LocationProvider>
-        <MapProvider>
-          <SavedPlacesProvider>
-            <ThemedSafeArea>
-              <MapScreen
-                buildingOptions={BUILDING_OPTIONS}
-                amenityOptions={AMENITY_OPTIONS}
-              />
-            </ThemedSafeArea>
-          </SavedPlacesProvider>
-        </MapProvider>
-        </LocationProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <PostHogProvider
+      apiKey="phc_xBVGBfGzLCjimQ7sppjTtqzoVh2Nx8gN6L7oUYifMyDf"
+      options={{
+        host: "https://us.i.posthog.com",
+      }}
+    >
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <LocationProvider>
+          <MapProvider>
+            <SavedPlacesProvider>
+              <ThemedSafeArea>
+                <MapScreen
+                  buildingOptions={BUILDING_OPTIONS}
+                  amenityOptions={AMENITY_OPTIONS}
+                />
+              </ThemedSafeArea>
+            </SavedPlacesProvider>
+          </MapProvider>
+          </LocationProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </PostHogProvider>
   );
 }
 
