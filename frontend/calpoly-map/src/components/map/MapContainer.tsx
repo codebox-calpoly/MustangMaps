@@ -53,7 +53,6 @@ import {
   featureCenter as featureCenterUtil,
   buildSelectedBuildingMarker,
 } from "../../lib/map/markerPlacement";
-import { NavigationUI } from "../features/navigation/NavigationUI";
 
 // Disable telemetry
 setAccessToken(null);
@@ -117,7 +116,6 @@ export function MapContainer({
     setUserLocation,
     setLocationAccuracy,
     trackingMode,
-    navigationMode,
   } = useMapContext();
 
   const mapStyleUrl =
@@ -919,9 +917,7 @@ export function MapContainer({
         </View>
       )}
 
-      {navigationMode ? (
-        <NavigationUI />
-      ) : classroomFinderVisible ? (
+      {classroomFinderVisible ? (
         <ClassroomFinderPanel
           visible={classroomFinderVisible}
           buildingName={
