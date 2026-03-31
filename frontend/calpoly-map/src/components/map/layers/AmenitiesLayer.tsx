@@ -8,6 +8,7 @@ import {
   Images,
 } from "@maplibre/maplibre-react-native";
 import { useMapContext } from "../../../context/MapContext";
+import { usePostHog } from "posthog-react-native";
 
 // Icon image mappings for different amenity categories
 const AMENITY_ICONS: Record<string, any> = {
@@ -32,6 +33,7 @@ const EMPTY_FC: FeatureCollection<Point> = { type: "FeatureCollection", features
 
 // Main component to render the amenities layer on the map
 export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes: string[]; visible?: boolean }) {
+  const posthog = usePostHog();
   const [amenityData, setAmenityData] = useState<FeatureCollection<Point> | null>(null);
   const { setMapDataStatus, mapDataRetryToken, selectAmenity, selectedBuilding, mapMode } = useMapContext();
 
@@ -153,8 +155,12 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
       }
 
       selectAmenity(feature, levels);
+      posthog.capture("amenity_tapped", {
+        amenity_category: feature.properties?.category ?? "Unknown",
+        amenity_building: feature.properties?.building ?? "Unknown",
+      });
     },
-    [selectAmenity],
+    [posthog, selectAmenity],
   );
 
   const activeShape = !amenityData || mapMode !== "amenities"

@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
+import { usePostHog } from "posthog-react-native";
 
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
@@ -70,6 +71,7 @@ export function MapContainer({
   amenityOptions: AmenityFilterOption[];
   onBuildingPress?: (feature: any) => void;
 }) {
+  const posthog = usePostHog();
   const mapRef = useRef<MapViewRef | null>(null);
   const cameraRef = useRef<CameraRef | null>(null);
   const lastCameraStopRef = useRef<string | null>(null);
@@ -536,6 +538,10 @@ export function MapContainer({
         setTapMarkerCoord(null);
         const building = feature as Feature<Geometry, GeoJsonProperties>;
         selectBuilding(building);
+        posthog.capture("building_tapped", {
+          building_name: properties.name ?? "Unknown",
+          building_type: properties.building ?? properties.amenity ?? "Unknown",
+        });
         // Prefer tap coordinates for camera centering so the view stays
         // anchored to where the user actually tapped.
         const tapLng = building.properties?._tapLng as number | undefined;
@@ -592,10 +598,15 @@ export function MapContainer({
       }
       setRoutingActive(true);
       setRouteDestination(feature);
+      posthog.capture("directions_requested", {
+        destination_name: feature.properties?.name ?? "Unknown",
+        from_current_location: !!(userLocation && isValidCoordinate(userLocation)),
+      });
     },
     [
       featureCenter,
       isValidCoordinate,
+      posthog,
       setRouteDestination,
       setRouteEnd,
       setRouteRequested,
