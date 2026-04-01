@@ -12,6 +12,7 @@
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.2.8",
     "@maplibre/maplibre-react-native": "^10.4.2",
+    "@sentry/react-native": "~7.2.0",
     "expo": "~54.0.26",
     "expo-application": "~7.0.8",
     "expo-asset": "~12.0.12",

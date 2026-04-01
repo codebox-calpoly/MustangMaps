@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import * as Sentry from "@sentry/react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { PostHogProvider } from 'posthog-react-native';
 import { MapProvider, useMapContext } from '../context/MapContext';
@@ -29,6 +30,11 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
   { id: "printer", label: "Printers" },
 ];
 
+Sentry.init({
+  dsn: "https://d2e969de4c48dabc45f54993e6f5f2eb@o4511045453086720.ingest.us.sentry.io/4511045465407488",
+  tracesSampleRate: 1.0,
+});
+
 function ThemedSafeArea({ children }: { children: React.ReactNode }) {
   const { mapStyle } = useMapContext();
   const dark = mapStyle === "dark";
@@ -39,7 +45,7 @@ function ThemedSafeArea({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <PostHogProvider
       apiKey="phc_xBVGBfGzLCjimQ7sppjTtqzoVh2Nx8gN6L7oUYifMyDf"
@@ -158,3 +164,5 @@ function MapScreen({
     </MapContainer>
   );
 }
+
+export default Sentry.wrap(App);

@@ -12,7 +12,8 @@
           "isAndroidBackgroundLocationEnabled": true
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "@sentry/react-native"
     ],
     "name": "MustangMaps",
     "slug": "mustangmaps",
