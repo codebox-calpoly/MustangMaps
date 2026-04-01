@@ -33,7 +33,7 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
 ];
 
 Sentry.init({
-  dsn: "https://d2e969de4c48dabc45f54993e6f5f2eb@o4511045453086720.ingest.us.sentry.io/4511045465407488",
+  dsn: "https://348bb00969a4dae4c55101664e2d9543@o4511145737453568.ingest.us.sentry.io/4511145747218432",
   tracesSampleRate: 1.0,
 });
 

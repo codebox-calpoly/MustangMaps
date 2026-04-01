@@ -13,7 +13,13 @@
         }
       ],
       "expo-localization",
-      "@sentry/react-native"
+      [
+        "@sentry/react-native",
+        {
+          "organization": "mustangmaps",
+          "project": "react-native"
+        }
+      ]
     ],
     "name": "MustangMaps",
     "slug": "mustangmaps",
