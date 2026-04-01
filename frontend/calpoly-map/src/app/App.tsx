@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import * as Sentry from "@sentry/react-native";
+import * as Updates from "expo-updates";
+import { Alert } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { PostHogProvider } from 'posthog-react-native';
 import { MapProvider, useMapContext } from '../context/MapContext';
@@ -45,7 +47,32 @@ function ThemedSafeArea({ children }: { children: React.ReactNode }) {
   );
 }
 
+function useOTAUpdates() {
+  useEffect(() => {
+    if (__DEV__) return;
+    (async () => {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert(
+            "Update Available",
+            "A new version has been downloaded. Restart to apply.",
+            [
+              { text: "Later", style: "cancel" },
+              { text: "Restart", onPress: () => Updates.reloadAsync() },
+            ],
+          );
+        }
+      } catch (e) {
+        // Silently fail — don't block the app for update errors
+      }
+    })();
+  }, []);
+}
+
 function App() {
+  useOTAUpdates();
   return (
     <PostHogProvider
       apiKey="phc_xBVGBfGzLCjimQ7sppjTtqzoVh2Nx8gN6L7oUYifMyDf"

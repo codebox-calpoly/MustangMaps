@@ -19,6 +19,14 @@
     "slug": "mustangmaps",
     "privacyPolicyUrl": "https://adorable-stetson-5d3.notion.site/MustangMaps-Privacy-Policy-3267e97d19e58048b6c9fb982c116ded",
     "termsOfServiceUrl": "https://adorable-stetson-5d3.notion.site/Terms-of-Service-3357e97d19e580a99c5ed44cb0311486?pvs=73",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/93a06625-8fae-47fb-8845-e85a6442ef75",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
