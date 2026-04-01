@@ -21,7 +21,7 @@
     "termsOfServiceUrl": "https://adorable-stetson-5d3.notion.site/Terms-of-Service-3357e97d19e580a99c5ed44cb0311486?pvs=73",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -61,7 +61,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/splash-icon.png"
     },
     "owner": "sbalaji524",
     "extra": {
