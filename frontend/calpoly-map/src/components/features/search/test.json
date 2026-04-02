@@ -8355,7 +8355,8 @@
       "properties": {
         "@id": "way/160997971",
         "building": "yes",
-        "man_made": "water_tower"
+        "man_made": "water_tower",
+        "name": "Water Tank"
       },
       "geometry": {
         "type": "Polygon",
