@@ -88,16 +88,17 @@ export function FavoritesLayer({
       >
         <SymbolLayer
           id="favorites-marker-icon"
+          aboveLayerID="buildings-outline"
           style={{
             iconImage: "favorite-star",
             iconSize: [
               "interpolate",
               ["linear"],
               ["zoom"],
-              13, 0.2,   // At zoom 13, 20% size
-              15, 0.3,   // At zoom 15, 30% size
-              17, 0.4,   // At zoom 17, 40% size
-              19, 0.5,
+              13, 0.1,
+              15, 0.15,
+              17, 0.2,
+              19, 0.25,
             ] as any,
             iconAllowOverlap: true,
             iconIgnorePlacement: true,
