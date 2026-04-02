@@ -55,24 +55,37 @@ const UseLocation = () => {
           return;
         }
 
-        // 3) Instant initial position from the OS cache (no GPS wait).
-        //    Only use it if accuracy is reasonable — stale cache can be far off.
-        const lastKnown = await Location.getLastKnownPositionAsync();
-        if (lastKnown && isMounted) {
-          const cachedAccuracy = lastKnown.coords.accuracy ?? null;
-          if (cachedAccuracy == null || cachedAccuracy <= CACHE_ACCURACY_THRESHOLD) {
-            setLatitude(lastKnown.coords.latitude);
-            setLongitude(lastKnown.coords.longitude);
-            setAccuracy(cachedAccuracy);
-            lastAcceptedRef.current = {
-              lat: lastKnown.coords.latitude,
-              lon: lastKnown.coords.longitude,
-            };
-          }
-        }
+        // 3) Get initial position fast: use cache and a quick Balanced fix
+        //    in parallel so the user sees their dot as soon as possible.
+        const applyFix = (loc: Location.LocationObject) => {
+          if (!isMounted) return;
+          const fixAccuracy = loc.coords.accuracy ?? null;
+          if (fixAccuracy != null && fixAccuracy > CACHE_ACCURACY_THRESHOLD) return;
+          // Only apply if we don't already have a position (avoid overwriting
+          // a better fix that arrived first).
+          if (lastAcceptedRef.current) return;
+          setLatitude(loc.coords.latitude);
+          setLongitude(loc.coords.longitude);
+          setAccuracy(fixAccuracy);
+          lastAcceptedRef.current = {
+            lat: loc.coords.latitude,
+            lon: loc.coords.longitude,
+          };
+        };
+
+        // Fire both in parallel — whichever resolves first wins.
+        const cachePromise = Location.getLastKnownPositionAsync().then(
+          (pos) => { if (pos) applyFix(pos); },
+        );
+        const quickFixPromise = Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        }).then(applyFix);
+
+        await Promise.allSettled([cachePromise, quickFixPromise]);
 
         // 4) Live updates — BestForNavigation uses additional sensors
         //    (gyroscope, accelerometer) for the highest precision.
+        if (!isMounted) return;
         subRef.current = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.BestForNavigation,

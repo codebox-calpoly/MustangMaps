@@ -801,6 +801,8 @@ export function MapContainer({
         onPress={handleMapPress}
         onDidFinishLoadingMap={() => {
           mapRef.current?.setSourceVisibility(false, "carto", "building");
+          mapRef.current?.setSourceVisibility(false, "carto", "path");
+          mapRef.current?.setSourceVisibility(false, "carto", "track");
           setMapReady(true);
         }}
       >
