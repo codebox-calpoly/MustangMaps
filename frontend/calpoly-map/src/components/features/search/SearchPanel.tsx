@@ -421,13 +421,15 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const selectedBuildingRef =
     (selectedBuilding?.properties?.ref as string | undefined) ??
     extractBuildingRef(selectedBuilding?.properties?.name ?? "");
+  const rawBuildingType = selectedBuilding?.properties?.["university-function"] ??
+    selectedBuilding?.properties?.amenity ??
+    selectedBuilding?.properties?.building;
   const selectedBuildingSubtitle = selectedBuildingRef
     ? `Building ${selectedBuildingRef}`
     : String(
-        selectedBuilding?.properties?.["university-function"] ??
-        selectedBuilding?.properties?.amenity ??
-        selectedBuilding?.properties?.building ??
-        "Campus building",
+        rawBuildingType && rawBuildingType !== "yes"
+          ? rawBuildingType
+          : "Campus building",
       );
 
   const renderMainSheetHeader = useCallback(() => {
