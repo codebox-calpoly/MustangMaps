@@ -32,10 +32,12 @@ const AMENITY_OPTIONS: AmenityFilterOption[] = [
   { id: "printer", label: "Printers" },
 ];
 
-Sentry.init({
-  dsn: "https://348bb00969a4dae4c55101664e2d9543@o4511145737453568.ingest.us.sentry.io/4511145747218432",
-  tracesSampleRate: 1.0,
-});
+if (!__DEV__) {
+  Sentry.init({
+    dsn: "https://348bb00969a4dae4c55101664e2d9543@o4511145737453568.ingest.us.sentry.io/4511145747218432",
+    tracesSampleRate: 1.0,
+  });
+}
 
 function ThemedSafeArea({ children }: { children: React.ReactNode }) {
   const { mapStyle } = useMapContext();
@@ -192,4 +194,4 @@ function MapScreen({
   );
 }
 
-export default Sentry.wrap(App);
+export default __DEV__ ? App : Sentry.wrap(App);
