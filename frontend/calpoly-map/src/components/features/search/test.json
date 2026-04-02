@@ -9143,42 +9143,6 @@
     {
       "type": "Feature",
       "properties": {
-        "@id": "way/205411407",
-        "building": "yes",
-        "name": "61E- Spanos Stadium Concession"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -120.6654935,
-              35.2989687
-            ],
-            [
-              -120.6654205,
-              35.2989826
-            ],
-            [
-              -120.6654318,
-              35.2990219
-            ],
-            [
-              -120.6655047,
-              35.299008
-            ],
-            [
-              -120.6654935,
-              35.2989687
-            ]
-          ]
-        ]
-      },
-      "id": "way/205411407"
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "@id": "way/217565201",
         "building": "yes"
       },
