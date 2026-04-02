@@ -61,10 +61,6 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const sheetRef = useRef<BottomSheet>(null);
   const lastFittedRouteRef = useRef<string | null>(null);
 
-  const openSheet = useCallback(() => {
-    sheetRef.current?.snapToIndex(3);
-  }, []);
-
   const [focused, setFocused] = useState(false);
   const [mainSearchInput, setMainSearchInput] = useState("");
 
@@ -86,6 +82,10 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     clearRoute,
     mapStyle,
   } = useMapContext();
+
+  const openSheet = useCallback(() => {
+    sheetRef.current?.snapToIndex(routingActive ? 3 : 4);
+  }, [routingActive]);
 
   const dark = mapStyle === "dark";
 
