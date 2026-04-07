@@ -120,12 +120,17 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken, mapStyle } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle, mapMode } = useMapContext();
   const dark = mapStyle === "dark";
 
+  // When in amenities mode, ignore the building filter so all buildings
+  // display at normal opacity. The filter state is preserved in context
+  // and re-applied when the user switches back to buildings mode.
+  const effectiveBuildingTypes = mapMode === "buildings" ? buildingTypes : [];
+
   const normalizedBuildingTypes = useMemo(
-    () => buildingTypes.map((value) => normalizeValue(value)),
-    [buildingTypes],
+    () => effectiveBuildingTypes.map((value) => normalizeValue(value)),
+    [effectiveBuildingTypes],
   );
 
   const categorizedBuildingData = useMemo(() => {
