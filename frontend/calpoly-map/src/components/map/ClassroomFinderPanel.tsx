@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Keyboard } from "react-native";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
@@ -120,6 +120,7 @@ export function ClassroomFinderPanel({
                 pressed && styles.resultItemPressed,
               ]}
               onPress={() => {
+                Keyboard.dismiss()
                 setQuery(String(item));
                 onSelectClassroom(String(item));
                 sheetRef.current?.snapToIndex(0);
