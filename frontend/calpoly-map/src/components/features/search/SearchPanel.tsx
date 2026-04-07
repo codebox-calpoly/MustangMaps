@@ -415,9 +415,17 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     return arrival.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " Arrival";
   };
 
-  const selectedBuildingName = stripBuildingNumber(
-    selectedBuilding?.properties?.name ?? "Unknown Building",
-  );
+  const selectedBuildingName = useMemo(() => {
+    const rawName = selectedBuilding?.properties?.name;
+    if (rawName) return stripBuildingNumber(rawName);
+    if (!selectedBuilding) return "Unknown Building";
+    const ring = getRingCoordinates(selectedBuilding.geometry as Geometry);
+    if (ring && ring.length > 0) {
+      const center = middle(ring);
+      return `${center[1].toFixed(4)}, ${center[0].toFixed(4)}`;
+    }
+    return "Unknown Building";
+  }, [selectedBuilding, getRingCoordinates, middle, stripBuildingNumber]);
   const selectedBuildingRef =
     (selectedBuilding?.properties?.ref as string | undefined) ??
     extractBuildingRef(selectedBuilding?.properties?.name ?? "");

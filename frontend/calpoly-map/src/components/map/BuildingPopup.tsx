@@ -20,7 +20,18 @@ export function BuildingPopup({
   if (!building || !visible) return null;
 
   const props = building.properties || {};
-  const name = props.name || "Unknown Building";
+  const name = props.name || (() => {
+    const geom = building.geometry;
+    let ring: number[][] | null = null;
+    if (geom.type === "Polygon") ring = (geom as any).coordinates[0] ?? null;
+    else if (geom.type === "MultiPolygon") ring = (geom as any).coordinates[0]?.[0] ?? null;
+    if (ring && ring.length > 0) {
+      const lng = ring.reduce((s, c) => s + c[0], 0) / ring.length;
+      const lat = ring.reduce((s, c) => s + c[1], 0) / ring.length;
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+    return "Unknown Building";
+  })();
   const amenity = props.amenity;
   const buildingType = props.building;
   const address = props["addr:street"];
