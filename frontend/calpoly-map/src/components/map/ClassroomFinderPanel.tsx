@@ -5,6 +5,7 @@ import BottomSheet, {
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import type { SharedValue } from "react-native-reanimated";
+import { useMapContext } from "../../context/MapContext";
 
 interface ClassroomFinderPanelProps {
   visible: boolean;
@@ -25,6 +26,8 @@ export function ClassroomFinderPanel({
 }: ClassroomFinderPanelProps) {
   const sheetRef = useRef<BottomSheet>(null);
   const [query, setQuery] = useState("");
+  const { mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
 
   const snapPoints = useMemo(() => ["28%", "50%", "65%", "85%"], []);
 
@@ -69,11 +72,13 @@ export function ClassroomFinderPanel({
       enableHandlePanningGesture
       enablePanDownToClose
       onClose={onClose}
+      backgroundStyle={dark ? { backgroundColor: "#1C1F26" } : undefined}
+      handleIndicatorStyle={dark ? { backgroundColor: "#6B7280" } : undefined}
     >
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View style={[styles.container, dark && styles.containerDark]}>
+        <View style={[styles.header, dark && styles.headerDark]}>
           <View style={styles.headerRow}>
-            <Text style={styles.title}>
+            <Text style={[styles.title, dark && styles.titleDark]}>
               Find Classroom{buildingName ? ` · ${buildingName}` : ""}
             </Text>
 
@@ -84,10 +89,11 @@ export function ClassroomFinderPanel({
               onPress={handlePressClose}
               style={({ pressed }) => [
                 styles.closeButton,
+                dark && styles.closeButtonDark,
                 pressed && styles.closeButtonPressed,
               ]}
             >
-              <Text style={styles.closeButtonText}>✕</Text>
+              <Text style={[styles.closeButtonText, dark && styles.closeButtonTextDark]}>✕</Text>
             </Pressable>
           </View>
 
@@ -95,10 +101,11 @@ export function ClassroomFinderPanel({
             value={query}
             onChangeText={setQuery}
             placeholder="Search classroom number"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={dark ? "#6B7280" : "#9CA3AF"}
             autoCapitalize="characters"
             autoCorrect={false}
-            style={styles.input}
+            keyboardAppearance={dark ? "dark" : "light"}
+            style={[styles.input, dark && styles.inputDark]}
           />
         </View>
 
@@ -117,7 +124,8 @@ export function ClassroomFinderPanel({
             <Pressable
               style={({ pressed }) => [
                 styles.resultItem,
-                pressed && styles.resultItemPressed,
+                dark && styles.resultItemDark,
+                pressed && (dark ? styles.resultItemPressedDark : styles.resultItemPressed),
               ]}
               onPress={() => {
                 Keyboard.dismiss()
@@ -126,11 +134,11 @@ export function ClassroomFinderPanel({
                 sheetRef.current?.snapToIndex(0);
               }}
             >
-              <Text style={styles.resultText}>{item}</Text>
+              <Text style={[styles.resultText, dark && styles.resultTextDark]}>{item}</Text>
             </Pressable>
           )}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No classrooms found.</Text>
+            <Text style={[styles.emptyText, dark && styles.emptyTextDark]}>No classrooms found.</Text>
           }
         />
       </View>
@@ -149,6 +157,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
+  containerDark: {
+    backgroundColor: "#1C1F26",
+  },
   header: {
     paddingHorizontal: 10,
     paddingTop: 14,
@@ -156,6 +167,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#F3F4F6",
+  },
+  headerDark: {
+    backgroundColor: "#1C1F26",
+    borderBottomColor: "#3A4048",
   },
   headerRow: {
     flexDirection: "row",
@@ -170,6 +185,9 @@ const styles = StyleSheet.create({
     color: "#111827",
     marginRight: 12,
   },
+  titleDark: {
+    color: "#F9FAFB",
+  },
   closeButton: {
     width: 36,
     height: 36,
@@ -182,6 +200,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 10,
   },
+  closeButtonDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+  },
   closeButtonPressed: {
     backgroundColor: "#E5E7EB",
   },
@@ -189,6 +211,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#6B7280",
+  },
+  closeButtonTextDark: {
+    color: "#9CA3AF",
   },
   input: {
     paddingHorizontal: 20,
@@ -198,6 +223,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     textAlign: "center",
     backgroundColor: "#FFFFFF",
+    color: "#111827",
+  },
+  inputDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+    color: "#F9FAFB",
   },
   resultsList: {
     flex: 1,
@@ -219,17 +250,30 @@ const styles = StyleSheet.create({
     borderBottomColor: "#F3F4F6",
     backgroundColor: "#FFFFFF",
   },
+  resultItemDark: {
+    backgroundColor: "#1C1F26",
+    borderBottomColor: "#3A4048",
+  },
   resultItemPressed: {
     backgroundColor: "#D2E6FF",
+  },
+  resultItemPressedDark: {
+    backgroundColor: "#2A2F38",
   },
   resultText: {
     fontSize: 17,
     fontWeight: "600",
     color: "#111827",
   },
+  resultTextDark: {
+    color: "#F9FAFB",
+  },
   emptyText: {
     paddingVertical: 18,
     color: "#6B7280",
     textAlign: "center",
+  },
+  emptyTextDark: {
+    color: "#9CA3AF",
   },
 });

@@ -497,11 +497,11 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           {routingActive && (
             <TouchableOpacity
               onPress={() => { clearRoute(); setSearchQuery(""); }}
-              style={styles.clearChip}
+              style={[styles.clearChip, dark && { backgroundColor: "#2A2F38" }]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               activeOpacity={0.6}
             >
-              <Text style={styles.clearChipText}>✕</Text>
+              <Text style={[styles.clearChipText, dark && { color: "#9CA3AF" }]}>✕</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -521,15 +521,16 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
               }}
               style={({ pressed }) => [
                 styles.accessibleToggle,
+                dark && { backgroundColor: "#2A2F38", borderColor: "#3A4048" },
                 routeAccessibleOnly && styles.accessibleToggleActive,
                 pressed && styles.accessibleTogglePressed,
               ]}
             >
-              <View style={[styles.accessibleCheckbox, routeAccessibleOnly && styles.accessibleCheckboxActive]}>
+              <View style={[styles.accessibleCheckbox, dark && { backgroundColor: "#1C1F26", borderColor: "#6B7280" }, routeAccessibleOnly && styles.accessibleCheckboxActive]}>
                 {routeAccessibleOnly && <Text style={styles.accessibleCheckmark}>✓</Text>}
               </View>
-              <Text style={styles.accessibleToggleText}>Accessible Routes Only</Text>
-              <Text style={styles.accessibleToggleIcon}>♿</Text>
+              <Text style={[styles.accessibleToggleText, dark && { color: "#F9FAFB" }]}>Accessible Routes Only</Text>
+              <Text style={[styles.accessibleToggleIcon, dark && { color: "#D1D5DB" }]}>♿</Text>
             </Pressable>
           </View>
         ) : (
@@ -540,6 +541,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
             clearButtonMode="always"
             autoCapitalize="none"
             autoCorrect={false}
+            keyboardAppearance={dark ? "dark" : "light"}
             onChangeText={handleSearch}
             value={mainSearchInput}
             onFocus={() => {
