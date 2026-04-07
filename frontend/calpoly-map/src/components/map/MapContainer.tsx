@@ -525,6 +525,10 @@ export function MapContainer({
       // accidentally select a building while following a route.
       if (trackingMode) return;
 
+      // Ignore building taps while the classroom finder is open so
+      // tapping on the map doesn't place a red marker.
+      if (classroomFinderVisible) return;
+
       // Handle building press from BuildingLayer
       const properties = feature.properties;
       if (properties && (properties.building || properties.amenity)) {
@@ -550,7 +554,7 @@ export function MapContainer({
         onBuildingPress(feature);
       }
     },
-    [featureCenter, handleCameraMove, onBuildingPress, selectBuilding, trackingMode],
+    [classroomFinderVisible, featureCenter, handleCameraMove, onBuildingPress, selectBuilding, trackingMode],
   );
 
   const CAL_POLY_BOUNDS = {
@@ -841,7 +845,7 @@ export function MapContainer({
             />
           </ShapeSource>
         )}
-        {tapMarkerGeoJSON && !selectedBuilding && (
+        {tapMarkerGeoJSON && !selectedBuilding && !classroomFinderVisible && (
           <ShapeSource id="tap-marker-source" shape={tapMarkerGeoJSON} hitbox={{ width: 0, height: 0 }}>
             <CircleLayer
               id="tap-marker"
