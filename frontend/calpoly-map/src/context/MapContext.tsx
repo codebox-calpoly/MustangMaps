@@ -175,6 +175,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
     setRouteStartIsCurrentLocation(false);
     setRouteDestination(null);
     setRoutingActive(false);
+    setRouteAccessibleOnly(false);
   }, []);
 
 
