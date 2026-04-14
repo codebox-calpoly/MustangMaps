@@ -23,7 +23,7 @@
     {
       "id": "water-fountain",
       "filename": "water-fountain.png",
-      "fillColor": "#a8ffe5",
+      "fillColor": "#083824",
       "glyph": "water"
     },
     {
@@ -48,7 +48,7 @@
     {
       "id": "printer",
       "filename": "printer.png",
-      "fillColor": "#ffd2a8",
+      "fillColor": "#5a0096",
       "glyph": "printer"
     },
     {
@@ -60,7 +60,7 @@
     {
       "id": "favorites",
       "filename": "favorites.png",
-      "fillColor": "#caa8ff",
+      "fillColor": "#b00000",
       "glyph": "favorites"
     }
   ]
