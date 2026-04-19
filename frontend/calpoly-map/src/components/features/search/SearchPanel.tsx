@@ -265,12 +265,23 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
 
   const placeFromFeature = useCallback(
     (feature: any): SavedPlace | null => {
-      const ring = getRingCoordinates(feature.geometry as Geometry);
-      if (!ring || ring.length === 0) {
-        return null;
+      const geometry = feature.geometry as Geometry;
+      let coord: [number, number] | null = null;
+
+      if (geometry?.type === "Point") {
+        const pt = geometry.coordinates;
+        if (Array.isArray(pt) && pt.length === 2 && pt.every(Number.isFinite)) {
+          coord = [pt[0], pt[1]];
+        }
+      } else {
+        const ring = getRingCoordinates(geometry);
+        if (ring && ring.length > 0) {
+          coord = middle(ring) as [number, number];
+        }
       }
 
-      const coord = middle(ring) as [number, number];
+      if (!coord) return null;
+
       const rawName = String(feature.properties?.name ?? "Unknown");
       const rawRef =
         typeof feature.properties?.ref === "string"
