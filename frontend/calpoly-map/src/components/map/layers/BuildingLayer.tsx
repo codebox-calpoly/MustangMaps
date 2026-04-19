@@ -362,8 +362,8 @@ export function BuildingLayer({
       <LineLayer
         id="buildings-outline"
         style={{
-          lineColor: dark ? "#86EFAC" : "#111827",
-          lineWidth: 1,
+          lineColor: dark ? "#86EFAC" : "#000000",
+          lineWidth: 1.5,
           lineOpacity: buildingOutlineOpacity,
           lineOpacityTransition: { duration: 200, delay: 0 },
         }}
