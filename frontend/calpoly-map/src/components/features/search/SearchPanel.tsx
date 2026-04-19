@@ -711,7 +711,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
           keyExtractor={extractSearchRowKey}
           renderItem={renderSearchRow}
           keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="none"
+          keyboardDismissMode="on-drag"
           bounces={false}
           overScrollMode="never"
           removeClippedSubviews={false}
