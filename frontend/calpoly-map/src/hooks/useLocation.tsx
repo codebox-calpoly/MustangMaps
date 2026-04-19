@@ -29,8 +29,10 @@ const UseLocation = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [heading, setHeading] = useState<number | null>(null);
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
+  const headingSubRef = useRef<Location.LocationSubscription | null>(null);
   const lastAcceptedRef = useRef<{ lat: number; lon: number } | null>(null);
   // Allow the first accurate watch reading to snap directly to the real
   // position without being blocked by the drift dead zone.
@@ -123,6 +125,20 @@ const UseLocation = () => {
             setAccuracy(readingAccuracy);
           },
         );
+
+        // 5) Compass / heading updates. trueHeading is preferred; fall back to
+        //    magHeading when the device can't compute true north yet.
+        if (!isMounted) return;
+        headingSubRef.current = await Location.watchHeadingAsync((reading) => {
+          if (!isMounted) return;
+          const value =
+            reading.trueHeading != null && reading.trueHeading >= 0
+              ? reading.trueHeading
+              : reading.magHeading;
+          if (typeof value === "number" && Number.isFinite(value)) {
+            setHeading(((value % 360) + 360) % 360);
+          }
+        });
       } catch (e: any) {
         if (isMounted) setErrorMsg(e?.message ?? String(e));
       }
@@ -134,10 +150,12 @@ const UseLocation = () => {
       isMounted = false;
       subRef.current?.remove();
       subRef.current = null;
+      headingSubRef.current?.remove();
+      headingSubRef.current = null;
     };
   }, []);
 
-  return { latitude, longitude, accuracy, errorMsg };
+  return { latitude, longitude, accuracy, heading, errorMsg };
 };
 
 export default UseLocation;

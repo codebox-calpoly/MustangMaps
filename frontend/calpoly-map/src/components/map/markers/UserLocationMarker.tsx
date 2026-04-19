@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { Feature, Point } from "geojson";
-import { CircleLayer, ShapeSource } from "@maplibre/maplibre-react-native";
+import type { Feature, Point, Polygon } from "geojson";
+import { CircleLayer, FillLayer, ShapeSource } from "@maplibre/maplibre-react-native";
 import { useUserLocation } from "../../../context/UserLocationContext";
 import { useMapContext } from "../../../context/MapContext";
 
@@ -13,8 +13,45 @@ const PULSE_MIN_RADIUS = 10;
 const PULSE_MAX_RADIUS = 24;
 const PULSE_SPEED = 0.4; // radians per tick
 
+// Half-angle (degrees) of the heading cone and its radius (meters).
+// Values tuned to match Apple/Google Maps' field-of-view indicator.
+const CONE_HALF_ANGLE_DEG = 32;
+const CONE_RADIUS_METERS = 18;
+
+function buildHeadingCone(
+  lon: number,
+  lat: number,
+  bearingDeg: number,
+): Feature<Polygon> {
+  const toRad = Math.PI / 180;
+  const cosLat = Math.cos(lat * toRad);
+  const METERS_PER_DEG_LAT = 111_320;
+
+  const start = bearingDeg - CONE_HALF_ANGLE_DEG;
+  const end = bearingDeg + CONE_HALF_ANGLE_DEG;
+  const steps = 14;
+
+  const ring: [number, number][] = [[lon, lat]];
+  for (let i = 0; i <= steps; i++) {
+    const b = start + ((end - start) * i) / steps;
+    const br = b * toRad;
+    const dxMeters = Math.sin(br) * CONE_RADIUS_METERS;
+    const dyMeters = Math.cos(br) * CONE_RADIUS_METERS;
+    const dLon = dxMeters / (METERS_PER_DEG_LAT * cosLat);
+    const dLat = dyMeters / METERS_PER_DEG_LAT;
+    ring.push([lon + dLon, lat + dLat]);
+  }
+  ring.push([lon, lat]);
+
+  return {
+    type: "Feature",
+    properties: {},
+    geometry: { type: "Polygon", coordinates: [ring] },
+  };
+}
+
 export default function UserLocationMarker() {
-  const { latitude, longitude, errorMsg } = useUserLocation();
+  const { latitude, longitude, heading, errorMsg } = useUserLocation();
   const { trackingMode } = useMapContext();
 
   const [displayLat, setDisplayLat] = useState<number | null>(null);
@@ -133,6 +170,10 @@ export default function UserLocationMarker() {
     },
   };
 
+  const headingCone = heading != null
+    ? buildHeadingCone(displayLon, displayLat, heading)
+    : null;
+
   return (
     <>
       {trackingMode && (
@@ -144,6 +185,18 @@ export default function UserLocationMarker() {
               circleColor: "#2563EB",
               circleOpacity: pulseOpacity,
               circleStrokeWidth: 0,
+            }}
+          />
+        </ShapeSource>
+      )}
+      {headingCone && (
+        <ShapeSource id="user-marker-heading" shape={headingCone}>
+          <FillLayer
+            id="user-marker-heading-fill"
+            style={{
+              fillColor: "#2563EB",
+              fillOpacity: 0.35,
+              fillAntialias: true,
             }}
           />
         </ShapeSource>
