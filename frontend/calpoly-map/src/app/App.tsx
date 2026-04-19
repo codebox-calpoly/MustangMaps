@@ -1,5 +1,13 @@
 import React, { useEffect } from "react";
+import { Text } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  useFonts,
+  SpaceGrotesk_400Regular,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from "@expo-google-fonts/space-grotesk";
 import { MapProvider, useMapContext } from '../context/MapContext';
 import { SavedPlacesProvider } from '../context/SavedPlacesContext';
 import { MapContainer } from '../components/map/MapContainer';
@@ -38,7 +46,64 @@ function ThemedSafeArea({ children }: { children: React.ReactNode }) {
   );
 }
 
+function pickFontFamily(weight?: unknown): string {
+  const w = typeof weight === "number" ? String(weight) : String(weight ?? "400");
+  if (w === "700" || w === "bold" || w === "800" || w === "900") return "SpaceGrotesk_700Bold";
+  if (w === "600") return "SpaceGrotesk_600SemiBold";
+  if (w === "500") return "SpaceGrotesk_500Medium";
+  return "SpaceGrotesk_400Regular";
+}
+
+function applyDefaultFont() {
+  const TextAny = Text as unknown as {
+    defaultProps?: { style?: unknown };
+    render?: (...args: unknown[]) => unknown;
+  };
+  TextAny.defaultProps = TextAny.defaultProps || {};
+  const existingStyle = TextAny.defaultProps.style;
+  TextAny.defaultProps.style = [
+    { fontFamily: "SpaceGrotesk_400Regular" },
+    existingStyle,
+  ];
+
+  const originalRender = Text.render;
+  Text.render = function render(...args: Parameters<typeof originalRender>) {
+    const element = originalRender.apply(this, args) as React.ReactElement<{
+      style?: unknown;
+    }>;
+    const flattened = [element.props.style].flat(Infinity).filter(Boolean) as Array<{
+      fontWeight?: unknown;
+      fontFamily?: unknown;
+    }>;
+    const hasFontFamily = flattened.some((s) => s && typeof s === "object" && "fontFamily" in s && s.fontFamily);
+    if (hasFontFamily) return element;
+    const weight = flattened.reduce<unknown>(
+      (acc, s) => (s && typeof s === "object" && "fontWeight" in s && s.fontWeight ? s.fontWeight : acc),
+      undefined,
+    );
+    return React.cloneElement(element, {
+      style: [{ fontFamily: pickFontFamily(weight) }, element.props.style],
+    });
+  };
+}
+
+let fontOverrideApplied = false;
+
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    SpaceGrotesk_400Regular,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
+  });
+
+  if (fontsLoaded && !fontOverrideApplied) {
+    applyDefaultFont();
+    fontOverrideApplied = true;
+  }
+
+  if (!fontsLoaded) return null;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

@@ -10,12 +10,14 @@
     "test": "tsx --test src/lib/routing/pathfinder.test.ts"
   },
   "dependencies": {
+    "@expo-google-fonts/space-grotesk": "^0.4.1",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@maplibre/maplibre-react-native": "^10.4.2",
     "expo": "~54.0.26",
     "expo-asset": "~12.0.12",
     "expo-dev-client": "~6.0.20",
     "expo-file-system": "~19.0.21",
+    "expo-font": "^55.0.6",
     "expo-location": "~19.0.8",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
