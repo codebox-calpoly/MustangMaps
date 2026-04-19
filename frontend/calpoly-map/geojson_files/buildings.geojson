@@ -10820,7 +10820,7 @@
         "amenity": "dormitory"
       },
       "geometry": {
-        "type": "Polygon",
+        "type": "Polygon`",
         "coordinates": [
           [
             [

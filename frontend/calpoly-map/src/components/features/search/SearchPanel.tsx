@@ -24,7 +24,7 @@ import {
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
 
-import geoData from "./test.json";
+import geoData from "../../../../geojson_files/buildings.geojson";
 
 interface Props {
   cameraMove: (coordinates: number[]) => void;
