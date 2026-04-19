@@ -55,6 +55,29 @@ function pickFontFamily(weight?: unknown): string {
   return "SpaceGrotesk_400Regular";
 }
 
+function transformTextProps(props: Record<string, unknown>): Record<string, unknown> {
+  const styleProp = (props as { style?: unknown }).style;
+  const flattened = [styleProp].flat(Infinity).filter(Boolean) as Array<{
+    fontWeight?: unknown;
+    fontFamily?: unknown;
+  }>;
+  const hasFontFamily = flattened.some(
+    (s) => s && typeof s === "object" && "fontFamily" in s && s.fontFamily,
+  );
+  if (hasFontFamily) return props;
+  const weight = flattened.reduce<unknown>(
+    (acc, s) =>
+      s && typeof s === "object" && "fontWeight" in s && s.fontWeight
+        ? s.fontWeight
+        : acc,
+    undefined,
+  );
+  return {
+    ...props,
+    style: [{ fontFamily: pickFontFamily(weight) }, styleProp],
+  };
+}
+
 let fontOverrideApplied = false;
 function applyDefaultFont() {
   if (fontOverrideApplied) return;
@@ -64,40 +87,18 @@ function applyDefaultFont() {
     createElement: typeof React.createElement;
   };
   const originalCreateElement = ReactAny.createElement;
-
   ReactAny.createElement = function patchedCreateElement(
     type: unknown,
     props: Record<string, unknown> | null | undefined,
     ...children: unknown[]
   ) {
     if (type === Text && props) {
-      const styleProp = (props as { style?: unknown }).style;
-      const flattened = [styleProp].flat(Infinity).filter(Boolean) as Array<{
-        fontWeight?: unknown;
-        fontFamily?: unknown;
-      }>;
-      const hasFontFamily = flattened.some(
-        (s) => s && typeof s === "object" && "fontFamily" in s && s.fontFamily,
+      return originalCreateElement.call(
+        this,
+        type as React.ElementType,
+        transformTextProps(props),
+        ...children,
       );
-      if (!hasFontFamily) {
-        const weight = flattened.reduce<unknown>(
-          (acc, s) =>
-            s && typeof s === "object" && "fontWeight" in s && s.fontWeight
-              ? s.fontWeight
-              : acc,
-          undefined,
-        );
-        const nextProps = {
-          ...props,
-          style: [{ fontFamily: pickFontFamily(weight) }, styleProp],
-        };
-        return originalCreateElement.call(
-          this,
-          type as React.ElementType,
-          nextProps,
-          ...children,
-        );
-      }
     }
     return originalCreateElement.call(
       this,
@@ -106,6 +107,41 @@ function applyDefaultFont() {
       ...children,
     );
   } as typeof React.createElement;
+
+  const patchJsxFn = (
+    mod: Record<string, unknown>,
+    name: string,
+  ) => {
+    const fn = mod[name];
+    if (typeof fn !== "function") return;
+    const original = fn as (
+      type: unknown,
+      props: Record<string, unknown> | null | undefined,
+      ...rest: unknown[]
+    ) => unknown;
+    mod[name] = function patchedJsx(
+      type: unknown,
+      props: Record<string, unknown> | null | undefined,
+      ...rest: unknown[]
+    ) {
+      if (type === Text && props) {
+        return original.call(this, type, transformTextProps(props), ...rest);
+      }
+      return original.call(this, type, props, ...rest);
+    };
+  };
+
+  // Use require() to get the real singleton module object. `import *` would
+  // go through Babel's interopRequireWildcard, which wraps CJS modules in a
+  // new object, so mutations wouldn't reach the real jsx-runtime that every
+  // other compiled file's JSX calls through.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const jsxRuntime = require("react/jsx-runtime") as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const jsxDevRuntime = require("react/jsx-dev-runtime") as Record<string, unknown>;
+  patchJsxFn(jsxRuntime, "jsx");
+  patchJsxFn(jsxRuntime, "jsxs");
+  patchJsxFn(jsxDevRuntime, "jsxDEV");
 }
 
 export default function App() {

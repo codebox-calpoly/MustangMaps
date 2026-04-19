@@ -10715,27 +10715,6 @@
     {
       "type": "Feature",
       "properties": {
-        "@id": "node/10205352042",
-        "amenity": "fast_food",
-        "brand": "Subway",
-        "brand:wikidata": "Q244457",
-        "cuisine": "sandwich",
-        "fixme:atp": "no ATP match, check if still exists",
-        "name": "Subway",
-        "takeaway": "yes"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -120.6593383,
-          35.3072205
-        ]
-      },
-      "id": "node/10205352042"
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "@id": "node/10205352043",
         "addr:city": "San Luis Obispo",
         "addr:housenumber": "1",
@@ -10820,7 +10799,7 @@
         "amenity": "dormitory"
       },
       "geometry": {
-        "type": "Polygon`",
+        "type": "Polygon",
         "coordinates": [
           [
             [
