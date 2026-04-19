@@ -153,7 +153,7 @@ export function RouteLineLayer() {
           <LineLayer
             id="route-line"
             style={{
-              lineColor: "#2563EB",
+              lineColor: "#7C3AED",
               lineWidth: 4,
               lineOpacity: 0.9,
             }}
