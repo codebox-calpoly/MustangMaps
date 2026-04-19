@@ -24,6 +24,7 @@ import { ClassZonesLayer } from "../components/map/layers/ClassZonesLayer";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All" },
+  { id: "favorites", label: "Favorites" },
   { id: "academic", label: "Academic" },
   { id: "residential", label: "Residential" },
   { id: "dining", label: "Dining" },

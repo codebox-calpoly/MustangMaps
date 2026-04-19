@@ -10,6 +10,7 @@ import {
   SymbolLayer,
 } from "@maplibre/maplibre-react-native";
 import { useMapContext } from "../../../context/MapContext";
+import { useSavedPlaces } from "../../../context/SavedPlacesContext";
 
 // Color mappings for different building/amenity types
 const BUILDING_TYPE_COLORS: Record<string, string> = {
@@ -122,7 +123,21 @@ export function BuildingLayer({
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
   const { setMapDataStatus, mapDataRetryToken, mapStyle, mapMode } = useMapContext();
+  const { favorites } = useSavedPlaces();
   const dark = mapStyle === "dark";
+
+  const favoriteMatchers = useMemo(() => {
+    const refs = new Set<string>();
+    const names = new Set<string>();
+    for (const fav of favorites) {
+      if (fav.ref) refs.add(String(fav.ref).trim());
+      if (fav.name) {
+        const stripped = fav.name.replace(/\s*\(\d+\)\s*$/, "").trim().toLowerCase();
+        if (stripped) names.add(stripped);
+      }
+    }
+    return { refs, names };
+  }, [favorites]);
 
   // When in amenities mode, ignore the building filter so all buildings
   // display at normal opacity. The filter state is preserved in context
@@ -162,6 +177,11 @@ export function BuildingLayer({
         const categories = categorizeBuilding(feature.properties);
         const rawName = String(feature.properties?.name ?? "").trim();
         const displayName = rawName.replace(/\s*\(\d+\)\s*$/, "").trim();
+        const ref = String(feature.properties?.ref ?? "").trim();
+        const isFavorite =
+          (ref.length > 0 && favoriteMatchers.refs.has(ref)) ||
+          (displayName.length > 0 &&
+            favoriteMatchers.names.has(displayName.toLowerCase()));
         return {
           ...feature,
           properties: {
@@ -170,12 +190,13 @@ export function BuildingLayer({
             filter_academic: categories.has("academic"),
             filter_residential: categories.has("residential"),
             filter_dining: categories.has("dining"),
+            filter_favorite: isFavorite,
             displayName,
           },
         };
       }),
     } as FeatureCollection;
-  }, [buildingData]);
+  }, [buildingData, favoriteMatchers]);
 
   // When "All" is selected (no specific types), show every building at full
   // opacity. When a specific category is active, dim buildings outside it.
@@ -186,6 +207,7 @@ export function BuildingLayer({
       academic: ["==", ["get", "filter_academic"], true] as const,
       residential: ["==", ["get", "filter_residential"], true] as const,
       dining: ["==", ["get", "filter_dining"], true] as const,
+      favorites: ["==", ["get", "filter_favorite"], true] as const,
     };
 
     const includesAll =
