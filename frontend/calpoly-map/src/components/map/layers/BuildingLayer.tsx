@@ -7,6 +7,7 @@ import {
   FillLayer,
   LineLayer,
   ShapeSource,
+  SymbolLayer,
 } from "@maplibre/maplibre-react-native";
 import { useMapContext } from "../../../context/MapContext";
 
@@ -159,6 +160,8 @@ export function BuildingLayer({
       ...buildingData,
       features: deduped.map((feature) => {
         const categories = categorizeBuilding(feature.properties);
+        const rawName = String(feature.properties?.name ?? "").trim();
+        const displayName = rawName.replace(/\s*\(\d+\)\s*$/, "").trim();
         return {
           ...feature,
           properties: {
@@ -167,6 +170,7 @@ export function BuildingLayer({
             filter_academic: categories.has("academic"),
             filter_residential: categories.has("residential"),
             filter_dining: categories.has("dining"),
+            displayName,
           },
         };
       }),
@@ -366,6 +370,33 @@ export function BuildingLayer({
           lineWidth: 1.5,
           lineOpacity: buildingOutlineOpacity,
           lineOpacityTransition: { duration: 200, delay: 0 },
+        }}
+      />
+      <SymbolLayer
+        id="buildings-label"
+        minZoomLevel={17}
+        filter={["has", "displayName"]}
+        style={{
+          textField: ["get", "displayName"],
+          textFont: ["SpaceGrotesk_600SemiBold"],
+          textSize: [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            17, 10,
+            19, 12,
+            21, 14,
+          ],
+          textMaxWidth: 8,
+          textAllowOverlap: false,
+          textIgnorePlacement: false,
+          textOptional: true,
+          textPadding: 2,
+          textColor: dark ? "#F9FAFB" : "#111827",
+          textHaloColor: dark ? "#000000" : "#FFFFFF",
+          textHaloWidth: 1.25,
+          textHaloBlur: 0.5,
+          textOpacity: buildingOutlineOpacity,
         }}
       />
     </ShapeSource>
