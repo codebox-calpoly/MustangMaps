@@ -7,6 +7,8 @@ import React, {
 } from "react";
 import { Dimensions, Keyboard, Pressable, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system/legacy";
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
@@ -24,7 +26,7 @@ import {
   type SavedPlace,
 } from "../../../context/SavedPlacesContext";
 
-import geoData from "../../../../geojson_files/buildings.geojson";
+type BuildingFeature = Feature<Geometry, GeoJsonProperties>;
 
 interface Props {
   cameraMove: (coordinates: number[]) => void;
@@ -151,7 +153,31 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
     [setSearchQuery],
   );
 
-  const data = geoData.features;
+  const [data, setData] = useState<BuildingFeature[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const asset = Asset.fromModule(
+          require("../../../../geojson_files/buildings.geojson"),
+        );
+        await asset.downloadAsync();
+        const uri = asset.localUri ?? asset.uri;
+        const text = await FileSystem.readAsStringAsync(uri);
+        const parsed = JSON.parse(text);
+        if (cancelled) return;
+        if (parsed?.type === "FeatureCollection" && Array.isArray(parsed.features)) {
+          setData(parsed.features as BuildingFeature[]);
+        }
+      } catch {
+        if (!cancelled) setData([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Filter safely with plain string matching (no user-input RegExp).
   const filteredData = useMemo(() => {
