@@ -5,6 +5,7 @@ import {
   FillLayer,
   LineLayer,
 } from "@maplibre/maplibre-react-native";
+import { useMapContext } from "../../../context/MapContext";
 
 interface ClassZonesLayerProps {
   zoneData: FeatureCollection | null;
@@ -17,12 +18,13 @@ export function ClassZonesLayer({
   selectedZoneId = null,
   selectedZoneBuildingId = null,
 }: ClassZonesLayerProps) {
+  const { mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
+
   if (!zoneData) {
     return null;
   }
 
-  // Always keep the ShapeSource mounted so the GeoJSON data stays loaded.
-  // When no zone is selected, use an impossible filter to hide everything.
   const zoneFilter =
     selectedZoneId && selectedZoneBuildingId
       ? ([
@@ -38,16 +40,16 @@ export function ClassZonesLayer({
         id="class-zones-fill"
         filter={zoneFilter}
         style={{
-          fillColor: "#FCD34D",
-          fillOpacity: 0.45,
+          fillColor: dark ? "#FDE047" : "#FCD34D",
+          fillOpacity: dark ? 0.7 : 0.45,
         }}
       />
       <LineLayer
         id="class-zones-line"
         filter={zoneFilter}
         style={{
-          lineColor: "#F59E0B",
-          lineWidth: 3,
+          lineColor: dark ? "#FBBF24" : "#F59E0B",
+          lineWidth: dark ? 3.5 : 3,
         }}
       />
     </ShapeSource>
