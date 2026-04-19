@@ -168,7 +168,18 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
         const parsed = JSON.parse(text);
         if (cancelled) return;
         if (parsed?.type === "FeatureCollection" && Array.isArray(parsed.features)) {
-          setData(parsed.features as BuildingFeature[]);
+          const seen = new Set<string>();
+          const deduped: BuildingFeature[] = [];
+          for (const f of parsed.features as BuildingFeature[]) {
+            const name = String(f.properties?.name ?? "");
+            const ref = String(f.properties?.ref ?? "");
+            const atId = String((f.properties as any)?.["@id"] ?? "");
+            const key = atId || `${name}|${ref}`;
+            if (!key || seen.has(key)) continue;
+            seen.add(key);
+            deduped.push(f);
+          }
+          setData(deduped);
         }
       } catch {
         if (!cancelled) setData([]);

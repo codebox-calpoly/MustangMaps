@@ -54,40 +54,58 @@ function pickFontFamily(weight?: unknown): string {
   return "SpaceGrotesk_400Regular";
 }
 
-function applyDefaultFont() {
-  const TextAny = Text as unknown as {
-    defaultProps?: { style?: unknown };
-    render?: (...args: unknown[]) => unknown;
-  };
-  TextAny.defaultProps = TextAny.defaultProps || {};
-  const existingStyle = TextAny.defaultProps.style;
-  TextAny.defaultProps.style = [
-    { fontFamily: "SpaceGrotesk_400Regular" },
-    existingStyle,
-  ];
-
-  const originalRender = Text.render;
-  Text.render = function render(...args: Parameters<typeof originalRender>) {
-    const element = originalRender.apply(this, args) as React.ReactElement<{
-      style?: unknown;
-    }>;
-    const flattened = [element.props.style].flat(Infinity).filter(Boolean) as Array<{
-      fontWeight?: unknown;
-      fontFamily?: unknown;
-    }>;
-    const hasFontFamily = flattened.some((s) => s && typeof s === "object" && "fontFamily" in s && s.fontFamily);
-    if (hasFontFamily) return element;
-    const weight = flattened.reduce<unknown>(
-      (acc, s) => (s && typeof s === "object" && "fontWeight" in s && s.fontWeight ? s.fontWeight : acc),
-      undefined,
-    );
-    return React.cloneElement(element, {
-      style: [{ fontFamily: pickFontFamily(weight) }, element.props.style],
-    });
-  };
-}
-
 let fontOverrideApplied = false;
+function applyDefaultFont() {
+  if (fontOverrideApplied) return;
+  fontOverrideApplied = true;
+
+  const ReactAny = React as unknown as {
+    createElement: typeof React.createElement;
+  };
+  const originalCreateElement = ReactAny.createElement;
+
+  ReactAny.createElement = function patchedCreateElement(
+    type: unknown,
+    props: Record<string, unknown> | null | undefined,
+    ...children: unknown[]
+  ) {
+    if (type === Text && props) {
+      const styleProp = (props as { style?: unknown }).style;
+      const flattened = [styleProp].flat(Infinity).filter(Boolean) as Array<{
+        fontWeight?: unknown;
+        fontFamily?: unknown;
+      }>;
+      const hasFontFamily = flattened.some(
+        (s) => s && typeof s === "object" && "fontFamily" in s && s.fontFamily,
+      );
+      if (!hasFontFamily) {
+        const weight = flattened.reduce<unknown>(
+          (acc, s) =>
+            s && typeof s === "object" && "fontWeight" in s && s.fontWeight
+              ? s.fontWeight
+              : acc,
+          undefined,
+        );
+        const nextProps = {
+          ...props,
+          style: [{ fontFamily: pickFontFamily(weight) }, styleProp],
+        };
+        return originalCreateElement.call(
+          this,
+          type as React.ElementType,
+          nextProps,
+          ...children,
+        );
+      }
+    }
+    return originalCreateElement.call(
+      this,
+      type as React.ElementType,
+      props as Record<string, unknown>,
+      ...children,
+    );
+  } as typeof React.createElement;
+}
 
 export default function App() {
   const [fontsLoaded] = useFonts({
