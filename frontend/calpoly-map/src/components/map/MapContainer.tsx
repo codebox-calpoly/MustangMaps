@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -939,6 +940,44 @@ export function MapContainer({
         <UserLocationButton />
       </Animated.View>
 
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Map attributions"
+        onPress={() => {
+          Alert.alert(
+            "Map Attributions",
+            "Map data © OpenStreetMap contributors (ODbL).\nBasemap tiles © CARTO.",
+            [
+              {
+                text: "OpenStreetMap",
+                onPress: () =>
+                  Linking.openURL("https://www.openstreetmap.org/copyright"),
+              },
+              {
+                text: "CARTO",
+                onPress: () => Linking.openURL("https://carto.com/attributions"),
+              },
+              { text: "Close", style: "cancel" },
+            ],
+          );
+        }}
+        style={({ pressed }) => [
+          styles.attributionButton,
+          mapStyle === "dark" && styles.attributionButtonDark,
+          pressed && { opacity: 0.7 },
+        ]}
+        hitSlop={8}
+      >
+        <Text
+          style={[
+            styles.attributionButtonText,
+            mapStyle === "dark" && styles.attributionButtonTextDark,
+          ]}
+        >
+          ⓘ
+        </Text>
+      </Pressable>
+
       <AmenityPopup
         visible={!!selectedAmenity}
         amenity={selectedAmenity}
@@ -1030,6 +1069,37 @@ const styles = StyleSheet.create({
     right: 16,
     top: 175,
     zIndex: 3,
+  },
+  attributionButton: {
+    position: "absolute",
+    right: 16,
+    top: 227,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    zIndex: 3,
+  },
+  attributionButtonDark: {
+    backgroundColor: "#1C1F26",
+    borderColor: "#3A4048",
+  },
+  attributionButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#6B7280",
+  },
+  attributionButtonTextDark: {
+    color: "#9CA3AF",
   },
   locationButton: {
     width: 42,
