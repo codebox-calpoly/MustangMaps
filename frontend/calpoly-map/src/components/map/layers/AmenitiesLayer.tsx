@@ -14,7 +14,6 @@ const AMENITY_ICONS: Record<string, any> = {
   "water-fountain": require("../../../../assets/icons/water-fountain.png"),
   "bathroom": require("../../../../assets/icons/bathroom.png"),
   "printer": require("../../../../assets/icons/printer.png"),
-  "elevator": require("../../../../assets/icons/elevator.png"),
 };
 
 const DISPLAYED_AMENITY_CATEGORIES = [
@@ -22,8 +21,6 @@ const DISPLAYED_AMENITY_CATEGORIES = [
   "bathroom",
   "toilet",
   "printer",
-  "elevator",
-  "lift",
 ] as const;
 
 // Stable empty collection — avoids creating a new object reference on every
@@ -105,8 +102,6 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
       "bathroom", "bathroom",
       "toilet", "bathroom",
       "printer", "printer",
-      "elevator", "elevator",
-      "lift", "elevator",
       "water-fountain" // default
     ] as any;
   }, []);
@@ -120,9 +115,6 @@ export function AmenitiesLayer({ amenityTypes, visible = true }: { amenityTypes:
     const types = [...amenityTypes];
     if (types.includes("bathroom") && !types.includes("toilet")) {
       types.push("toilet");
-    }
-    if (types.includes("elevator") && !types.includes("lift")) {
-      types.push("lift");
     }
     return types;
   }, [amenityTypes]);
