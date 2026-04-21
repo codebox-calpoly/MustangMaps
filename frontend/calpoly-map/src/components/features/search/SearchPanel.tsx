@@ -92,7 +92,7 @@ export function SearchPanel({ cameraMove, cameraFitRoute, bottomSheetPosition, o
   const dark = mapStyle === "dark";
 
   const snapPoints = useMemo(
-    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["14%", "22%", "35%", "55%", "75%"],
+    () => routingActive ? ["28%", "50%", "65%", "85%"] : ["18%", "28%", "40%", "60%", "80%"],
     [routingActive],
   );
 

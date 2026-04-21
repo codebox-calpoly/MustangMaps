@@ -294,6 +294,7 @@ export function BuildingLayer({
   if (!categorizedBuildingData) return null;
 
   return (
+    <>
     <ShapeSource
       id="buildings-source"
       shape={categorizedBuildingData}
@@ -394,13 +395,17 @@ export function BuildingLayer({
           lineOpacityTransition: { duration: 200, delay: 0 },
         }}
       />
+    </ShapeSource>
+    <ShapeSource
+      id="buildings-labels-source"
+      shape={categorizedBuildingData}
+    >
       <SymbolLayer
         id="buildings-label"
         minZoomLevel={17}
         filter={["has", "displayName"]}
         style={{
           textField: ["get", "displayName"],
-          textFont: ["SpaceGrotesk_600SemiBold"],
           textSize: [
             "interpolate",
             ["linear"],
@@ -422,5 +427,6 @@ export function BuildingLayer({
         }}
       />
     </ShapeSource>
+    </>
   );
 }
