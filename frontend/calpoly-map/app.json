@@ -6,7 +6,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "MustangMaps uses your location to show your live position on the Cal Poly campus map and provide walking directions to buildings, dining, and other destinations.",
+          "locationWhenInUsePermission": "MustangMaps uses your location while the app is open to show your live position on the Cal Poly campus map. Your location is used to help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. This information helps MustangMaps provide more accurate walking directions and orientation as you move through campus.",
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
@@ -31,7 +31,7 @@
       "bundleIdentifier": "com.mustangmaps.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location to show your live position on the Cal Poly campus map and provide walking directions to buildings, dining, and other destinations."
+        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location while the app is open to show your live position on the Cal Poly campus map. Your location is used to help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. This information helps MustangMaps provide more accurate walking directions and orientation as you move through campus."
       }
     },
     "android": {
