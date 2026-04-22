@@ -6,10 +6,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysPermission": "Allow MustangMaps to use your location.",
-          "locationWhenInUsePermission": "Allow MustangMaps to use your location.",
-          "isIosBackgroundLocationEnabled": true,
-          "isAndroidBackgroundLocationEnabled": true
+          "locationWhenInUsePermission": "MustangMaps uses your location to show your live position on the Cal Poly campus map and provide walking directions to buildings, dining, and other destinations.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
         }
       ]
     ],
@@ -32,14 +31,7 @@
       "bundleIdentifier": "com.mustangmaps.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [
-          "location",
-          "fetch",
-          "remote-notification"
-        ],
-        "NSLocationAlwaysUsageDescription": "MustangMaps uses your location to show your position on the campus map and provide turn-by-turn walking directions, even when the app is in the background.",
-        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location to show where you are on the Cal Poly campus map and guide you to buildings, amenities, and destinations.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "MustangMaps uses your location to show your position on the campus map and continue navigating to your destination when you switch to another app."
+        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location to show your live position on the Cal Poly campus map and provide walking directions to buildings, dining, and other destinations."
       }
     },
     "android": {
@@ -53,9 +45,7 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_BACKGROUND_LOCATION",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_LOCATION"
+        "android.permission.FOREGROUND_SERVICE"
       ]
     },
     "web": {
