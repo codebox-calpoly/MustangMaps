@@ -6,7 +6,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "MustangMaps uses your location while the app is open to show your live position on the Cal Poly campus map. Your location is used to help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. This information helps MustangMaps provide more accurate walking directions and orientation as you move through campus.",
+          "locationWhenInUsePermission": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. Your location is used only to provide on-screen positioning, orientation, and walking directions during your session. MustangMaps does not store your location history or use your location for advertising, analytics, or any unrelated purpose.",
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
@@ -31,7 +31,7 @@
       "bundleIdentifier": "com.mustangmaps.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location while the app is open to show your live position on the Cal Poly campus map. Your location is used to help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. This information helps MustangMaps provide more accurate walking directions and orientation as you move through campus."
+        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. Your location is used only to provide on-screen positioning, orientation, and walking directions during your session. MustangMaps does not store your location history or use your location for advertising, analytics, or any unrelated purpose."
       }
     },
     "android": {
