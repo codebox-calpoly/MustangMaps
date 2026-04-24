@@ -7,6 +7,29 @@ export interface BlueprintBuilding {
 }
 
 export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
+  "relation/2806804": [
+    {
+      ref: "35",
+      name: "Robert E. Kennedy Library",
+      pages: [
+        require("../../assets/blueprints/35/page-1.webp"),
+        require("../../assets/blueprints/35/page-2.webp"),
+        require("../../assets/blueprints/35/page-3.webp"),
+        require("../../assets/blueprints/35/page-4.webp"),
+        require("../../assets/blueprints/35/page-5.webp"),
+      ],
+    },
+  ],
+  "relation/4504112": [
+    {
+      ref: "13",
+      name: "Engineering",
+      pages: [
+        require("../../assets/blueprints/13/page-1.webp"),
+        require("../../assets/blueprints/13/page-2.webp"),
+      ],
+    },
+  ],
   "way/1217465601": [
     {
       ref: "181",
@@ -91,12 +114,153 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/38899882": [
+    {
+      ref: "197",
+      name: "Bonderson Engineering Projects Center",
+      pages: [
+        require("../../assets/blueprints/197/page-1.webp"),
+        require("../../assets/blueprints/197/page-2.webp"),
+      ],
+    },
+  ],
   "way/38899884": [
     {
       ref: "7",
       name: "Advanced Technology Laboratories",
       pages: [
         require("../../assets/blueprints/7/page-1.webp"),
+      ],
+    },
+  ],
+  "way/38939878": [
+    {
+      ref: "40",
+      name: "Engineering South",
+      pages: [
+        require("../../assets/blueprints/40/page-1.webp"),
+      ],
+    },
+  ],
+  "way/38939879": [
+    {
+      ref: "26",
+      name: "Graphic Arts",
+      pages: [
+        require("../../assets/blueprints/26/page-1.webp"),
+        require("../../assets/blueprints/26/page-2.webp"),
+        require("../../assets/blueprints/26/page-3.webp"),
+        require("../../assets/blueprints/26/page-4.webp"),
+      ],
+    },
+  ],
+  "way/38939881": [
+    {
+      ref: "20",
+      name: "Engineering East",
+      pages: [
+        require("../../assets/blueprints/20/page-1.webp"),
+        require("../../assets/blueprints/20/page-2.webp"),
+      ],
+    },
+  ],
+  "way/38939883": [
+    {
+      ref: "14",
+      name: "Frank E Pilling Building",
+      pages: [
+        require("../../assets/blueprints/14/page-1.webp"),
+        require("../../assets/blueprints/14/page-2.webp"),
+        require("../../assets/blueprints/14/page-3.webp"),
+      ],
+    },
+  ],
+  "way/38939884": [
+    {
+      ref: "13",
+      name: "Engineering",
+      pages: [
+        require("../../assets/blueprints/13/page-1.webp"),
+        require("../../assets/blueprints/13/page-2.webp"),
+      ],
+    },
+    {
+      ref: "21",
+      name: "Engineering West",
+      pages: [
+        require("../../assets/blueprints/21/page-1.webp"),
+        require("../../assets/blueprints/21/page-2.webp"),
+        require("../../assets/blueprints/21/page-3.webp"),
+        require("../../assets/blueprints/21/page-4.webp"),
+        require("../../assets/blueprints/21/page-5.webp"),
+        require("../../assets/blueprints/21/page-6.webp"),
+      ],
+    },
+  ],
+  "way/38939886": [
+    {
+      ref: "13",
+      name: "Engineering",
+      pages: [
+        require("../../assets/blueprints/13/page-1.webp"),
+        require("../../assets/blueprints/13/page-2.webp"),
+      ],
+    },
+    {
+      ref: "21",
+      name: "Engineering West",
+      pages: [
+        require("../../assets/blueprints/21/page-1.webp"),
+        require("../../assets/blueprints/21/page-2.webp"),
+        require("../../assets/blueprints/21/page-3.webp"),
+        require("../../assets/blueprints/21/page-4.webp"),
+        require("../../assets/blueprints/21/page-5.webp"),
+        require("../../assets/blueprints/21/page-6.webp"),
+      ],
+    },
+  ],
+  "way/38939888": [
+    {
+      ref: "34",
+      name: "Walter F. Dexter Building",
+      pages: [
+        require("../../assets/blueprints/34/page-1.webp"),
+        require("../../assets/blueprints/34/page-2.webp"),
+      ],
+    },
+  ],
+  "way/42335852": [
+    {
+      ref: "43",
+      name: "Kinesiology",
+      pages: [
+        require("../../assets/blueprints/43/page-1.webp"),
+        require("../../assets/blueprints/43/page-2.webp"),
+        require("../../assets/blueprints/43/page-3.webp"),
+        require("../../assets/blueprints/43/page-4.webp"),
+        require("../../assets/blueprints/43/page-5.webp"),
+      ],
+    },
+  ],
+  "way/45600370": [
+    {
+      ref: "13",
+      name: "Engineering",
+      pages: [
+        require("../../assets/blueprints/13/page-1.webp"),
+        require("../../assets/blueprints/13/page-2.webp"),
+      ],
+    },
+    {
+      ref: "21",
+      name: "Engineering West",
+      pages: [
+        require("../../assets/blueprints/21/page-1.webp"),
+        require("../../assets/blueprints/21/page-2.webp"),
+        require("../../assets/blueprints/21/page-3.webp"),
+        require("../../assets/blueprints/21/page-4.webp"),
+        require("../../assets/blueprints/21/page-5.webp"),
+        require("../../assets/blueprints/21/page-6.webp"),
       ],
     },
   ],
@@ -128,6 +292,16 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/45600398": [
+    {
+      ref: "8",
+      name: "Bioresource and Agricultural Engineering",
+      pages: [
+        require("../../assets/blueprints/8/page-1.webp"),
+        require("../../assets/blueprints/8/page-2.webp"),
+      ],
+    },
+  ],
   "way/45600403": [
     {
       ref: "1",
@@ -138,6 +312,23 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
         require("../../assets/blueprints/1/page-3.webp"),
         require("../../assets/blueprints/1/page-4.webp"),
         require("../../assets/blueprints/1/page-5.webp"),
+      ],
+    },
+    {
+      ref: "15",
+      name: "Cal Poly Corporation Administration",
+      pages: [
+        require("../../assets/blueprints/15/page-1.webp"),
+      ],
+    },
+  ],
+  "way/45600405": [
+    {
+      ref: "8",
+      name: "Bioresource and Agricultural Engineering",
+      pages: [
+        require("../../assets/blueprints/8/page-1.webp"),
+        require("../../assets/blueprints/8/page-2.webp"),
       ],
     },
   ],
@@ -223,6 +414,42 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
         require("../../assets/blueprints/33/page-2.webp"),
         require("../../assets/blueprints/33/page-3.webp"),
         require("../../assets/blueprints/33/page-4.webp"),
+      ],
+    },
+  ],
+  "way/45644100": [
+    {
+      ref: "186",
+      name: "Construction Innovations Center",
+      pages: [
+        require("../../assets/blueprints/186/page-1.webp"),
+        require("../../assets/blueprints/186/page-2.webp"),
+        require("../../assets/blueprints/186/page-3.webp"),
+        require("../../assets/blueprints/186/page-4.webp"),
+        require("../../assets/blueprints/186/page-5.webp"),
+      ],
+    },
+  ],
+  "way/45644222": [
+    {
+      ref: "13",
+      name: "Engineering",
+      pages: [
+        require("../../assets/blueprints/13/page-1.webp"),
+        require("../../assets/blueprints/13/page-2.webp"),
+      ],
+    },
+  ],
+  "way/486219813": [
+    {
+      ref: "6",
+      name: "Christopher Cohan Center",
+      pages: [
+        require("../../assets/blueprints/6/page-1.webp"),
+        require("../../assets/blueprints/6/page-2.webp"),
+        require("../../assets/blueprints/6/page-3.webp"),
+        require("../../assets/blueprints/6/page-4.webp"),
+        require("../../assets/blueprints/6/page-5.webp"),
       ],
     },
   ],

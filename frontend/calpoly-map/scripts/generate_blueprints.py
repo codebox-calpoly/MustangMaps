@@ -40,15 +40,22 @@ SHARED_GROUPS: list[frozenset[str]] = [
     frozenset({"10", "22"}),  # Agriculture (010) & English (022)
 ]
 
-FILENAME_RE = re.compile(r"^building\s+(\d+)-\d+_(.+)\.pdf$", re.I)
+FILENAME_RE = re.compile(r"^building\s+(\d+)-(\S*)_(.+)\.pdf$", re.I)
 
 
 def normalize_ref(ref: str) -> str:
-    """'010' -> '10', '181' -> '181', '1' -> '1'."""
+    """'010' -> '10', '181' -> '181', '1' -> '1', '43A' -> '43A'."""
     try:
         return str(int(ref))
     except ValueError:
-        return ref
+        return ref.upper()
+
+
+def name_tokens(s: str) -> set[str]:
+    """Lowercased word tokens with filler words removed — for fuzzy name matching."""
+    stop = {"building", "center", "hall", "the", "a", "of", "for", "and", "cal", "poly"}
+    words = re.findall(r"[a-z]+", s.lower())
+    return {w for w in words if w not in stop and len(w) > 1}
 
 
 def pretty_name(raw: str) -> str:
@@ -60,19 +67,57 @@ def pretty_name(raw: str) -> str:
     return s.title().replace(" And ", " and ").replace(" Of ", " of ").replace(" For ", " for ").replace(" The ", " the ")
 
 
-def load_buildings() -> dict[str, list[dict]]:
+def load_buildings() -> tuple[dict[str, list[dict]], list[dict]]:
     with BUILDINGS_GEOJSON.open() as f:
         data = json.load(f)
     refs: dict[str, list[dict]] = {}
+    all_buildings: list[dict] = []
     for feat in data["features"]:
         props = feat.get("properties") or {}
-        ref = props.get("ref")
         osm_id = feat.get("id") or props.get("@id")
         name = props.get("name") or ""
-        if not ref or not osm_id:
+        ref = props.get("ref")
+        if not osm_id or not name:
             continue
-        refs.setdefault(normalize_ref(str(ref)), []).append({"id": osm_id, "name": name})
-    return refs
+        entry = {"id": osm_id, "name": name, "ref": normalize_ref(str(ref)) if ref else None}
+        all_buildings.append(entry)
+        if ref:
+            refs.setdefault(normalize_ref(str(ref)), []).append(entry)
+    return refs, all_buildings
+
+
+def find_osm_matches(
+    pdf_ref: str,
+    pdf_variant: str,
+    pdf_name: str,
+    refs_index: dict[str, list[dict]],
+    all_buildings: list[dict],
+) -> tuple[list[dict], str]:
+    """Return (matches, strategy) where strategy describes how we matched."""
+    # 1) Ref with variant suffix (e.g. 43 + "a" -> "43A")
+    if pdf_variant and not pdf_variant.isdigit():
+        variant_ref = f"{pdf_ref}{pdf_variant.upper()}"
+        if variant_ref in refs_index:
+            return refs_index[variant_ref], f"ref={variant_ref}"
+    # 2) Plain ref
+    if pdf_ref in refs_index:
+        return refs_index[pdf_ref], f"ref={pdf_ref}"
+    # 3) Name-based fuzzy: PDF name tokens ⊆ OSM name tokens (or vice versa, with overlap threshold)
+    pdf_toks = name_tokens(pdf_name)
+    if not pdf_toks:
+        return [], "none"
+    best: list[dict] = []
+    for b in all_buildings:
+        osm_toks = name_tokens(b["name"])
+        if not osm_toks:
+            continue
+        # Require at least 2 shared significant tokens AND one side is a subset of the other
+        shared = pdf_toks & osm_toks
+        if len(shared) >= 2 and (pdf_toks.issubset(osm_toks) or osm_toks.issubset(pdf_toks)):
+            best.append(b)
+    if best:
+        return best, f"name~{pdf_name!r}"
+    return [], "none"
 
 
 def convert_pdf(pdf: Path, dest: Path) -> list[str]:
@@ -107,9 +152,9 @@ def main() -> int:
         print(f"error: {PDF_DIR} missing", file=sys.stderr)
         return 1
 
-    refs_to_osm = load_buildings()
+    refs_to_osm, all_buildings = load_buildings()
 
-    # Convert each PDF and remember {ref, name, pages}
+    # Convert each PDF and remember {ref, variant, name, pages}
     processed: list[dict] = []
     for pdf in sorted(PDF_DIR.glob("*.pdf")):
         m = FILENAME_RE.match(pdf.name)
@@ -117,11 +162,12 @@ def main() -> int:
             print(f"skip (filename): {pdf.name}")
             continue
         ref = normalize_ref(m.group(1))
-        name = pretty_name(m.group(2))
+        variant = m.group(2) or ""
+        name = pretty_name(m.group(3))
         print(f"converting ref={ref} ({name})...")
         pages = convert_pdf(pdf, OUT_DIR / ref)
         print(f"  -> {len(pages)} pages")
-        processed.append({"ref": ref, "name": name, "pages": pages})
+        processed.append({"ref": ref, "variant": variant, "name": name, "pages": pages})
 
     by_ref = {p["ref"]: p for p in processed}
 
@@ -149,14 +195,19 @@ def main() -> int:
                 attach(osm_id, entry)
         shared_refs_handled.update(r for r in group if r in by_ref)
 
-    # Everyone else: attach PDF to each OSM polygon whose ref matches.
+    # Everyone else: ref match → name fallback → skip with warning.
     for p in processed:
         if p["ref"] in shared_refs_handled:
             continue
-        hits = refs_to_osm.get(p["ref"], [])
+        hits, how = find_osm_matches(
+            p["ref"], p["variant"], p["name"], refs_to_osm, all_buildings
+        )
         if not hits:
-            print(f"warn: no OSM building with ref={p['ref']!r} for {p['name']}")
+            print(f"warn: no OSM match for ref={p['ref']!r} ({p['name']})")
             continue
+        if how.startswith("name~"):
+            osm_names = ", ".join(h["name"] for h in hits)
+            print(f"  matched ref={p['ref']} via {how} -> {osm_names}")
         for hit in hits:
             attach(hit["id"], p)
 
