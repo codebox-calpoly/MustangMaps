@@ -19,9 +19,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { Asset } from "expo-asset";
-import * as FileSystem from "expo-file-system/legacy";
-
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -134,9 +131,6 @@ export function MapContainer({
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
     useState<Feature<Geometry, GeoJsonProperties> | null>(null);
-  const [classZones, setClassZones] = useState<FeatureCollection | null>(null);
-  const [selectedClassZoneId, setSelectedClassZoneId] = useState<string | null>(null);
-  const [selectedClassZoneBuildingId, setSelectedClassZoneBuildingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -145,41 +139,6 @@ export function MapContainer({
     setUserLocation([longitude, latitude]);
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const asset = Asset.fromModule(
-          require("../../../geojson_files/class_zones/class_zones.geojson")
-        );
-
-        await asset.downloadAsync();
-
-        const uri = asset.localUri ?? asset.uri;
-        const text = await FileSystem.readAsStringAsync(uri);
-        const parsed = JSON.parse(text);
-
-        if (!parsed || parsed.type !== "FeatureCollection") {
-          throw new Error("class_zones.geojson is not a valid FeatureCollection");
-        }
-
-        if (!cancelled) {
-          setClassZones(parsed as FeatureCollection);
-        }
-      } catch (error) {
-        console.error("Failed to load class zones:", error);
-        if (!cancelled) {
-          setClassZones(null);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -625,8 +584,6 @@ export function MapContainer({
       // (featureJustSelectedRef would have blocked us). Clear any existing
       // selection so the user can tap away to deselect.
       clearSelection();
-      setSelectedClassZoneId(null);
-      setSelectedClassZoneBuildingId(null);
 
       // Place a generic tap marker where the user tapped (only for non-building areas)
       const properties = feature.properties;
@@ -646,92 +603,12 @@ export function MapContainer({
     [classroomFinderVisible, clearAmenitySelection, clearSelection, onMapPress],
   );
 
-  const normalizeRoom = useCallback((room: string) => {
-    return room.trim().toUpperCase().replace(/^(\d+)-/, "");
-  }, []);
+  const buildingsWithClassZones = useMemo(() => new Set<string>(), []);
 
-  const findZoneByClassroom = useCallback(
-    (room: string): Feature<Geometry, GeoJsonProperties> | null => {
-      if (!classZones || !classroomFinderBuilding) return null;
-
-      const normalizedTarget = normalizeRoom(room);
-      const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
-
-      if (!selectedBuildingId) {
-        return null;
-      }
-
-      for (const feature of classZones.features) {
-        const zoneBuildingId =
-          typeof feature.properties?.building_id === "string"
-            ? String(feature.properties.building_id)
-            : null;
-
-        if (zoneBuildingId !== selectedBuildingId) {
-          continue;
-        }
-
-        const classrooms = feature.properties?.classrooms;
-
-        if (
-          Array.isArray(classrooms) &&
-          classrooms.some(
-            (value) => normalizeRoom(String(value)) === normalizedTarget
-          )
-        ) {
-          return feature as Feature<Geometry, GeoJsonProperties>;
-        }
-      }
-
-      return null;
-    },
-    [classZones, classroomFinderBuilding, getBuildingFeatureId, normalizeRoom],
-  );
-
-  const buildingsWithClassZones = useMemo(() => {
-    if (!classZones) return new Set<string>();
-    const ids = new Set<string>();
-    for (const feature of classZones.features) {
-      const bid = feature.properties?.building_id;
-      if (typeof bid === "string") ids.add(bid);
-    }
-    return ids;
-  }, [classZones]);
-
-  const classroomsForSelectedBuilding = useMemo(() => {
-    if (!classroomFinderBuilding || !classZones) {
-      return [];
-    }
-
-    const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
-
-    if (!selectedBuildingId) {
-      return [];
-    }
-
-    const matchingFeatures = classZones.features.filter((feature) => {
-      const zoneBuildingId =
-        typeof feature.properties?.building_id === "string"
-          ? String(feature.properties.building_id)
-          : null;
-
-      return zoneBuildingId === selectedBuildingId;
-    });
-
-    const allClassrooms = matchingFeatures.flatMap((feature) => {
-      const classrooms = feature.properties?.classrooms;
-      return Array.isArray(classrooms) ? classrooms : [];
-    });
-
-    return Array.from(new Set(allClassrooms.map(String))).sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" })
-    );
-  }, [classZones, classroomFinderBuilding, getBuildingFeatureId]);
+  const classroomsForSelectedBuilding = useMemo<string[]>(() => [], []);
 
   const handleOpenClassroomFinder = useCallback(
     (building: Feature<Geometry, GeoJsonProperties>) => {
-      setSelectedClassZoneId(null);
-      setSelectedClassZoneBuildingId(null);
       setClassroomFinderBuilding(building);
       setClassroomFinderVisible(true);
       setTapMarkerCoord(null);
@@ -742,57 +619,13 @@ export function MapContainer({
 
   const handleCloseClassroomFinder = useCallback(() => {
     setClassroomFinderVisible(false);
-    setSelectedClassZoneId(null);
-    setSelectedClassZoneBuildingId(null);
     setClassroomFinderBuilding(null);
     setTapMarkerCoord(null);
   }, []);
 
-  const handleSelectClassroom = useCallback(
-    (room: string) => {
-      const zone = findZoneByClassroom(room);
-      if (!zone) {
-        return;
-      }
-
-      const zoneId =
-        typeof zone.properties?.zone_id === "string"
-          ? String(zone.properties.zone_id)
-          : null;
-
-      const buildingId =
-        typeof zone.properties?.building_id === "string"
-          ? String(zone.properties.building_id)
-          : null;
-
-      setSelectedClassZoneId(zoneId);
-      setSelectedClassZoneBuildingId(buildingId);
-
-      const camera = cameraRef.current;
-      if (!camera) return;
-
-      try {
-        const bounds = getFeatureBounds(zone);
-        if (bounds) {
-          camera.fitBounds(bounds.ne, bounds.sw, [80, 40, 140, 40], 800);
-          return;
-        }
-
-        const center = featureCenter(zone);
-        if (center) {
-          const safeCenter = clampCoordinate(center);
-          camera.setCamera({
-            centerCoordinate: safeCenter,
-            zoomLevel: 18,
-            animationDuration: 800,
-          });
-        }
-      } catch (e) {
-        console.warn("handleSelectClassroom camera error:", e);
-      }
-    },
-    [clampCoordinate, featureCenter, findZoneByClassroom, getFeatureBounds],
-  );
+  const handleSelectClassroom = useCallback((_room: string) => {
+    // Placeholder: real behavior arrives with the blueprint viewer.
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -825,9 +658,6 @@ export function MapContainer({
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               onBuildingPress: handleBuildingPress,
-              zoneData: classZones,
-              selectedZoneId: selectedClassZoneId,
-              selectedZoneBuildingId: selectedClassZoneBuildingId,
             } as any);
           }
           return child;
