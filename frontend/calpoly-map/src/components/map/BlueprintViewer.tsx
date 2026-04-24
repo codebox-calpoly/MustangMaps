@@ -31,7 +31,7 @@ export function BlueprintViewer({
   const { mapStyle } = useMapContext();
   const dark = mapStyle === "dark";
 
-  const snapPoints = useMemo(() => ["95%"], []);
+  const snapPoints = useMemo(() => ["50%", "85%"], []);
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [pageIdx, setPageIdx] = useState(0);
@@ -70,7 +70,7 @@ export function BlueprintViewer({
   return (
     <BottomSheet
       ref={sheetRef}
-      index={0}
+      index={1}
       snapPoints={snapPoints}
       enableDynamicSizing={false}
       animatedPosition={bottomSheetPosition}

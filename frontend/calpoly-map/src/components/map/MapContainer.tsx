@@ -40,7 +40,8 @@ import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
-import { ClassroomFinderPanel } from "./ClassroomFinderPanel";
+import { BlueprintViewer } from "./BlueprintViewer";
+import { BLUEPRINT_OSM_IDS } from "../../config/blueprints.generated";
 
 import Animated, {
   useAnimatedStyle,
@@ -603,9 +604,7 @@ export function MapContainer({
     [classroomFinderVisible, clearAmenitySelection, clearSelection, onMapPress],
   );
 
-  const buildingsWithClassZones = useMemo(() => new Set<string>(), []);
-
-  const classroomsForSelectedBuilding = useMemo<string[]>(() => [], []);
+  const buildingsWithBlueprints = BLUEPRINT_OSM_IDS;
 
   const handleOpenClassroomFinder = useCallback(
     (building: Feature<Geometry, GeoJsonProperties>) => {
@@ -621,10 +620,6 @@ export function MapContainer({
     setClassroomFinderVisible(false);
     setClassroomFinderBuilding(null);
     setTapMarkerCoord(null);
-  }, []);
-
-  const handleSelectClassroom = useCallback((_room: string) => {
-    // Placeholder: real behavior arrives with the blueprint viewer.
   }, []);
 
   return (
@@ -743,16 +738,10 @@ export function MapContainer({
       )}
 
       {classroomFinderVisible ? (
-        <ClassroomFinderPanel
+        <BlueprintViewer
           visible={classroomFinderVisible}
-          buildingName={
-            typeof classroomFinderBuilding?.properties?.name === "string"
-              ? classroomFinderBuilding.properties.name
-              : null
-          }
-          classrooms={classroomsForSelectedBuilding}
+          osmId={getBuildingFeatureId(classroomFinderBuilding)}
           onClose={handleCloseClassroomFinder}
-          onSelectClassroom={handleSelectClassroom}
           bottomSheetPosition={searchPanelHeight}
         />
       ) : (
@@ -762,7 +751,7 @@ export function MapContainer({
           bottomSheetPosition={searchPanelHeight}
           onNavigate={handleNavigate}
           onOpenClassroomFinder={handleOpenClassroomFinder}
-          buildingsWithClassZones={buildingsWithClassZones}
+          buildingsWithBlueprints={buildingsWithBlueprints}
         />
       )}
 
