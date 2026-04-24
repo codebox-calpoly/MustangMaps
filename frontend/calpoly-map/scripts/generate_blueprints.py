@@ -24,6 +24,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 PDF_DIR = ROOT / "assets" / "floor_plans"
 OUT_DIR = ROOT / "assets" / "blueprints"
@@ -32,6 +34,10 @@ MANIFEST_TS = ROOT / "src" / "config" / "blueprints.generated.ts"
 
 DPI = 250
 QUALITY = 85
+# Strip the bottom title block from each PDF page (Cal Poly logo, "Facilities
+# Management and Development" header, source URL). All buildings use the same
+# template with the title block in the bottom ~14% of a portrait page.
+TITLE_BLOCK_FRACTION = 0.14
 
 # Refs grouped here all share each other's blueprints: tapping any polygon in
 # the group surfaces every PDF from every ref in the group. Refs are stored
@@ -134,9 +140,19 @@ def convert_pdf(pdf: Path, dest: Path) -> list[str]:
         pngs = sorted(Path(tmp).glob("p-*.png"))
         pages: list[str] = []
         for i, png in enumerate(pngs, start=1):
+            cropped = Path(tmp) / f"crop-{i}.png"
+            with Image.open(png) as im:
+                w, h = im.size
+                # Portrait pages: crop bottom title block. Landscape pages
+                # (rare; some site plans): leave alone — the template differs.
+                if h > w:
+                    new_h = int(h * (1 - TITLE_BLOCK_FRACTION))
+                    im.crop((0, 0, w, new_h)).save(cropped, "PNG", optimize=True)
+                else:
+                    im.save(cropped, "PNG", optimize=True)
             webp = dest / f"page-{i}.webp"
             subprocess.run(
-                ["cwebp", "-q", str(QUALITY), "-quiet", str(png), "-o", str(webp)],
+                ["cwebp", "-q", str(QUALITY), "-quiet", str(cropped), "-o", str(webp)],
                 check=True,
             )
             pages.append(webp.name)

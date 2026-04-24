@@ -764,8 +764,11 @@ export function MapContainer({
         accessibilityLabel="Map attributions"
         onPress={() => {
           Alert.alert(
-            "Map Attributions",
-            "Map data © OpenStreetMap contributors (ODbL).\nBasemap tiles © CARTO.",
+            "Credits & Attributions",
+            "Map data © OpenStreetMap contributors (ODbL).\n" +
+              "Basemap tiles © CARTO.\n" +
+              "Floor plans courtesy of Cal Poly Facilities Management & Development.\n\n" +
+              "MustangMaps is an independent student project and is not affiliated with, endorsed by, or sponsored by California Polytechnic State University.",
             [
               {
                 text: "OpenStreetMap",
@@ -775,6 +778,13 @@ export function MapContainer({
               {
                 text: "CARTO",
                 onPress: () => Linking.openURL("https://carto.com/attributions"),
+              },
+              {
+                text: "Cal Poly Facilities",
+                onPress: () =>
+                  Linking.openURL(
+                    "https://afd.calpoly.edu/facilities/spacefacility/space_data.asp",
+                  ),
               },
               { text: "Close", style: "cancel" },
             ],
