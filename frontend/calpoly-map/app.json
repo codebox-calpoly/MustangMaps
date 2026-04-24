@@ -6,7 +6,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. Your location is used only to provide on-screen positioning, orientation, and walking directions during your session. MustangMaps does not store your location history or use your location for advertising, analytics, or any unrelated purpose.",
+          "locationWhenInUsePermission": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and provide walking directions to destinations such as classrooms, dining halls, libraries, and offices. For example, when you tap \"Directions to Building 14,\" the app uses your current location to draw the route from where you are standing. MustangMaps does not track, store, or share your location in the background or for advertising.",
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
@@ -31,7 +31,7 @@
       "bundleIdentifier": "com.mustangmaps.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and help you navigate to destinations such as classrooms, dining halls, libraries, offices, and other campus services. Your location is used only to provide on-screen positioning, orientation, and walking directions during your session. MustangMaps does not store your location history or use your location for advertising, analytics, or any unrelated purpose."
+        "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and provide walking directions to destinations such as classrooms, dining halls, libraries, and offices. For example, when you tap \"Directions to Building 14,\" the app uses your current location to draw the route from where you are standing. MustangMaps does not track, store, or share your location in the background or for advertising."
       }
     },
     "android": {
