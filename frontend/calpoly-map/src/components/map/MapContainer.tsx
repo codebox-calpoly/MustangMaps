@@ -15,6 +15,7 @@ import {
   Linking,
   Platform,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -41,7 +42,10 @@ import { useSavedPlaces } from "../../context/SavedPlacesContext";
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
 import { BlueprintViewer } from "./BlueprintViewer";
+import { DropPinCard } from "./DropPinCard";
 import { BLUEPRINT_OSM_IDS } from "../../config/blueprints.generated";
+
+const SHARE_BASE_URL = "https://mustangmaps.vercel.app/p";
 
 import Animated, {
   useAnimatedStyle,
@@ -128,6 +132,7 @@ export function MapContainer({
   const [followUser, setFollowUser] = useState<boolean>(false);
 
   const [tapMarkerCoord, setTapMarkerCoord] = useState<[number, number] | null>(null);
+  const [sharePin, setSharePin] = useState<[number, number] | null>(null);
 
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
@@ -190,6 +195,20 @@ export function MapContainer({
       ],
     };
   }, [tapMarkerCoord]);
+
+  const sharePinGeoJSON = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!sharePin) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Point", coordinates: sharePin },
+        },
+      ],
+    };
+  }, [sharePin]);
 
   const getFeatureBounds = useCallback(
     (
@@ -568,6 +587,41 @@ export function MapContainer({
     ],
   );
 
+  const handleMapLongPress = useCallback(
+    (feature: Feature<Geometry, GeoJsonProperties>) => {
+      const coords = (feature.geometry as any)?.coordinates;
+      if (!Array.isArray(coords) || coords.length !== 2) return;
+      const [lng, lat] = coords;
+      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+      setSharePin([lng, lat]);
+      setTapMarkerCoord(null);
+    },
+    [],
+  );
+
+  const handleSharePin = useCallback(
+    async (note: string) => {
+      if (!sharePin) return;
+      const [lng, lat] = sharePin;
+      const params = `lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}` +
+        (note ? `&n=${encodeURIComponent(note)}` : "");
+      const url = `${SHARE_BASE_URL}?${params}`;
+      const message = note
+        ? `${note} — pinned on MustangMaps: ${url}`
+        : `Meet me here on MustangMaps: ${url}`;
+      try {
+        await Share.share({ message, url });
+      } catch (e) {
+        console.warn("Share failed:", e);
+      }
+    },
+    [sharePin],
+  );
+
+  const handleDismissSharePin = useCallback(() => {
+    setSharePin(null);
+  }, []);
+
   const handleMapPress = useCallback(
     async (feature: Feature<Geometry, GeoJsonProperties>) => {
       const map = mapRef.current;
@@ -632,6 +686,7 @@ export function MapContainer({
         zoomEnabled={mapGesturesEnabled}
         scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
+        onLongPress={handleMapLongPress}
         onDidFinishLoadingMap={() => {
           mapRef.current?.setSourceVisibility(false, "carto", "building");
           mapRef.current?.setSourceVisibility(false, "carto", "path");
@@ -678,6 +733,27 @@ export function MapContainer({
               style={{
                 circleRadius: 10,
                 circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
+        {sharePinGeoJSON && (
+          <ShapeSource id="share-pin-source" shape={sharePinGeoJSON} hitbox={{ width: 0, height: 0 }}>
+            <CircleLayer
+              id="share-pin-halo"
+              style={{
+                circleRadius: 18,
+                circleColor: "#F59E0B",
+                circleOpacity: 0.25,
+              }}
+            />
+            <CircleLayer
+              id="share-pin"
+              style={{
+                circleRadius: 11,
+                circleColor: "#F59E0B",
                 circleStrokeColor: "#FFFFFF",
                 circleStrokeWidth: 3,
               }}
@@ -813,6 +889,13 @@ export function MapContainer({
         levels={amenityLevels}
         onClose={clearAmenitySelection}
         onNavigate={handleNavigate}
+      />
+
+      <DropPinCard
+        visible={sharePin !== null}
+        topInset={140}
+        onShare={handleSharePin}
+        onDismiss={handleDismissSharePin}
       />
 
     </View>

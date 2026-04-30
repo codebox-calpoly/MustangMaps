@@ -1,0 +1,183 @@
+import React, { useState } from "react";
+import {
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useMapContext } from "../../context/MapContext";
+
+interface DropPinCardProps {
+  visible: boolean;
+  onShare: (note: string) => void;
+  onDismiss: () => void;
+  topInset: number;
+}
+
+export function DropPinCard({ visible, onShare, onDismiss, topInset }: DropPinCardProps) {
+  const [note, setNote] = useState("");
+  const { mapStyle } = useMapContext();
+  const dark = mapStyle === "dark";
+
+  React.useEffect(() => {
+    if (!visible) setNote("");
+  }, [visible]);
+
+  if (!visible) return null;
+
+  const handleShare = () => {
+    Keyboard.dismiss();
+    onShare(note.trim());
+  };
+
+  const handleDismiss = () => {
+    Keyboard.dismiss();
+    onDismiss();
+  };
+
+  return (
+    <View
+      pointerEvents="box-none"
+      style={[styles.wrapper, { top: topInset + 12 }]}
+    >
+      <View style={[styles.card, dark && styles.cardDark]}>
+        <View style={styles.headerRow}>
+          <Text style={[styles.title, dark && styles.titleDark]}>📍 Pin dropped</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss dropped pin"
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            onPress={handleDismiss}
+            style={({ pressed }) => [
+              styles.closeButton,
+              dark && styles.closeButtonDark,
+              pressed && { opacity: 0.6 },
+            ]}
+          >
+            <Text style={[styles.closeButtonText, dark && styles.closeButtonTextDark]}>✕</Text>
+          </Pressable>
+        </View>
+
+        <TextInput
+          value={note}
+          onChangeText={setNote}
+          placeholder="Add a note (optional)"
+          placeholderTextColor={dark ? "#6B7280" : "#9CA3AF"}
+          maxLength={60}
+          returnKeyType="send"
+          onSubmitEditing={handleShare}
+          keyboardAppearance={dark ? "dark" : "light"}
+          style={[styles.input, dark && styles.inputDark]}
+        />
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Share dropped pin"
+          onPress={handleShare}
+          style={({ pressed }) => [
+            styles.shareButton,
+            dark && styles.shareButtonDark,
+            pressed && { opacity: 0.85 },
+          ]}
+        >
+          <Text style={styles.shareButtonText}>Share Pin</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 50,
+  },
+  card: {
+    width: "92%",
+    maxWidth: 420,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  cardDark: {
+    backgroundColor: "#1C1F26",
+    borderColor: "#3A4048",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  titleDark: {
+    color: "#F9FAFB",
+  },
+  closeButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#F3F4F6",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButtonDark: {
+    backgroundColor: "#2A2F38",
+  },
+  closeButtonText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#6B7280",
+  },
+  closeButtonTextDark: {
+    color: "#9CA3AF",
+  },
+  input: {
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    color: "#111827",
+    fontSize: 15,
+    marginBottom: 10,
+  },
+  inputDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+    color: "#F9FAFB",
+  },
+  shareButton: {
+    backgroundColor: "#154734",
+    paddingVertical: 11,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  shareButtonDark: {
+    backgroundColor: "#BD8B13",
+  },
+  shareButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+});
