@@ -29,6 +29,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mustangmaps.app",
+      "associatedDomains": ["applinks:mustangmaps.vercel.app"],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSLocationWhenInUseUsageDescription": "MustangMaps uses your location only while the app is open to show your live position on the Cal Poly campus map and provide walking directions to destinations such as classrooms, dining halls, libraries, and offices. For example, when you tap \"Directions to Building 14,\" the app uses your current location to draw the route from where you are standing. MustangMaps does not track, store, or share your location in the background or for advertising."

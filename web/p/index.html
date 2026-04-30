@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-itunes-app" content="app-id=PLACEHOLDER" />
+    <title>Open in MustangMaps</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: #f7f7f5;
+        color: #111827;
+      }
+      @media (prefers-color-scheme: dark) {
+        html, body { background: #0f1115; color: #f9fafb; }
+        .card { background: #1c1f26 !important; border-color: #3a4048 !important; }
+        .meta { color: #9ca3af !important; }
+        .secondary { background: #2a2f38 !important; color: #f9fafb !important; }
+      }
+      .wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        max-width: 420px;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 28px 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        text-align: center;
+      }
+      .pin { font-size: 44px; line-height: 1; margin-bottom: 12px; }
+      h1 { font-size: 20px; margin: 0 0 6px; font-weight: 700; }
+      .note {
+        margin: 12px 0 4px;
+        font-size: 16px;
+        font-weight: 600;
+        word-break: break-word;
+      }
+      .meta {
+        color: #6b7280;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        margin: 4px 0 22px;
+      }
+      .btn {
+        display: inline-block;
+        width: 100%;
+        padding: 13px 18px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 0;
+        cursor: pointer;
+      }
+      .primary { background: #154734; color: #fff; }
+      .secondary {
+        background: #f3f4f6;
+        color: #111827;
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .small { font-size: 12px; color: #9ca3af; margin-top: 18px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="pin">📍</div>
+        <h1>Open in MustangMaps</h1>
+        <div id="note" class="note" hidden></div>
+        <div id="coords" class="meta"></div>
+        <a id="open" class="btn primary" href="#">Open in MustangMaps</a>
+        <a class="btn secondary" href="https://mustangmaps.vercel.app/">What is MustangMaps?</a>
+        <p class="small">If the app doesn't open, make sure MustangMaps is installed.</p>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var qs = new URLSearchParams(window.location.search);
+        var lat = qs.get("lat");
+        var lng = qs.get("lng");
+        var note = qs.get("n");
+
+        // Build the deep-link URL the app understands.
+        var deepParams = new URLSearchParams();
+        if (lat) deepParams.set("lat", lat);
+        if (lng) deepParams.set("lng", lng);
+        if (note) deepParams.set("n", note);
+        var deepUrl = "mustangmaps://p?" + deepParams.toString();
+
+        var openLink = document.getElementById("open");
+        openLink.href = deepUrl;
+
+        var noteEl = document.getElementById("note");
+        if (note) {
+          noteEl.textContent = note;
+          noteEl.hidden = false;
+        }
+
+        var coordsEl = document.getElementById("coords");
+        if (lat && lng) {
+          var latNum = Number(lat);
+          var lngNum = Number(lng);
+          if (Number.isFinite(latNum) && Number.isFinite(lngNum)) {
+            coordsEl.textContent = latNum.toFixed(5) + ", " + lngNum.toFixed(5);
+          }
+        }
+
+        // Best-effort auto-redirect: only fires if the page actually loads
+        // (Universal Links normally bypass this page entirely on iOS when the
+        // app is installed). We give the user a button as the reliable path.
+        if (lat && lng) {
+          setTimeout(function () { window.location.href = deepUrl; }, 250);
+        }
+      })();
+    </script>
+  </body>
+</html>
