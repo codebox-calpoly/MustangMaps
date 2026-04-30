@@ -14,16 +14,24 @@ interface DropPinCardProps {
   onShare: (note: string) => void;
   onDismiss: () => void;
   topInset: number;
+  initialNote?: string;
 }
 
-export function DropPinCard({ visible, onShare, onDismiss, topInset }: DropPinCardProps) {
-  const [note, setNote] = useState("");
+export function DropPinCard({
+  visible,
+  onShare,
+  onDismiss,
+  topInset,
+  initialNote = "",
+}: DropPinCardProps) {
+  const [note, setNote] = useState(initialNote);
   const { mapStyle } = useMapContext();
   const dark = mapStyle === "dark";
 
   React.useEffect(() => {
-    if (!visible) setNote("");
-  }, [visible]);
+    if (visible) setNote(initialNote);
+    else setNote("");
+  }, [visible, initialNote]);
 
   if (!visible) return null;
 

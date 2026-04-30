@@ -20,6 +20,37 @@ import {
   Text,
   View,
 } from "react-native";
+
+// Cal Poly campus bbox (with a little margin). Pins outside this are rejected
+// to keep shared links from pointing somewhere unrelated to campus.
+const CAL_POLY_BBOX = {
+  minLat: 35.295,
+  maxLat: 35.315,
+  minLng: -120.680,
+  maxLng: -120.645,
+};
+
+interface ParsedShareLink {
+  coord: [number, number];
+  note: string;
+}
+
+function parseShareLink(rawUrl: string): ParsedShareLink | null {
+  // Accept either the Universal Link or the custom scheme.
+  //   https://mustangmaps.vercel.app/p?lat=...&lng=...&n=...
+  //   mustangmaps://p?lat=...&lng=...&n=...
+  const match = rawUrl.match(
+    /^(?:https:\/\/mustangmaps\.vercel\.app\/p\/?|mustangmaps:\/\/p\/?)\??(.*)$/i,
+  );
+  if (!match) return null;
+  const params = new URLSearchParams(match[1] ?? "");
+  const lat = Number(params.get("lat"));
+  const lng = Number(params.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < CAL_POLY_BBOX.minLat || lat > CAL_POLY_BBOX.maxLat) return null;
+  if (lng < CAL_POLY_BBOX.minLng || lng > CAL_POLY_BBOX.maxLng) return null;
+  return { coord: [lng, lat], note: params.get("n") ?? "" };
+}
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -133,6 +164,8 @@ export function MapContainer({
 
   const [tapMarkerCoord, setTapMarkerCoord] = useState<[number, number] | null>(null);
   const [sharePin, setSharePin] = useState<[number, number] | null>(null);
+  const [sharePinNote, setSharePinNote] = useState<string>("");
+  const pendingCenterRef = useRef<[number, number] | null>(null);
 
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
@@ -594,10 +627,66 @@ export function MapContainer({
       const [lng, lat] = coords;
       if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
       setSharePin([lng, lat]);
+      setSharePinNote("");
       setTapMarkerCoord(null);
     },
     [],
   );
+
+  const handleDeepLink = useCallback((rawUrl: string) => {
+    const parsed = parseShareLink(rawUrl);
+    if (!parsed) return;
+
+    setSharePin(parsed.coord);
+    setSharePinNote(parsed.note);
+    setTapMarkerCoord(null);
+
+    if (mapReadyRef.current && cameraRef.current) {
+      try {
+        cameraRef.current.setCamera({
+          centerCoordinate: parsed.coord,
+          zoomLevel: 18,
+          animationDuration: 800,
+        });
+      } catch (e) {
+        console.warn("Deep link camera error:", e);
+      }
+    } else {
+      pendingCenterRef.current = parsed.coord;
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    Linking.getInitialURL()
+      .then((url) => {
+        if (!cancelled && url) handleDeepLink(url);
+      })
+      .catch(() => {});
+    const sub = Linking.addEventListener("url", (event) => {
+      if (event?.url) handleDeepLink(event.url);
+    });
+    return () => {
+      cancelled = true;
+      sub.remove();
+    };
+  }, [handleDeepLink]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    const pending = pendingCenterRef.current;
+    if (!pending) return;
+    pendingCenterRef.current = null;
+    try {
+      cameraRef.current?.setCamera({
+        centerCoordinate: pending,
+        zoomLevel: 18,
+        animationDuration: 800,
+      });
+    } catch (e) {
+      console.warn("Deferred deep link camera error:", e);
+    }
+  }, [mapReady]);
 
   const handleSharePin = useCallback(
     async (note: string) => {
@@ -894,6 +983,7 @@ export function MapContainer({
       <DropPinCard
         visible={sharePin !== null}
         topInset={140}
+        initialNote={sharePinNote}
         onShare={handleSharePin}
         onDismiss={handleDismissSharePin}
       />
