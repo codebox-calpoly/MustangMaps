@@ -1,5 +1,12 @@
 import React, { useCallback, useMemo, useRef } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+} from "react-native";
 import { useMapContext } from "../../../context/MapContext";
 
 export type MapMode = "buildings" | "amenities";
@@ -23,6 +30,7 @@ type Props = {
   onAmenityTypesChange: (ids: string[]) => void;
   buildingOptions: BuildingFilterOption[];
   amenityOptions: AmenityFilterOption[];
+  onLayoutHeight?: (height: number) => void;
 };
 
 export function MapFilters({
@@ -34,6 +42,7 @@ export function MapFilters({
   onAmenityTypesChange,
   buildingOptions,
   amenityOptions,
+  onLayoutHeight,
 }: Props) {
   const buildingSet = useMemo(() => new Set(buildingTypeIds), [buildingTypeIds]);
   const amenitySet = useMemo(() => new Set(amenityTypeIds), [amenityTypeIds]);
@@ -59,8 +68,15 @@ export function MapFilters({
   const activeTypeIds = mapMode === "buildings" ? buildingTypeIds : amenityTypeIds;
   const onActiveChange = mapMode === "buildings" ? onBuildingTypesChange : onAmenityTypesChange;
 
+  const handleLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      onLayoutHeight?.(event.nativeEvent.layout.height);
+    },
+    [onLayoutHeight],
+  );
+
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={styles.container} pointerEvents="box-none" onLayout={handleLayout}>
       <View style={[styles.panel, dark && styles.panelDark]}>
         {/* Mode selector + theme toggle */}
         <View style={styles.topRow}>
