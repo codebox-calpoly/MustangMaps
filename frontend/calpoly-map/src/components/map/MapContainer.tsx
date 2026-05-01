@@ -165,6 +165,7 @@ export function MapContainer({
   const [tapMarkerCoord, setTapMarkerCoord] = useState<[number, number] | null>(null);
   const [sharePin, setSharePin] = useState<[number, number] | null>(null);
   const [sharePinNote, setSharePinNote] = useState<string>("");
+  const [sharePinReceived, setSharePinReceived] = useState<boolean>(false);
   const pendingCenterRef = useRef<[number, number] | null>(null);
 
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
@@ -628,6 +629,7 @@ export function MapContainer({
       if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
       setSharePin([lng, lat]);
       setSharePinNote("");
+      setSharePinReceived(false);
       setTapMarkerCoord(null);
     },
     [],
@@ -639,6 +641,7 @@ export function MapContainer({
 
     setSharePin(parsed.coord);
     setSharePinNote(parsed.note);
+    setSharePinReceived(true);
     setTapMarkerCoord(null);
 
     if (mapReadyRef.current && cameraRef.current) {
@@ -695,11 +698,11 @@ export function MapContainer({
       const params = `lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}` +
         (note ? `&n=${encodeURIComponent(note)}` : "");
       const url = `${SHARE_BASE_URL}?${params}`;
-      const message = note
-        ? `${note} — pinned on MustangMaps: ${url}`
-        : `Meet me here on MustangMaps: ${url}`;
       try {
-        await Share.share({ message, url });
+        // Send only the URL — receiving messengers will render a single
+        // link bubble with their own preview, instead of fragmenting into
+        // separate "text + url + link preview" messages.
+        await Share.share({ message: url });
       } catch (e) {
         console.warn("Share failed:", e);
       }
@@ -709,6 +712,7 @@ export function MapContainer({
 
   const handleDismissSharePin = useCallback(() => {
     setSharePin(null);
+    setSharePinReceived(false);
   }, []);
 
   const handleMapPress = useCallback(
@@ -984,6 +988,7 @@ export function MapContainer({
         visible={sharePin !== null}
         topInset={140}
         initialNote={sharePinNote}
+        readOnly={sharePinReceived}
         onShare={handleSharePin}
         onDismiss={handleDismissSharePin}
       />

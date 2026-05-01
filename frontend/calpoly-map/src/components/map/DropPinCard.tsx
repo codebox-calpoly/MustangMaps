@@ -15,6 +15,7 @@ interface DropPinCardProps {
   onDismiss: () => void;
   topInset: number;
   initialNote?: string;
+  readOnly?: boolean;
 }
 
 export function DropPinCard({
@@ -23,6 +24,7 @@ export function DropPinCard({
   onDismiss,
   topInset,
   initialNote = "",
+  readOnly = false,
 }: DropPinCardProps) {
   const [note, setNote] = useState(initialNote);
   const { mapStyle } = useMapContext();
@@ -52,10 +54,12 @@ export function DropPinCard({
     >
       <View style={[styles.card, dark && styles.cardDark]}>
         <View style={styles.headerRow}>
-          <Text style={[styles.title, dark && styles.titleDark]}>📍 Pin dropped</Text>
+          <Text style={[styles.title, dark && styles.titleDark]}>
+            {readOnly ? "📍 Shared pin" : "📍 Pin dropped"}
+          </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Dismiss dropped pin"
+            accessibilityLabel={readOnly ? "Dismiss shared pin" : "Dismiss dropped pin"}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             onPress={handleDismiss}
             style={({ pressed }) => [
@@ -68,30 +72,44 @@ export function DropPinCard({
           </Pressable>
         </View>
 
-        <TextInput
-          value={note}
-          onChangeText={setNote}
-          placeholder="Add a note (optional)"
-          placeholderTextColor={dark ? "#6B7280" : "#9CA3AF"}
-          maxLength={60}
-          returnKeyType="send"
-          onSubmitEditing={handleShare}
-          keyboardAppearance={dark ? "dark" : "light"}
-          style={[styles.input, dark && styles.inputDark]}
-        />
+        {readOnly ? (
+          note ? (
+            <Text style={[styles.readNote, dark && styles.readNoteDark]}>
+              {note}
+            </Text>
+          ) : (
+            <Text style={[styles.readPlaceholder, dark && styles.readPlaceholderDark]}>
+              No note attached
+            </Text>
+          )
+        ) : (
+          <>
+            <TextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder="Add a note (optional)"
+              placeholderTextColor={dark ? "#6B7280" : "#9CA3AF"}
+              maxLength={60}
+              returnKeyType="send"
+              onSubmitEditing={handleShare}
+              keyboardAppearance={dark ? "dark" : "light"}
+              style={[styles.input, dark && styles.inputDark]}
+            />
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Share dropped pin"
-          onPress={handleShare}
-          style={({ pressed }) => [
-            styles.shareButton,
-            dark && styles.shareButtonDark,
-            pressed && { opacity: 0.85 },
-          ]}
-        >
-          <Text style={styles.shareButtonText}>Share Pin</Text>
-        </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Share dropped pin"
+              onPress={handleShare}
+              style={({ pressed }) => [
+                styles.shareButton,
+                dark && styles.shareButtonDark,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={styles.shareButtonText}>Share Pin</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );
@@ -187,5 +205,24 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
+  },
+  readNote: {
+    paddingVertical: 4,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    lineHeight: 22,
+  },
+  readNoteDark: {
+    color: "#F9FAFB",
+  },
+  readPlaceholder: {
+    paddingVertical: 4,
+    fontSize: 14,
+    fontStyle: "italic",
+    color: "#6B7280",
+  },
+  readPlaceholderDark: {
+    color: "#9CA3AF",
   },
 });
