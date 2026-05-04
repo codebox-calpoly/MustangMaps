@@ -16,7 +16,7 @@
     "slug": "mustangmaps",
     "scheme": "mustangmaps",
     "privacyPolicyUrl": "https://adorable-stetson-5d3.notion.site/MustangMaps-Privacy-Policy-3267e97d19e58048b6c9fb982c116ded",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
