@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -39,12 +39,20 @@ export function BlueprintViewer({
     width: 0,
     height: 0,
   });
+  // Once Gallery is measured we lock its host's dimensions. Otherwise any
+  // sibling re-render (page index changing, sheet settling, sub-pixel Yoga
+  // rounding) refires the host's onLayout, which propagates to Gallery's
+  // useAnimatedReaction(rootSize, () => reset(...)) and yanks scale back to 1
+  // mid-pinch.
+  const measuredRef = useRef(false);
 
   useEffect(() => {
     if (!visible) {
       sheetRef.current?.close();
       setActiveIdx(0);
       setPageIdx(0);
+      measuredRef.current = false;
+      setSize({ width: 0, height: 0 });
     }
   }, [visible]);
 
@@ -54,18 +62,70 @@ export function BlueprintViewer({
     setPageIdx(0);
   }, [osmId]);
 
-  if (!visible) return null;
-
   const buildings = osmId ? BLUEPRINTS[osmId] : undefined;
   const active = buildings?.[activeIdx];
-  const pages = active?.pages ?? [];
+  // Memoised so Gallery's `data` prop has a stable reference between renders;
+  // the Reanimated worklets inside Gallery interrupt mid-gesture if data
+  // arrays are reallocated each render.
+  const pages = useMemo(() => active?.pages ?? [], [active?.pages]);
 
-  const handleLayout = (e: LayoutChangeEvent) => {
+  const handleLayout = useCallback((e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
-    if (width !== size.width || height !== size.height) {
-      setSize({ width, height });
-    }
-  };
+    if (measuredRef.current || width <= 0 || height <= 0) return;
+    measuredRef.current = true;
+    setSize({ width, height });
+  }, []);
+
+  // Fixed dimensions once measured — kills the reset-on-relayout loop in
+  // GalleryGestureHandler. flex: 1 (the default in styles.galleryHost) lets
+  // the very first layout pass measure us; after that we never rely on flex
+  // again.
+  const galleryHostStyle = useMemo(
+    () =>
+      size.width > 0 && size.height > 0
+        ? [
+            styles.galleryHost,
+            dark && styles.galleryHostDark,
+            { flex: 0, width: size.width, height: size.height },
+          ]
+        : [styles.galleryHost, dark && styles.galleryHostDark],
+    [dark, size.width, size.height],
+  );
+
+  // Render the image at its natural aspect, sized to fit inside the slot,
+  // and let Gallery's internal `justifyContent: center` wrapper position it.
+  // Returning a wrapper View here would make Gallery measure the wrapper
+  // (= slot bounds) for gesture math, breaking pinch focus on letterboxed
+  // images.
+  const renderPage = useCallback(
+    (item: any) => {
+      const src = Image.resolveAssetSource(item);
+      const ratio =
+        src && src.width && src.height ? src.width / src.height : 1;
+      const slotRatio = size.width / Math.max(1, size.height);
+      let w: number;
+      let h: number;
+      if (ratio > slotRatio) {
+        w = size.width;
+        h = size.width / ratio;
+      } else {
+        h = size.height;
+        w = size.height * ratio;
+      }
+      return (
+        <Image
+          source={item}
+          style={{ width: w, height: h }}
+          resizeMethod="scale"
+        />
+      );
+    },
+    [size.width, size.height],
+  );
+
+  const keyForPage = useCallback((_item: any, i: number) => `page-${i}`, []);
+
+  if (!visible) return null;
 
   return (
     <BottomSheet
@@ -156,24 +216,20 @@ export function BlueprintViewer({
           ) : null}
         </View>
 
-        <View
-          style={[styles.galleryHost, dark && styles.galleryHostDark]}
-          onLayout={handleLayout}
-        >
+        <View style={galleryHostStyle} onLayout={handleLayout}>
           {pages.length > 0 && size.width > 0 && size.height > 0 ? (
             <Gallery
               key={`${osmId}-${activeIdx}`}
               data={pages}
-              keyExtractor={(_item, index) => `page-${index}`}
-              maxScale={5}
+              keyExtractor={keyForPage}
+              maxScale={6}
+              windowSize={3}
+              pinchMode="free"
+              scaleMode="clamp"
+              allowPinchPanning
+              tapOnEdgeToItem={false}
               onIndexChange={setPageIdx}
-              renderItem={(item) => (
-                <Image
-                  source={item as any}
-                  style={{ width: size.width, height: size.height }}
-                  resizeMode="contain"
-                />
-              )}
+              renderItem={renderPage}
             />
           ) : (
             <View style={styles.emptyState}>
