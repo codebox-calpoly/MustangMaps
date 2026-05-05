@@ -127,9 +127,24 @@ export function BlueprintViewer({
     };
   }, [size.width, size.height, aspectRatio]);
 
-  // Tracks the current ResumableZoom scale on the UI thread. Read by the
-  // fling gesture below to disable page swipes when the user is zoomed in.
+  // Tracks ResumableZoom scale on the UI thread + a JS-thread mirror used
+  // to actually disable the outer fling gesture when the user is zoomed in.
+  // `isZoomedShared` debounces the state crossing on the UI thread so we
+  // only runOnJS when the boolean flips, not every frame.
   const scaleShared = useSharedValue(1);
+  const isZoomedShared = useSharedValue(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  // Reset zoom-tracking state whenever the source page/building/sheet
+  // changes — ResumableZoom's `key` makes it remount at scale=1, but the
+  // shared value + React state lag until the first onUpdate fires. Without
+  // this, a stale `isZoomed=true` after a page change can suppress the
+  // first swipe attempt on the new page.
+  useEffect(() => {
+    scaleShared.value = 1;
+    isZoomedShared.value = false;
+    setIsZoomed(false);
+  }, [osmId, activeIdx, pageIdx, visible, scaleShared, isZoomedShared]);
 
   const goToPrevPage = useCallback(() => {
     setPageIdx((idx) => Math.max(0, idx - 1));
@@ -139,32 +154,31 @@ export function BlueprintViewer({
     setPageIdx((idx) => Math.min(pages.length - 1, idx + 1));
   }, [pages.length]);
 
-  // Quick horizontal flicks change page — but only at scale ≈ 1. When the
-  // user is zoomed in, the fling is ignored so they can pan within the
-  // current page without accidentally jumping pages. ResumableZoom's own
-  // pan gesture handles intra-page panning.
+  // Quick horizontal flicks change page — but only at scale ≤ ~1. When
+  // zoomed in, the fling is *actually disabled* (not just ignored) so it
+  // can't claim the gesture and cancel ResumableZoom's intra-page pan.
   const flingLeft = useMemo(
     () =>
       Gesture.Fling()
         .direction(Directions.LEFT)
+        .enabled(!isZoomed)
         .onEnd(() => {
           "worklet";
-          if (scaleShared.value > 1.05) return;
           runOnJS(goToNextPage)();
         }),
-    [goToNextPage, scaleShared],
+    [goToNextPage, isZoomed],
   );
 
   const flingRight = useMemo(
     () =>
       Gesture.Fling()
         .direction(Directions.RIGHT)
+        .enabled(!isZoomed)
         .onEnd(() => {
           "worklet";
-          if (scaleShared.value > 1.05) return;
           runOnJS(goToPrevPage)();
         }),
-    [goToPrevPage, scaleShared],
+    [goToPrevPage, isZoomed],
   );
 
   const composedFling = useMemo(
@@ -172,14 +186,20 @@ export function BlueprintViewer({
     [flingLeft, flingRight],
   );
 
-  // ResumableZoom's onUpdate runs in worklet context (called from inside a
-  // useDerivedValue), so this handler must be a worklet too.
+  // ResumableZoom's onUpdate is invoked from a useDerivedValue (worklet
+  // context). Only runOnJS when isZoomed actually flips — otherwise we'd
+  // spam setIsZoomed every frame of every gesture.
   const onZoomUpdate = useCallback(
     (state: { scale: number }) => {
       "worklet";
       scaleShared.value = state.scale;
+      const shouldBeZoomed = state.scale > 1.1;
+      if (isZoomedShared.value !== shouldBeZoomed) {
+        isZoomedShared.value = shouldBeZoomed;
+        runOnJS(setIsZoomed)(shouldBeZoomed);
+      }
     },
-    [scaleShared],
+    [scaleShared, isZoomedShared],
   );
 
   if (!visible) return null;
@@ -349,10 +369,24 @@ export function BlueprintViewer({
                   key={`${osmId}-${activeIdx}-${pageIdx}`}
                   maxScale={6}
                   minScale={1}
-                  pinchMode="clamp"
+                  // pinchMode="free": don't clamp translation mid-pinch.
+                  //   With clamp, when scale crosses 1 going down, bounds
+                  //   collapse to (0,0) and the image jerks to centered.
+                  //   "free" lets translation flow with pinchTransform's
+                  //   focal-preserving math; onPinchEnd then clamps and
+                  //   animates back to bounds smoothly.
+                  // scaleMode="bounce": rubber-band on over-zoom-out
+                  //   instead of a hard floor at 1, so transitions through
+                  //   scale=1 are continuous.
+                  // allowPinchPanning={false}: the focal point's natural
+                  //   screen-space drift during a 2-finger pinch was being
+                  //   added to translation, which felt like the image
+                  //   "moves to somewhere else" while zooming in. Disable
+                  //   so pinch is purely scale-around-focal.
+                  pinchMode="free"
+                  scaleMode="bounce"
                   panMode="clamp"
-                  scaleMode="clamp"
-                  allowPinchPanning
+                  allowPinchPanning={false}
                   onUpdate={onZoomUpdate}
                 >
                   <Image
