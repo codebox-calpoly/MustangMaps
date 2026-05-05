@@ -7,19 +7,11 @@ import {
   Text,
   View,
   type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
-import {
-  runOnJS,
-  useSharedValue,
-  type SharedValue,
-} from "react-native-reanimated";
-import {
-  Directions,
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
-import { ResumableZoom } from "react-native-zoom-toolkit";
+import type { SharedValue } from "react-native-reanimated";
 import { useMapContext } from "../../context/MapContext";
 import { BLUEPRINTS } from "../../config/blueprints.generated";
 
@@ -48,13 +40,17 @@ export function BlueprintViewer({
     width: 0,
     height: 0,
   });
-  // Defer mounting ResumableZoom until the bottom sheet has finished its
-  // open animation. iOS decodes <Image> at the view's frame size and caches
-  // that bitmap; if a page first mounts while the sheet is mid-spring, the
-  // decode happens at a small intermediate frame and the image stays blurry
-  // even after the sheet settles. Waiting for `locked` ensures every page's
-  // first decode is at the final dimensions.
+  // Defer mounting the inner zoom ScrollViews until the bottom sheet has
+  // finished its open animation. iOS decodes <Image> at the view's frame
+  // size and caches that bitmap; if a page first mounts while the sheet is
+  // mid-spring, the decode happens at a small intermediate frame and the
+  // image stays blurry even after the sheet settles. Waiting for `locked`
+  // ensures every page's first decode is at the final dimensions.
   const [locked, setLocked] = useState(false);
+
+  // Ref to the outer paged ScrollView, used for programmatic page changes
+  // from the prev/next buttons.
+  const pagerRef = useRef<ScrollView | null>(null);
 
   useEffect(() => {
     if (!visible) {
@@ -108,10 +104,10 @@ export function BlueprintViewer({
     return src.width / src.height;
   }, [pages]);
 
-  // Size the slot exactly to the image's aspect so the ResumableZoom child
-  // and the rendered Image have identical dimensions. That keeps the pinch
-  // focal point math (origin computed from `e.focalX/Y` against the
-  // un-transformed child) aligned with the image the user is touching.
+  // Size the floor-plan image to its native aspect ratio, fit inside the
+  // available host area. The inner ScrollView's frame stays at host size
+  // (so each page is exactly one swipe-page wide); the Image just sits
+  // centered inside via `centerContent`.
   const fittedDims = useMemo(() => {
     if (size.width <= 0 || size.height <= 0) return { width: 0, height: 0 };
     const slotAspect = size.width / size.height;
@@ -127,79 +123,72 @@ export function BlueprintViewer({
     };
   }, [size.width, size.height, aspectRatio]);
 
-  // Tracks ResumableZoom scale on the UI thread + a JS-thread mirror used
-  // to actually disable the outer fling gesture when the user is zoomed in.
-  // `isZoomedShared` debounces the state crossing on the UI thread so we
-  // only runOnJS when the boolean flips, not every frame.
-  const scaleShared = useSharedValue(1);
-  const isZoomedShared = useSharedValue(false);
+  // Track whether the active page is currently zoomed past ~1. Used to
+  // disable the outer pager's horizontal scroll so the user can't swipe to
+  // the next page while panning around within a zoomed page. Hysteresis
+  // threshold (1.1) avoids flapping at the boundary.
   const [isZoomed, setIsZoomed] = useState(false);
 
-  // Reset zoom-tracking state whenever the source page/building/sheet
-  // changes — ResumableZoom's `key` makes it remount at scale=1, but the
-  // shared value + React state lag until the first onUpdate fires. Without
-  // this, a stale `isZoomed=true` after a page change can suppress the
-  // first swipe attempt on the new page.
+  // Reset zoom flag and pager scroll on building/sheet visibility change.
+  // We don't reset on pageIdx changes — those are driven by the pager
+  // itself and shouldn't re-fight scroll position.
   useEffect(() => {
-    scaleShared.value = 1;
-    isZoomedShared.value = false;
     setIsZoomed(false);
-  }, [osmId, activeIdx, pageIdx, visible, scaleShared, isZoomedShared]);
+  }, [osmId, activeIdx, visible]);
+
+  const scrollPagerToPage = useCallback(
+    (idx: number) => {
+      if (size.width <= 0) return;
+      pagerRef.current?.scrollTo({
+        x: idx * size.width,
+        y: 0,
+        animated: true,
+      });
+    },
+    [size.width],
+  );
 
   const goToPrevPage = useCallback(() => {
-    setPageIdx((idx) => Math.max(0, idx - 1));
-  }, []);
+    setPageIdx((idx) => {
+      const next = Math.max(0, idx - 1);
+      if (next !== idx) scrollPagerToPage(next);
+      return next;
+    });
+  }, [scrollPagerToPage]);
 
   const goToNextPage = useCallback(() => {
-    setPageIdx((idx) => Math.min(pages.length - 1, idx + 1));
-  }, [pages.length]);
+    setPageIdx((idx) => {
+      const next = Math.min(pages.length - 1, idx + 1);
+      if (next !== idx) scrollPagerToPage(next);
+      return next;
+    });
+  }, [pages.length, scrollPagerToPage]);
 
-  // Quick horizontal flicks change page — but only at scale ≤ ~1. When
-  // zoomed in, the fling is *actually disabled* (not just ignored) so it
-  // can't claim the gesture and cancel ResumableZoom's intra-page pan.
-  const flingLeft = useMemo(
-    () =>
-      Gesture.Fling()
-        .direction(Directions.LEFT)
-        .enabled(!isZoomed)
-        .onEnd(() => {
-          "worklet";
-          runOnJS(goToNextPage)();
-        }),
-    [goToNextPage, isZoomed],
-  );
-
-  const flingRight = useMemo(
-    () =>
-      Gesture.Fling()
-        .direction(Directions.RIGHT)
-        .enabled(!isZoomed)
-        .onEnd(() => {
-          "worklet";
-          runOnJS(goToPrevPage)();
-        }),
-    [goToPrevPage, isZoomed],
-  );
-
-  const composedFling = useMemo(
-    () => Gesture.Race(flingLeft, flingRight),
-    [flingLeft, flingRight],
-  );
-
-  // ResumableZoom's onUpdate is invoked from a useDerivedValue (worklet
-  // context). Only runOnJS when isZoomed actually flips — otherwise we'd
-  // spam setIsZoomed every frame of every gesture.
-  const onZoomUpdate = useCallback(
-    (state: { scale: number }) => {
-      "worklet";
-      scaleShared.value = state.scale;
-      const shouldBeZoomed = state.scale > 1.1;
-      if (isZoomedShared.value !== shouldBeZoomed) {
-        isZoomedShared.value = shouldBeZoomed;
-        runOnJS(setIsZoomed)(shouldBeZoomed);
-      }
+  // Outer pager — update pageIdx after the user finishes a horizontal
+  // swipe between pages. Round-to-nearest in case the scroll lands a few
+  // sub-pixels off due to deceleration.
+  const handlePagerMomentumEnd = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (size.width <= 0) return;
+      const idx = Math.round(e.nativeEvent.contentOffset.x / size.width);
+      const clamped = Math.max(0, Math.min(pages.length - 1, idx));
+      setPageIdx((prev) => (prev === clamped ? prev : clamped));
     },
-    [scaleShared, isZoomedShared],
+    [pages.length, size.width],
+  );
+
+  // Inner zoom ScrollView — onScroll fires for both pinch (zoomScale
+  // changes) and pan (contentOffset changes). We only care about
+  // zoomScale for the outer-pager-disable logic.
+  const handleInnerScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      // zoomScale is iOS-only on UIScrollView; default to 1 if absent.
+      const zoom = (e.nativeEvent as NativeScrollEvent & { zoomScale?: number })
+        .zoomScale ?? 1;
+      const zoomed = zoom > 1.1;
+      setIsZoomed((current) => (current === zoomed ? current : zoomed));
+    },
+    [],
   );
 
   if (!visible) return null;
@@ -357,54 +346,53 @@ export function BlueprintViewer({
               </Text>
             </View>
           ) : locked && fittedDims.width > 0 && fittedDims.height > 0 ? (
-            // Outer fling gesture handles page navigation; the inner
-            // ResumableZoom owns pinch/pan/double-tap for the current page
-            // only. The fling worklet ignores swipes when scaleShared > 1,
-            // so zoomed pans inside the image don't accidentally change page.
-            <GestureDetector gesture={composedFling}>
-              <View
-                style={{ width: fittedDims.width, height: fittedDims.height }}
-              >
-                <ResumableZoom
-                  key={`${osmId}-${activeIdx}-${pageIdx}`}
-                  maxScale={6}
-                  minScale={1}
-                  // pinchMode="free": don't clamp translation mid-pinch.
-                  //   With clamp, when scale crosses 1 going down, bounds
-                  //   collapse to (0,0) and the image jerks to centered.
-                  //   "free" lets translation flow with pinchTransform's
-                  //   focal-preserving math; onPinchEnd then clamps and
-                  //   animates back to bounds smoothly.
-                  // scaleMode="clamp": no over-zoom-out. With "bounce",
-                  //   rare aggressive pinches dip scale below 1, and the
-                  //   release-time clamp animates *both* scale and
-                  //   translation back to (1, centered) — the user feels
-                  //   that as "snapped all the way out and moved." Clamp
-                  //   keeps scale ≥ 1 mid-pinch, eliminating that combined
-                  //   animation. A residual translation-only animation
-                  //   still happens at exact scale=1 (library forces
-                  //   centering), but it's visually smaller.
-                  // allowPinchPanning={false}: the focal point's natural
-                  //   screen-space drift during a 2-finger pinch was being
-                  //   added to translation, which felt like the image
-                  //   "moves to somewhere else" while zooming in. Disable
-                  //   so pinch is purely scale-around-focal.
-                  pinchMode="free"
-                  scaleMode="clamp"
-                  panMode="clamp"
-                  allowPinchPanning={false}
-                  onUpdate={onZoomUpdate}
+            // Native iOS UIScrollView nesting:
+            //   - Outer ScrollView is horizontal + pagingEnabled, holding
+            //     one inner ScrollView per page. Page swipe handled by iOS.
+            //   - Each inner ScrollView is a vanilla zoomable scroll view
+            //     (maximumZoomScale=6). UIScrollView handles pinch focal
+            //     point, pan-while-zoomed, momentum, and bounce natively
+            //     (no third-party gesture library involved).
+            //   - Outer scrollEnabled=!isZoomed prevents accidental page
+            //     swipes while the user is panning inside a zoomed page;
+            //     once they pinch back to scale~1, swipe re-enables.
+            <ScrollView
+              key={`${osmId}-${activeIdx}`}
+              ref={pagerRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+              scrollEnabled={!isZoomed}
+              onMomentumScrollEnd={handlePagerMomentumEnd}
+              style={{ width: size.width, height: size.height }}
+              contentOffset={{ x: pageIdx * size.width, y: 0 }}
+            >
+              {pages.map((source, i) => (
+                <ScrollView
+                  key={i}
+                  style={{ width: size.width, height: size.height }}
+                  contentContainerStyle={styles.innerContent}
+                  maximumZoomScale={6}
+                  minimumZoomScale={1}
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  centerContent
+                  pinchGestureEnabled
+                  bouncesZoom
+                  onScroll={i === pageIdx ? handleInnerScroll : undefined}
+                  scrollEventThrottle={16}
                 >
                   <Image
-                    source={pages[pageIdx]}
+                    source={source}
                     style={{
                       width: fittedDims.width,
                       height: fittedDims.height,
                     }}
                   />
-                </ResumableZoom>
-              </View>
-            </GestureDetector>
+                </ScrollView>
+              ))}
+            </ScrollView>
           ) : null}
         </View>
       </View>
@@ -567,6 +555,11 @@ const styles = StyleSheet.create({
   },
   galleryHostDark: {
     backgroundColor: "#111827",
+  },
+  innerContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   emptyState: {
     flex: 1,
