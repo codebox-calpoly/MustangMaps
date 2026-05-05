@@ -39,21 +39,32 @@ export function BlueprintViewer({
     width: 0,
     height: 0,
   });
-  // Once Gallery is measured we lock its host's dimensions. Otherwise any
-  // sibling re-render (page index changing, sheet settling, sub-pixel Yoga
-  // rounding) refires the host's onLayout, which propagates to Gallery's
-  // useAnimatedReaction(rootSize, () => reset(...)) and yanks scale back to 1
-  // mid-pinch.
-  const measuredRef = useRef(false);
+  // Two-phase sizing:
+  //   1. While `locked === false`, the gallery host is `flex: 1` and we accept
+  //      every layout pass — this is needed because the BottomSheet animates
+  //      from the bottom of the screen up to its 85% snap, and the *first*
+  //      onLayout fires when the sheet is still partially closed, reporting
+  //      a tiny intermediate height. We need to follow the sheet as it grows.
+  //   2. After the animation settles (~500ms), we flip `locked === true` and
+  //      hard-code the final pixel dimensions on the host. This stops Yoga
+  //      sub-pixel rounding / sibling re-renders from refiring Gallery's
+  //      internal `useAnimatedReaction(rootSize, () => reset(...))`, which is
+  //      what was yanking pinch-zoom back to scale 1 mid-gesture.
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     if (!visible) {
       sheetRef.current?.close();
       setActiveIdx(0);
       setPageIdx(0);
-      measuredRef.current = false;
+      setLocked(false);
       setSize({ width: 0, height: 0 });
+      return;
     }
+    // Give the bottom sheet's spring animation time to land at the 85% snap
+    // before we freeze gallery dimensions.
+    const timer = setTimeout(() => setLocked(true), 600);
+    return () => clearTimeout(timer);
   }, [visible]);
 
   // Reset page + building index whenever the building changes.
@@ -69,28 +80,25 @@ export function BlueprintViewer({
   // arrays are reallocated each render.
   const pages = useMemo(() => active?.pages ?? [], [active?.pages]);
 
-  const handleLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    if (measuredRef.current || width <= 0 || height <= 0) return;
-    measuredRef.current = true;
-    setSize({ width, height });
-  }, []);
-
-  // Fixed dimensions once measured — kills the reset-on-relayout loop in
-  // GalleryGestureHandler. flex: 1 (the default in styles.galleryHost) lets
-  // the very first layout pass measure us; after that we never rely on flex
-  // again.
-  const galleryHostStyle = useMemo(
-    () =>
-      size.width > 0 && size.height > 0
-        ? [
-            styles.galleryHost,
-            dark && styles.galleryHostDark,
-            { flex: 0, width: size.width, height: size.height },
-          ]
-        : [styles.galleryHost, dark && styles.galleryHostDark],
-    [dark, size.width, size.height],
+  const handleLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      // Once locked we ignore further layout events — the host is now sized
+      // explicitly and Gallery's reset-on-rootSize-change can't be triggered.
+      if (locked) return;
+      const { width, height } = e.nativeEvent.layout;
+      if (width <= 0 || height <= 0) return;
+      setSize({ width, height });
+    },
+    [locked],
   );
+
+  const galleryHostStyle = useMemo(() => {
+    const base = [styles.galleryHost, dark && styles.galleryHostDark];
+    if (locked && size.width > 0 && size.height > 0) {
+      return [...base, { flex: 0, width: size.width, height: size.height }];
+    }
+    return base;
+  }, [dark, locked, size.width, size.height]);
 
   // Render the image at its natural aspect, sized to fit inside the slot,
   // and let Gallery's internal `justifyContent: center` wrapper position it.
