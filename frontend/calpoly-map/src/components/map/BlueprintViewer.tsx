@@ -240,7 +240,18 @@ export function BlueprintViewer({
         </View>
 
         <View style={galleryHostStyle} onLayout={handleLayout}>
-          {pages.length > 0 && fittedDims.width > 0 && fittedDims.height > 0 ? (
+          {pages.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyText, dark && styles.emptyTextDark]}>
+                No floor plans available for this building.
+              </Text>
+            </View>
+          ) : locked && fittedDims.width > 0 && fittedDims.height > 0 ? (
+            // Gate Gallery mount on `locked`. iOS decodes <Image> at the view's
+            // frame size and caches that bitmap. If pages 1-2 mount while the
+            // bottom sheet is mid-animation (small frame), they decode at low
+            // res and stay blurry even after the sheet settles. Waiting for
+            // `locked` ensures every page's first decode is at final dims.
             <View
               style={{ width: fittedDims.width, height: fittedDims.height }}
             >
@@ -258,13 +269,7 @@ export function BlueprintViewer({
                 renderItem={renderPage}
               />
             </View>
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={[styles.emptyText, dark && styles.emptyTextDark]}>
-                No floor plans available for this building.
-              </Text>
-            </View>
-          )}
+          ) : null}
         </View>
       </View>
     </BottomSheet>
