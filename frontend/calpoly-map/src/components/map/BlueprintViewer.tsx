@@ -100,35 +100,50 @@ export function BlueprintViewer({
     return base;
   }, [dark, locked, size.width, size.height]);
 
-  // Render the image at its natural aspect, sized to fit inside the slot,
-  // and let Gallery's internal `justifyContent: center` wrapper position it.
-  // Returning a wrapper View here would make Gallery measure the wrapper
-  // (= slot bounds) for gesture math, breaking pinch focus on letterboxed
-  // images.
+  // Aspect ratio of the floor plan images. We assume all pages of a building
+  // share the same aspect (true for Cal Poly's PDF template) and use the
+  // first page's intrinsic dimensions. Default 0.9 (typical post-crop value)
+  // protects against edge cases.
+  const aspectRatio = useMemo(() => {
+    if (!pages || pages.length === 0) return 0.9;
+    const src = Image.resolveAssetSource(pages[0]);
+    if (!src || !src.width || !src.height) return 0.9;
+    return src.width / src.height;
+  }, [pages]);
+
+  // Size the *Gallery* (not just the image) to the image's exact aspect.
+  // This eliminates the empty letterbox area inside Gallery's gesture
+  // surface — without it, pinching in the empty space caused
+  // usePinchCommons.ts:121 to compute an `origin` against the host (not
+  // the visible image), which then produced a translation that yanked the
+  // image to a totally different region. Math.floor pins to whole pixels
+  // so Yoga doesn't sub-pixel oscillate.
+  const fittedDims = useMemo(() => {
+    if (size.width <= 0 || size.height <= 0) return { width: 0, height: 0 };
+    const slotAspect = size.width / size.height;
+    if (slotAspect > aspectRatio) {
+      return {
+        width: Math.floor(size.height * aspectRatio),
+        height: Math.floor(size.height),
+      };
+    }
+    return {
+      width: Math.floor(size.width),
+      height: Math.floor(size.width / aspectRatio),
+    };
+  }, [size.width, size.height, aspectRatio]);
+
+  // Image fills the Gallery's slot exactly — no letterbox inside Gallery's
+  // gesture surface, so pinch focal == image focal.
   const renderPage = useCallback(
-    (item: any) => {
-      const src = Image.resolveAssetSource(item);
-      const ratio =
-        src && src.width && src.height ? src.width / src.height : 1;
-      const slotRatio = size.width / Math.max(1, size.height);
-      let w: number;
-      let h: number;
-      if (ratio > slotRatio) {
-        w = size.width;
-        h = size.width / ratio;
-      } else {
-        h = size.height;
-        w = size.height * ratio;
-      }
-      return (
-        <Image
-          source={item}
-          style={{ width: w, height: h }}
-          resizeMethod="scale"
-        />
-      );
-    },
-    [size.width, size.height],
+    (item: any) => (
+      <Image
+        source={item}
+        style={{ width: fittedDims.width, height: fittedDims.height }}
+        resizeMethod="scale"
+      />
+    ),
+    [fittedDims.width, fittedDims.height],
   );
 
   const keyForPage = useCallback((_item: any, i: number) => `page-${i}`, []);
@@ -225,20 +240,24 @@ export function BlueprintViewer({
         </View>
 
         <View style={galleryHostStyle} onLayout={handleLayout}>
-          {pages.length > 0 && size.width > 0 && size.height > 0 ? (
-            <Gallery
-              key={`${osmId}-${activeIdx}`}
-              data={pages}
-              keyExtractor={keyForPage}
-              maxScale={6}
-              windowSize={3}
-              pinchMode="free"
-              scaleMode="clamp"
-              allowPinchPanning
-              tapOnEdgeToItem={false}
-              onIndexChange={setPageIdx}
-              renderItem={renderPage}
-            />
+          {pages.length > 0 && fittedDims.width > 0 && fittedDims.height > 0 ? (
+            <View
+              style={{ width: fittedDims.width, height: fittedDims.height }}
+            >
+              <Gallery
+                key={`${osmId}-${activeIdx}`}
+                data={pages}
+                keyExtractor={keyForPage}
+                maxScale={6}
+                windowSize={3}
+                pinchMode="free"
+                scaleMode="clamp"
+                allowPinchPanning
+                tapOnEdgeToItem={false}
+                onIndexChange={setPageIdx}
+                renderItem={renderPage}
+              />
+            </View>
           ) : (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, dark && styles.emptyTextDark]}>
@@ -364,6 +383,8 @@ const styles = StyleSheet.create({
   galleryHost: {
     flex: 1,
     backgroundColor: "#F9FAFB",
+    alignItems: "center",
+    justifyContent: "center",
   },
   galleryHostDark: {
     backgroundColor: "#111827",
