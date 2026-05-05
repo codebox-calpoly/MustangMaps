@@ -9,8 +9,17 @@ import {
   type LayoutChangeEvent,
 } from "react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
-import type { SharedValue } from "react-native-reanimated";
-import { Gallery } from "react-native-zoom-toolkit";
+import {
+  runOnJS,
+  useSharedValue,
+  type SharedValue,
+} from "react-native-reanimated";
+import {
+  Directions,
+  Gesture,
+  GestureDetector,
+} from "react-native-gesture-handler";
+import { ResumableZoom } from "react-native-zoom-toolkit";
 import { useMapContext } from "../../context/MapContext";
 import { BLUEPRINTS } from "../../config/blueprints.generated";
 
@@ -39,17 +48,12 @@ export function BlueprintViewer({
     width: 0,
     height: 0,
   });
-  // Two-phase sizing:
-  //   1. While `locked === false`, the gallery host is `flex: 1` and we accept
-  //      every layout pass — this is needed because the BottomSheet animates
-  //      from the bottom of the screen up to its 85% snap, and the *first*
-  //      onLayout fires when the sheet is still partially closed, reporting
-  //      a tiny intermediate height. We need to follow the sheet as it grows.
-  //   2. After the animation settles (~500ms), we flip `locked === true` and
-  //      hard-code the final pixel dimensions on the host. This stops Yoga
-  //      sub-pixel rounding / sibling re-renders from refiring Gallery's
-  //      internal `useAnimatedReaction(rootSize, () => reset(...))`, which is
-  //      what was yanking pinch-zoom back to scale 1 mid-gesture.
+  // Defer mounting ResumableZoom until the bottom sheet has finished its
+  // open animation. iOS decodes <Image> at the view's frame size and caches
+  // that bitmap; if a page first mounts while the sheet is mid-spring, the
+  // decode happens at a small intermediate frame and the image stays blurry
+  // even after the sheet settles. Waiting for `locked` ensures every page's
+  // first decode is at the final dimensions.
   const [locked, setLocked] = useState(false);
 
   useEffect(() => {
@@ -61,8 +65,6 @@ export function BlueprintViewer({
       setSize({ width: 0, height: 0 });
       return;
     }
-    // Give the bottom sheet's spring animation time to land at the 85% snap
-    // before we freeze gallery dimensions.
     const timer = setTimeout(() => setLocked(true), 600);
     return () => clearTimeout(timer);
   }, [visible]);
@@ -75,15 +77,10 @@ export function BlueprintViewer({
 
   const buildings = osmId ? BLUEPRINTS[osmId] : undefined;
   const active = buildings?.[activeIdx];
-  // Memoised so Gallery's `data` prop has a stable reference between renders;
-  // the Reanimated worklets inside Gallery interrupt mid-gesture if data
-  // arrays are reallocated each render.
   const pages = useMemo(() => active?.pages ?? [], [active?.pages]);
 
   const handleLayout = useCallback(
     (e: LayoutChangeEvent) => {
-      // Once locked we ignore further layout events — the host is now sized
-      // explicitly and Gallery's reset-on-rootSize-change can't be triggered.
       if (locked) return;
       const { width, height } = e.nativeEvent.layout;
       if (width <= 0 || height <= 0) return;
@@ -111,13 +108,10 @@ export function BlueprintViewer({
     return src.width / src.height;
   }, [pages]);
 
-  // Size the *Gallery* (not just the image) to the image's exact aspect.
-  // This eliminates the empty letterbox area inside Gallery's gesture
-  // surface — without it, pinching in the empty space caused
-  // usePinchCommons.ts:121 to compute an `origin` against the host (not
-  // the visible image), which then produced a translation that yanked the
-  // image to a totally different region. Math.floor pins to whole pixels
-  // so Yoga doesn't sub-pixel oscillate.
+  // Size the slot exactly to the image's aspect so the ResumableZoom child
+  // and the rendered Image have identical dimensions. That keeps the pinch
+  // focal point math (origin computed from `e.focalX/Y` against the
+  // un-transformed child) aligned with the image the user is touching.
   const fittedDims = useMemo(() => {
     if (size.width <= 0 || size.height <= 0) return { width: 0, height: 0 };
     const slotAspect = size.width / size.height;
@@ -133,20 +127,60 @@ export function BlueprintViewer({
     };
   }, [size.width, size.height, aspectRatio]);
 
-  // Image fills the Gallery's slot exactly — no letterbox inside Gallery's
-  // gesture surface, so pinch focal == image focal.
-  const renderPage = useCallback(
-    (item: any) => (
-      <Image
-        source={item}
-        style={{ width: fittedDims.width, height: fittedDims.height }}
-        resizeMethod="scale"
-      />
-    ),
-    [fittedDims.width, fittedDims.height],
+  // Tracks the current ResumableZoom scale on the UI thread. Read by the
+  // fling gesture below to disable page swipes when the user is zoomed in.
+  const scaleShared = useSharedValue(1);
+
+  const goToPrevPage = useCallback(() => {
+    setPageIdx((idx) => Math.max(0, idx - 1));
+  }, []);
+
+  const goToNextPage = useCallback(() => {
+    setPageIdx((idx) => Math.min(pages.length - 1, idx + 1));
+  }, [pages.length]);
+
+  // Quick horizontal flicks change page — but only at scale ≈ 1. When the
+  // user is zoomed in, the fling is ignored so they can pan within the
+  // current page without accidentally jumping pages. ResumableZoom's own
+  // pan gesture handles intra-page panning.
+  const flingLeft = useMemo(
+    () =>
+      Gesture.Fling()
+        .direction(Directions.LEFT)
+        .onEnd(() => {
+          "worklet";
+          if (scaleShared.value > 1.05) return;
+          runOnJS(goToNextPage)();
+        }),
+    [goToNextPage, scaleShared],
   );
 
-  const keyForPage = useCallback((_item: any, i: number) => `page-${i}`, []);
+  const flingRight = useMemo(
+    () =>
+      Gesture.Fling()
+        .direction(Directions.RIGHT)
+        .onEnd(() => {
+          "worklet";
+          if (scaleShared.value > 1.05) return;
+          runOnJS(goToPrevPage)();
+        }),
+    [goToPrevPage, scaleShared],
+  );
+
+  const composedFling = useMemo(
+    () => Gesture.Race(flingLeft, flingRight),
+    [flingLeft, flingRight],
+  );
+
+  // ResumableZoom's onUpdate runs in worklet context (called from inside a
+  // useDerivedValue), so this handler must be a worklet too.
+  const onZoomUpdate = useCallback(
+    (state: { scale: number }) => {
+      "worklet";
+      scaleShared.value = state.scale;
+    },
+    [scaleShared],
+  );
 
   if (!visible) return null;
 
@@ -174,11 +208,67 @@ export function BlueprintViewer({
               >
                 {active?.name ?? "Floor Plans"}
               </Text>
-              <Text style={[styles.subtitle, dark && styles.subtitleDark]}>
-                {active
-                  ? `Building ${active.ref} · Page ${pageIdx + 1} of ${pages.length}`
-                  : "No blueprints available"}
-              </Text>
+              {active ? (
+                <View style={styles.subtitleRow}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Previous page"
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    onPress={goToPrevPage}
+                    disabled={pageIdx === 0}
+                    style={({ pressed }) => [
+                      styles.pageNavButton,
+                      dark && styles.pageNavButtonDark,
+                      pageIdx === 0 && styles.pageNavButtonDisabled,
+                      pressed && styles.pageNavButtonPressed,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.pageNavButtonText,
+                        dark && styles.pageNavButtonTextDark,
+                        pageIdx === 0 && styles.pageNavButtonTextDisabled,
+                      ]}
+                    >
+                      ‹
+                    </Text>
+                  </Pressable>
+                  <Text
+                    style={[styles.subtitle, dark && styles.subtitleDark]}
+                  >
+                    {`Building ${active.ref} · Page ${pageIdx + 1} of ${pages.length}`}
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Next page"
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    onPress={goToNextPage}
+                    disabled={pageIdx >= pages.length - 1}
+                    style={({ pressed }) => [
+                      styles.pageNavButton,
+                      dark && styles.pageNavButtonDark,
+                      pageIdx >= pages.length - 1 &&
+                        styles.pageNavButtonDisabled,
+                      pressed && styles.pageNavButtonPressed,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.pageNavButtonText,
+                        dark && styles.pageNavButtonTextDark,
+                        pageIdx >= pages.length - 1 &&
+                          styles.pageNavButtonTextDisabled,
+                      ]}
+                    >
+                      ›
+                    </Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <Text style={[styles.subtitle, dark && styles.subtitleDark]}>
+                  No blueprints available
+                </Text>
+              )}
             </View>
 
             <Pressable
@@ -247,28 +337,34 @@ export function BlueprintViewer({
               </Text>
             </View>
           ) : locked && fittedDims.width > 0 && fittedDims.height > 0 ? (
-            // Gate Gallery mount on `locked`. iOS decodes <Image> at the view's
-            // frame size and caches that bitmap. If pages 1-2 mount while the
-            // bottom sheet is mid-animation (small frame), they decode at low
-            // res and stay blurry even after the sheet settles. Waiting for
-            // `locked` ensures every page's first decode is at final dims.
-            <View
-              style={{ width: fittedDims.width, height: fittedDims.height }}
-            >
-              <Gallery
-                key={`${osmId}-${activeIdx}`}
-                data={pages}
-                keyExtractor={keyForPage}
-                maxScale={6}
-                windowSize={3}
-                pinchMode="free"
-                scaleMode="clamp"
-                allowPinchPanning
-                tapOnEdgeToItem={false}
-                onIndexChange={setPageIdx}
-                renderItem={renderPage}
-              />
-            </View>
+            // Outer fling gesture handles page navigation; the inner
+            // ResumableZoom owns pinch/pan/double-tap for the current page
+            // only. The fling worklet ignores swipes when scaleShared > 1,
+            // so zoomed pans inside the image don't accidentally change page.
+            <GestureDetector gesture={composedFling}>
+              <View
+                style={{ width: fittedDims.width, height: fittedDims.height }}
+              >
+                <ResumableZoom
+                  key={`${osmId}-${activeIdx}-${pageIdx}`}
+                  maxScale={6}
+                  minScale={1}
+                  pinchMode="clamp"
+                  panMode="clamp"
+                  scaleMode="clamp"
+                  allowPinchPanning
+                  onUpdate={onZoomUpdate}
+                >
+                  <Image
+                    source={pages[pageIdx]}
+                    style={{
+                      width: fittedDims.width,
+                      height: fittedDims.height,
+                    }}
+                  />
+                </ResumableZoom>
+              </View>
+            </GestureDetector>
           ) : null}
         </View>
       </View>
@@ -319,6 +415,44 @@ const styles = StyleSheet.create({
     color: "#6B7280",
   },
   subtitleDark: {
+    color: "#9CA3AF",
+  },
+  subtitleRow: {
+    marginTop: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  pageNavButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+  },
+  pageNavButtonDark: {
+    backgroundColor: "#2A2F38",
+    borderColor: "#3A4048",
+  },
+  pageNavButtonDisabled: {
+    opacity: 0.4,
+  },
+  pageNavButtonPressed: {
+    opacity: 0.7,
+  },
+  pageNavButtonText: {
+    fontSize: 18,
+    lineHeight: 20,
+    fontWeight: "700",
+    color: "#374151",
+  },
+  pageNavButtonTextDark: {
+    color: "#E5E7EB",
+  },
+  pageNavButtonTextDisabled: {
     color: "#9CA3AF",
   },
   closeButton: {
