@@ -148,21 +148,23 @@ export function BlueprintViewer({
     [size.width],
   );
 
+  // The scroll side effect must live OUTSIDE the setPageIdx updater. React
+  // invokes state updaters twice in dev/StrictMode to verify purity, so a
+  // scrollTo call inside the updater would advance the pager two pages
+  // per button press while only incrementing pageIdx once.
   const goToPrevPage = useCallback(() => {
-    setPageIdx((idx) => {
-      const next = Math.max(0, idx - 1);
-      if (next !== idx) scrollPagerToPage(next);
-      return next;
-    });
-  }, [scrollPagerToPage]);
+    if (pageIdx <= 0) return;
+    const next = pageIdx - 1;
+    setPageIdx(next);
+    scrollPagerToPage(next);
+  }, [pageIdx, scrollPagerToPage]);
 
   const goToNextPage = useCallback(() => {
-    setPageIdx((idx) => {
-      const next = Math.min(pages.length - 1, idx + 1);
-      if (next !== idx) scrollPagerToPage(next);
-      return next;
-    });
-  }, [pages.length, scrollPagerToPage]);
+    if (pageIdx >= pages.length - 1) return;
+    const next = pageIdx + 1;
+    setPageIdx(next);
+    scrollPagerToPage(next);
+  }, [pageIdx, pages.length, scrollPagerToPage]);
 
   // Outer pager — update pageIdx after the user finishes a horizontal
   // swipe between pages. Round-to-nearest in case the scroll lands a few
@@ -366,7 +368,13 @@ export function BlueprintViewer({
               scrollEnabled={!isZoomed}
               onMomentumScrollEnd={handlePagerMomentumEnd}
               style={{ width: size.width, height: size.height }}
-              contentOffset={{ x: pageIdx * size.width, y: 0 }}
+              // Intentionally NO contentOffset prop. Setting it reactively
+              // alongside our imperative scrollTo causes iOS pagingEnabled
+              // to interpret the prop-driven setContentOffset(animated:NO)
+              // as a mid-animation interruption with leftover velocity, and
+              // snaps to the page *past* the target — making one button
+              // press advance two pages. Initial position is 0, which
+              // matches the pageIdx=0 reset on building/sheet changes.
             >
               {pages.map((source, i) => (
                 <ScrollView
