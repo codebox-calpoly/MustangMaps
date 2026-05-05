@@ -375,16 +375,22 @@ export function BlueprintViewer({
                   //   "free" lets translation flow with pinchTransform's
                   //   focal-preserving math; onPinchEnd then clamps and
                   //   animates back to bounds smoothly.
-                  // scaleMode="bounce": rubber-band on over-zoom-out
-                  //   instead of a hard floor at 1, so transitions through
-                  //   scale=1 are continuous.
+                  // scaleMode="clamp": no over-zoom-out. With "bounce",
+                  //   rare aggressive pinches dip scale below 1, and the
+                  //   release-time clamp animates *both* scale and
+                  //   translation back to (1, centered) — the user feels
+                  //   that as "snapped all the way out and moved." Clamp
+                  //   keeps scale ≥ 1 mid-pinch, eliminating that combined
+                  //   animation. A residual translation-only animation
+                  //   still happens at exact scale=1 (library forces
+                  //   centering), but it's visually smaller.
                   // allowPinchPanning={false}: the focal point's natural
                   //   screen-space drift during a 2-finger pinch was being
                   //   added to translation, which felt like the image
                   //   "moves to somewhere else" while zooming in. Disable
                   //   so pinch is purely scale-around-focal.
                   pinchMode="free"
-                  scaleMode="bounce"
+                  scaleMode="clamp"
                   panMode="clamp"
                   allowPinchPanning={false}
                   onUpdate={onZoomUpdate}
