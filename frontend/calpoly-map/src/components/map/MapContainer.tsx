@@ -733,6 +733,14 @@ export function MapContainer({
       // selection so the user can tap away to deselect.
       clearSelection();
 
+      // The tap marker (red) and share pin (orange) are mutually exclusive —
+      // a regular tap dismisses any open share pin so only one indicator is
+      // ever on the map. The reverse direction is handled in
+      // handleMapLongPress, which clears tapMarkerCoord before placing the
+      // share pin.
+      setSharePin(null);
+      setSharePinReceived(false);
+
       // Place a generic tap marker where the user tapped (only for non-building areas)
       const properties = feature.properties;
       if (!properties || (!properties.building && !properties.amenity)) {
