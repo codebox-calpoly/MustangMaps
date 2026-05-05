@@ -30,6 +30,19 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/118003905": [
+    {
+      ref: "65",
+      name: "Julian A. Mcphee University Union",
+      pages: [
+        require("../../assets/blueprints/65/page-1.webp"),
+        require("../../assets/blueprints/65/page-2.webp"),
+        require("../../assets/blueprints/65/page-3.webp"),
+        require("../../assets/blueprints/65/page-4.webp"),
+        require("../../assets/blueprints/65/page-5.webp"),
+      ],
+    },
+  ],
   "way/1217465601": [
     {
       ref: "181",
@@ -40,6 +53,16 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
         require("../../assets/blueprints/181/page-3.webp"),
         require("../../assets/blueprints/181/page-4.webp"),
         require("../../assets/blueprints/181/page-5.webp"),
+      ],
+    },
+  ],
+  "way/140213692": [
+    {
+      ref: "83",
+      name: "Technology Park",
+      pages: [
+        require("../../assets/blueprints/83/page-1.webp"),
+        require("../../assets/blueprints/83/page-2.webp"),
       ],
     },
   ],
@@ -242,6 +265,27 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/43738057": [
+    {
+      ref: "27",
+      name: "Health Center",
+      pages: [
+        require("../../assets/blueprints/27/page-1.webp"),
+        require("../../assets/blueprints/27/page-2.webp"),
+      ],
+    },
+  ],
+  "way/45599071": [
+    {
+      ref: "45",
+      name: "H. P. Davidson Music Center",
+      pages: [
+        require("../../assets/blueprints/45/page-1.webp"),
+        require("../../assets/blueprints/45/page-2.webp"),
+        require("../../assets/blueprints/45/page-3.webp"),
+      ],
+    },
+  ],
   "way/45600370": [
     {
       ref: "13",
@@ -264,6 +308,17 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/45600373": [
+    {
+      ref: "46",
+      name: "Old Natatorium",
+      pages: [
+        require("../../assets/blueprints/46/page-1.webp"),
+        require("../../assets/blueprints/46/page-2.webp"),
+        require("../../assets/blueprints/46/page-3.webp"),
+      ],
+    },
+  ],
   "way/45600389": [
     {
       ref: "38",
@@ -276,6 +331,14 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
   ],
   "way/45600390": [
     {
+      ref: "22",
+      name: "English",
+      pages: [
+        require("../../assets/blueprints/22/page-1.webp"),
+        require("../../assets/blueprints/22/page-2.webp"),
+      ],
+    },
+    {
       ref: "10",
       name: "Alan A. Erhart Agriculture",
       pages: [
@@ -283,12 +346,26 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
         require("../../assets/blueprints/10/page-2.webp"),
       ],
     },
+  ],
+  "way/45600394": [
     {
-      ref: "22",
-      name: "English",
+      ref: "19",
+      name: "Dining Complex",
       pages: [
-        require("../../assets/blueprints/22/page-1.webp"),
-        require("../../assets/blueprints/22/page-2.webp"),
+        require("../../assets/blueprints/19/page-1.webp"),
+        require("../../assets/blueprints/19/page-2.webp"),
+        require("../../assets/blueprints/19/page-3.webp"),
+      ],
+    },
+  ],
+  "way/45600395": [
+    {
+      ref: "44",
+      name: "Alex and Fay Spanos Theatre",
+      pages: [
+        require("../../assets/blueprints/44/page-1.webp"),
+        require("../../assets/blueprints/44/page-2.webp"),
+        require("../../assets/blueprints/44/page-3.webp"),
       ],
     },
   ],
@@ -334,19 +411,19 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
   ],
   "way/45600407": [
     {
-      ref: "10",
-      name: "Alan A. Erhart Agriculture",
-      pages: [
-        require("../../assets/blueprints/10/page-1.webp"),
-        require("../../assets/blueprints/10/page-2.webp"),
-      ],
-    },
-    {
       ref: "22",
       name: "English",
       pages: [
         require("../../assets/blueprints/22/page-1.webp"),
         require("../../assets/blueprints/22/page-2.webp"),
+      ],
+    },
+    {
+      ref: "10",
+      name: "Alan A. Erhart Agriculture",
+      pages: [
+        require("../../assets/blueprints/10/page-1.webp"),
+        require("../../assets/blueprints/10/page-2.webp"),
       ],
     },
   ],
@@ -392,6 +469,19 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/45638401": [
+    {
+      ref: "65",
+      name: "Julian A. Mcphee University Union",
+      pages: [
+        require("../../assets/blueprints/65/page-1.webp"),
+        require("../../assets/blueprints/65/page-2.webp"),
+        require("../../assets/blueprints/65/page-3.webp"),
+        require("../../assets/blueprints/65/page-4.webp"),
+        require("../../assets/blueprints/65/page-5.webp"),
+      ],
+    },
+  ],
   "way/45638402": [
     {
       ref: "1",
@@ -417,6 +507,18 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
       ],
     },
   ],
+  "way/45638408": [
+    {
+      ref: "5",
+      name: "Architecture & Environmental Design",
+      pages: [
+        require("../../assets/blueprints/5/page-1.webp"),
+        require("../../assets/blueprints/5/page-2.webp"),
+        require("../../assets/blueprints/5/page-3.webp"),
+        require("../../assets/blueprints/5/page-4.webp"),
+      ],
+    },
+  ],
   "way/45644100": [
     {
       ref: "186",
@@ -427,6 +529,16 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
         require("../../assets/blueprints/186/page-3.webp"),
         require("../../assets/blueprints/186/page-4.webp"),
         require("../../assets/blueprints/186/page-5.webp"),
+      ],
+    },
+  ],
+  "way/45644213": [
+    {
+      ref: "31",
+      name: "University Housing",
+      pages: [
+        require("../../assets/blueprints/31/page-1.webp"),
+        require("../../assets/blueprints/31/page-2.webp"),
       ],
     },
   ],
@@ -443,7 +555,7 @@ export const BLUEPRINTS: Record<string, BlueprintBuilding[]> = {
   "way/486219813": [
     {
       ref: "6",
-      name: "Christopher Cohan Center",
+      name: "Christopher Cohan Center (1)",
       pages: [
         require("../../assets/blueprints/6/page-1.webp"),
         require("../../assets/blueprints/6/page-2.webp"),
