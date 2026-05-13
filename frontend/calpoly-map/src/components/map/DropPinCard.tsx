@@ -13,6 +13,7 @@ interface DropPinCardProps {
   visible: boolean;
   onShare: (note: string) => void;
   onDismiss: () => void;
+  onRoute: () => void;
   topInset: number;
   initialNote?: string;
   readOnly?: boolean;
@@ -22,6 +23,7 @@ export function DropPinCard({
   visible,
   onShare,
   onDismiss,
+  onRoute,
   topInset,
   initialNote = "",
   readOnly = false,
@@ -45,6 +47,11 @@ export function DropPinCard({
   const handleDismiss = () => {
     Keyboard.dismiss();
     onDismiss();
+  };
+
+  const handleRoute = () => {
+    Keyboard.dismiss();
+    onRoute();
   };
 
   return (
@@ -73,15 +80,29 @@ export function DropPinCard({
         </View>
 
         {readOnly ? (
-          note ? (
-            <Text style={[styles.readNote, dark && styles.readNoteDark]}>
-              {note}
-            </Text>
-          ) : (
-            <Text style={[styles.readPlaceholder, dark && styles.readPlaceholderDark]}>
-              No note attached
-            </Text>
-          )
+          <>
+            {note ? (
+              <Text style={[styles.readNote, dark && styles.readNoteDark]}>
+                {note}
+              </Text>
+            ) : (
+              <Text style={[styles.readPlaceholder, dark && styles.readPlaceholderDark]}>
+                No note attached
+              </Text>
+            )}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Get directions to pin"
+              onPress={handleRoute}
+              style={({ pressed }) => [
+                styles.primaryButton,
+                dark && styles.primaryButtonDark,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={styles.primaryButtonText}>Directions</Text>
+            </Pressable>
+          </>
         ) : (
           <>
             <TextInput
@@ -101,12 +122,27 @@ export function DropPinCard({
               accessibilityLabel="Share dropped pin"
               onPress={handleShare}
               style={({ pressed }) => [
-                styles.shareButton,
-                dark && styles.shareButtonDark,
+                styles.primaryButton,
+                dark && styles.primaryButtonDark,
                 pressed && { opacity: 0.85 },
               ]}
             >
-              <Text style={styles.shareButtonText}>Share Pin</Text>
+              <Text style={styles.primaryButtonText}>Share Pin</Text>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Get directions to pin"
+              onPress={handleRoute}
+              style={({ pressed }) => [
+                styles.secondaryButton,
+                dark && styles.secondaryButtonDark,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text style={[styles.secondaryButtonText, dark && styles.secondaryButtonTextDark]}>
+                Directions
+              </Text>
             </Pressable>
           </>
         )}
@@ -192,19 +228,40 @@ const styles = StyleSheet.create({
     borderColor: "#3A4048",
     color: "#F9FAFB",
   },
-  shareButton: {
+  primaryButton: {
     backgroundColor: "#154734",
     paddingVertical: 11,
     borderRadius: 10,
     alignItems: "center",
+    marginTop: 8,
   },
-  shareButtonDark: {
+  primaryButtonDark: {
     backgroundColor: "#BD8B13",
   },
-  shareButtonText: {
+  primaryButtonText: {
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "700",
+  },
+  secondaryButton: {
+    backgroundColor: "transparent",
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "#154734",
+  },
+  secondaryButtonDark: {
+    borderColor: "#BD8B13",
+  },
+  secondaryButtonText: {
+    color: "#154734",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  secondaryButtonTextDark: {
+    color: "#BD8B13",
   },
   readNote: {
     paddingVertical: 4,

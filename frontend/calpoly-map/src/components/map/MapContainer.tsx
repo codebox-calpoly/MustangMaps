@@ -147,6 +147,7 @@ export function MapContainer({
     setUserLocation,
     setLocationAccuracy,
     trackingMode,
+    buildingsData,
   } = useMapContext();
 
   const mapStyleUrl =
@@ -635,6 +636,87 @@ export function MapContainer({
     [],
   );
 
+  // Resolve a coordinate to the smallest building polygon that contains it,
+  // mirroring BuildingLayer's tap routing logic. Returns null if the coord
+  // falls outside every building.
+  const findContainingBuilding = useCallback(
+    (lng: number, lat: number): Feature<Geometry, GeoJsonProperties> | null => {
+      if (!buildingsData) return null;
+
+      const pointInRing = (ring: number[][], px: number, py: number) => {
+        let inside = false;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          const xi = ring[i][0];
+          const yi = ring[i][1];
+          const xj = ring[j][0];
+          const yj = ring[j][1];
+          if (
+            yi > py !== yj > py &&
+            px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+          ) {
+            inside = !inside;
+          }
+        }
+        return inside;
+      };
+
+      const ringArea = (ring: number[][]) => {
+        let area = 0;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          area += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+        }
+        return Math.abs(area / 2);
+      };
+
+      let best: Feature<Geometry, GeoJsonProperties> | null = null;
+      let bestArea = Infinity;
+
+      for (const feature of buildingsData.features) {
+        const geom = feature.geometry;
+        let rings: number[][][] | null = null;
+        if (geom.type === "Polygon") rings = geom.coordinates;
+        else if (geom.type === "MultiPolygon") rings = geom.coordinates.flat();
+        if (!rings || rings.length === 0) continue;
+
+        const outer = rings[0];
+        if (!pointInRing(outer, lng, lat)) continue;
+
+        const area = ringArea(outer);
+        if (area < bestArea) {
+          bestArea = area;
+          best = feature;
+        }
+      }
+
+      return best;
+    },
+    [buildingsData],
+  );
+
+  // Route to the currently visible share pin. If the pin's coord falls
+  // inside a building, route to that building (so the destination shows a
+  // real name). Otherwise synthesize a Point feature using the share note
+  // as the destination name and route to the bare coord — the path-finder
+  // already snaps endpoints to the nearest path node, so no extra work.
+  const handleRouteToSharePin = useCallback(() => {
+    if (!sharePin) return;
+    const [lng, lat] = sharePin;
+
+    const building = findContainingBuilding(lng, lat);
+    const destination: Feature<Geometry, GeoJsonProperties> = building ?? {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [lng, lat] },
+      properties: {
+        name: sharePinNote.trim() || "Shared Location",
+        _isSharedPin: true,
+      },
+    };
+
+    setSharePin(null);
+    setSharePinReceived(false);
+    handleNavigate(destination);
+  }, [findContainingBuilding, handleNavigate, sharePin, sharePinNote]);
+
   const handleDeepLink = useCallback((rawUrl: string) => {
     const parsed = parseShareLink(rawUrl);
     if (!parsed) return;
@@ -999,6 +1081,7 @@ export function MapContainer({
         readOnly={sharePinReceived}
         onShare={handleSharePin}
         onDismiss={handleDismissSharePin}
+        onRoute={handleRouteToSharePin}
       />
 
     </View>

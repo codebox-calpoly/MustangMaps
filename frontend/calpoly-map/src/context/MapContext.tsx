@@ -6,7 +6,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import type { Feature, GeoJsonProperties, Geometry } from "geojson";
+import type { Feature, FeatureCollection, GeoJsonProperties, Geometry } from "geojson";
 import type { Route } from "../types/index";
 import {
   type PathfinderResult,
@@ -30,6 +30,11 @@ interface MapContextValue {
   mapDataLoading: Record<string, boolean>;
   mapDataErrors: Record<string, string | null>;
   mapDataRetryToken: number;
+  // Populated by BuildingLayer once it loads the geojson. Used by
+  // MapContainer to point-in-polygon-test shared pins against buildings,
+  // so a pin shared from inside a building routes to the building (with
+  // a proper name) instead of to bare coordinates.
+  buildingsData: FeatureCollection | null;
   activeRoute: Route | null;
   routeDestination: SelectedBuilding | null;
   routeStart: Coordinates | null;
@@ -67,6 +72,7 @@ interface MapContextValue {
     key: string,
     status: { loading?: boolean; error?: string | null },
   ) => void;
+  setBuildingsData: (data: FeatureCollection | null) => void;
   retryMapData: () => void;
   clearRoute: () => void;
 }
@@ -91,6 +97,12 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
   const [mapDataLoading, setMapDataLoading] = useState<Record<string, boolean>>({});
   const [mapDataErrors, setMapDataErrors] = useState<Record<string, string | null>>({});
   const [mapDataRetryToken, setMapDataRetryToken] = useState(0);
+  const [buildingsData, setBuildingsDataState] =
+    useState<FeatureCollection | null>(null);
+
+  const setBuildingsData = useCallback((data: FeatureCollection | null) => {
+    setBuildingsDataState(data);
+  }, []);
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
   const [routeDestination, setRouteDestination] =
     useState<SelectedBuilding | null>(null);
@@ -194,6 +206,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       mapDataLoading,
       mapDataErrors,
       mapDataRetryToken,
+      buildingsData,
       activeRoute,
       routeDestination,
       routeStart,
@@ -228,6 +241,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteStartIsCurrentLocation,
       setRouteAccessibleOnly,
       setMapDataStatus,
+      setBuildingsData,
       retryMapData,
       clearRoute,
     }),
@@ -245,6 +259,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       mapDataLoading,
       mapDataErrors,
       mapDataRetryToken,
+      buildingsData,
       activeRoute,
       routeDestination,
       routeStart,
@@ -276,6 +291,7 @@ export function MapProvider({ children }: { children: React.ReactNode }) {
       setRouteStartIsCurrentLocation,
       setRouteAccessibleOnly,
       setMapDataStatus,
+      setBuildingsData,
       retryMapData,
       clearRoute,
     ],

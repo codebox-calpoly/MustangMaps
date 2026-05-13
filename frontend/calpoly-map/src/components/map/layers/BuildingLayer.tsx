@@ -122,7 +122,13 @@ export function BuildingLayer({
   onBuildingPress?: (feature: any) => void;
 }) {
   const [buildingData, setBuildingData] = useState<FeatureCollection | null>(null);
-  const { setMapDataStatus, mapDataRetryToken, mapStyle, mapMode } = useMapContext();
+  const { setMapDataStatus, mapDataRetryToken, mapStyle, mapMode, setBuildingsData } = useMapContext();
+
+  // Mirror the loaded buildings into context so MapContainer can do
+  // point-in-polygon tests against shared pins.
+  useEffect(() => {
+    setBuildingsData(buildingData);
+  }, [buildingData, setBuildingsData]);
   const { favorites } = useSavedPlaces();
   const dark = mapStyle === "dark";
 
