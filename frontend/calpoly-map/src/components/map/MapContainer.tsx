@@ -137,6 +137,7 @@ export function MapContainer({
   const [classZones, setClassZones] = useState<FeatureCollection | null>(null);
   const [selectedClassZoneId, setSelectedClassZoneId] = useState<string | null>(null);
   const [selectedClassZoneBuildingId, setSelectedClassZoneBuildingId] = useState<string | null>(null);
+  const [filtersHeight, setFiltersHeight] = useState(0);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -883,6 +884,7 @@ export function MapContainer({
         onAmenityTypesChange={setAmenityTypeIds}
         buildingOptions={buildingOptions}
         amenityOptions={amenityOptions}
+        onLayoutHeight={setFiltersHeight}
       />
 
       {(hasLoading || errorMessage) && (
@@ -936,10 +938,6 @@ export function MapContainer({
         />
       )}
 
-      <Animated.View style={[styles.locationButtonContainer, locationButtonStyle]}>
-        <UserLocationButton />
-      </Animated.View>
-
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Map attributions"
@@ -963,6 +961,7 @@ export function MapContainer({
         }}
         style={({ pressed }) => [
           styles.attributionButton,
+          { top: filtersHeight + 12 },
           mapStyle === "dark" && styles.attributionButtonDark,
           pressed && { opacity: 0.7 },
         ]}
@@ -977,6 +976,10 @@ export function MapContainer({
           ⓘ
         </Text>
       </Pressable>
+
+      <Animated.View style={[styles.locationButtonContainer, { top: filtersHeight + 55 }, locationButtonStyle]}>
+        <UserLocationButton />
+      </Animated.View>
 
       <AmenityPopup
         visible={!!selectedAmenity}
@@ -1067,13 +1070,11 @@ const styles = StyleSheet.create({
   locationButtonContainer: {
     position: "absolute",
     right: 16,
-    top: 175,
     zIndex: 3,
   },
   attributionButton: {
     position: "absolute",
     right: 16,
-    top: 227,
     width: 32,
     height: 32,
     borderRadius: 16,
