@@ -12,7 +12,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 
 - [First Last](https://www.linkedin.com/) - Project Manager
 - [Scout Knight-Pheng](https://www.linkedin.com/in/scout-knight-pheng-208457391/) - Tech Lead
-- [First Last](www.linkedin.com/) - Tech Lead
+- [Matthew Phan](https://www.linkedin.com/in/matthewphanm/) - Tech Lead
 - [First Last](https://www.linkedin.com/) - Developer
 - [First Last](https://www.linkedin.com/) - Designer
 
