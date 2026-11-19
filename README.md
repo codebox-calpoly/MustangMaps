@@ -14,7 +14,7 @@ The purpose of MustangMaps is to provide a clean and working map of the Cal Poly
 - [Scout Knight-Pheng](https://www.linkedin.com/in/scout-knight-pheng-208457391/) - Tech Lead
 - [First Last](www.linkedin.com/) - Tech Lead
 - [First Last](https://www.linkedin.com/) - Developer
-- [First Last](https://www.linkedin.com/) - Designer
+- [Ben Andrews](https://www.linkedin.com/in/benjamin-lucas-andrews/) - Designer/Developer
 
 ### Team 2025-2026
 
