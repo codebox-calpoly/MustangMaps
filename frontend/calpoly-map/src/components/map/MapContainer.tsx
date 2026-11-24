@@ -15,13 +15,42 @@ import {
   Linking,
   Platform,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { Asset } from "expo-asset";
-import * as FileSystem from "expo-file-system/legacy";
 
+// Cal Poly campus bbox (with a little margin). Pins outside this are rejected
+// to keep shared links from pointing somewhere unrelated to campus.
+const CAL_POLY_BBOX = {
+  minLat: 35.295,
+  maxLat: 35.315,
+  minLng: -120.680,
+  maxLng: -120.645,
+};
+
+interface ParsedShareLink {
+  coord: [number, number];
+  note: string;
+}
+
+function parseShareLink(rawUrl: string): ParsedShareLink | null {
+  // Accept either the Universal Link or the custom scheme.
+  //   https://mustangmaps.vercel.app/p?lat=...&lng=...&n=...
+  //   mustangmaps://p?lat=...&lng=...&n=...
+  const match = rawUrl.match(
+    /^(?:https:\/\/mustangmaps\.vercel\.app\/p\/?|mustangmaps:\/\/p\/?)\??(.*)$/i,
+  );
+  if (!match) return null;
+  const params = new URLSearchParams(match[1] ?? "");
+  const lat = Number(params.get("lat"));
+  const lng = Number(params.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < CAL_POLY_BBOX.minLat || lat > CAL_POLY_BBOX.maxLat) return null;
+  if (lng < CAL_POLY_BBOX.minLng || lng > CAL_POLY_BBOX.maxLng) return null;
+  return { coord: [lng, lat], note: params.get("n") ?? "" };
+}
 import { SearchPanel } from "../features/search/SearchPanel";
 import {
   MapFilters,
@@ -43,7 +72,11 @@ import { useSavedPlaces } from "../../context/SavedPlacesContext";
 
 import UserLocationMarker from "./markers/UserLocationMarker";
 import { AmenityPopup } from "./AmenityPopup";
-import { ClassroomFinderPanel } from "./ClassroomFinderPanel";
+import { BlueprintViewer } from "./BlueprintViewer";
+import { DropPinCard } from "./DropPinCard";
+import { BLUEPRINT_OSM_IDS } from "../../config/blueprints.generated";
+
+const SHARE_BASE_URL = "https://mustangmaps.vercel.app/p";
 
 import Animated, {
   useAnimatedStyle,
@@ -114,6 +147,7 @@ export function MapContainer({
     setUserLocation,
     setLocationAccuracy,
     trackingMode,
+    buildingsData,
   } = useMapContext();
 
   const mapStyleUrl =
@@ -130,13 +164,14 @@ export function MapContainer({
   const [followUser, setFollowUser] = useState<boolean>(false);
 
   const [tapMarkerCoord, setTapMarkerCoord] = useState<[number, number] | null>(null);
+  const [sharePin, setSharePin] = useState<[number, number] | null>(null);
+  const [sharePinNote, setSharePinNote] = useState<string>("");
+  const [sharePinReceived, setSharePinReceived] = useState<boolean>(false);
+  const pendingCenterRef = useRef<[number, number] | null>(null);
 
   const [classroomFinderVisible, setClassroomFinderVisible] = useState(false);
   const [classroomFinderBuilding, setClassroomFinderBuilding] =
     useState<Feature<Geometry, GeoJsonProperties> | null>(null);
-  const [classZones, setClassZones] = useState<FeatureCollection | null>(null);
-  const [selectedClassZoneId, setSelectedClassZoneId] = useState<string | null>(null);
-  const [selectedClassZoneBuildingId, setSelectedClassZoneBuildingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (latitude == null || longitude == null) {
@@ -145,41 +180,6 @@ export function MapContainer({
     setUserLocation([longitude, latitude]);
     setLocationAccuracy(accuracy);
   }, [latitude, longitude, accuracy, setUserLocation, setLocationAccuracy]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const asset = Asset.fromModule(
-          require("../../../geojson_files/class_zones/class_zones.geojson")
-        );
-
-        await asset.downloadAsync();
-
-        const uri = asset.localUri ?? asset.uri;
-        const text = await FileSystem.readAsStringAsync(uri);
-        const parsed = JSON.parse(text);
-
-        if (!parsed || parsed.type !== "FeatureCollection") {
-          throw new Error("class_zones.geojson is not a valid FeatureCollection");
-        }
-
-        if (!cancelled) {
-          setClassZones(parsed as FeatureCollection);
-        }
-      } catch (error) {
-        console.error("Failed to load class zones:", error);
-        if (!cancelled) {
-          setClassZones(null);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const isValidCoordinate = useCallback(
     (coord?: number[] | null): coord is [number, number] => {
@@ -230,6 +230,20 @@ export function MapContainer({
       ],
     };
   }, [tapMarkerCoord]);
+
+  const sharePinGeoJSON = useMemo<FeatureCollection<Point> | null>(() => {
+    if (!sharePin) return null;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Point", coordinates: sharePin },
+        },
+      ],
+    };
+  }, [sharePin]);
 
   const getFeatureBounds = useCallback(
     (
@@ -608,6 +622,181 @@ export function MapContainer({
     ],
   );
 
+  const handleMapLongPress = useCallback(
+    (feature: Feature<Geometry, GeoJsonProperties>) => {
+      const coords = (feature.geometry as any)?.coordinates;
+      if (!Array.isArray(coords) || coords.length !== 2) return;
+      const [lng, lat] = coords;
+      if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
+      setSharePin([lng, lat]);
+      setSharePinNote("");
+      setSharePinReceived(false);
+      setTapMarkerCoord(null);
+    },
+    [],
+  );
+
+  // Resolve a coordinate to the smallest building polygon that contains it,
+  // mirroring BuildingLayer's tap routing logic. Returns null if the coord
+  // falls outside every building.
+  const findContainingBuilding = useCallback(
+    (lng: number, lat: number): Feature<Geometry, GeoJsonProperties> | null => {
+      if (!buildingsData) return null;
+
+      const pointInRing = (ring: number[][], px: number, py: number) => {
+        let inside = false;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          const xi = ring[i][0];
+          const yi = ring[i][1];
+          const xj = ring[j][0];
+          const yj = ring[j][1];
+          if (
+            yi > py !== yj > py &&
+            px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+          ) {
+            inside = !inside;
+          }
+        }
+        return inside;
+      };
+
+      const ringArea = (ring: number[][]) => {
+        let area = 0;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          area += (ring[j][0] - ring[i][0]) * (ring[j][1] + ring[i][1]);
+        }
+        return Math.abs(area / 2);
+      };
+
+      let best: Feature<Geometry, GeoJsonProperties> | null = null;
+      let bestArea = Infinity;
+
+      for (const feature of buildingsData.features) {
+        const geom = feature.geometry;
+        let rings: number[][][] | null = null;
+        if (geom.type === "Polygon") rings = geom.coordinates;
+        else if (geom.type === "MultiPolygon") rings = geom.coordinates.flat();
+        if (!rings || rings.length === 0) continue;
+
+        const outer = rings[0];
+        if (!pointInRing(outer, lng, lat)) continue;
+
+        const area = ringArea(outer);
+        if (area < bestArea) {
+          bestArea = area;
+          best = feature;
+        }
+      }
+
+      return best;
+    },
+    [buildingsData],
+  );
+
+  // Route to the currently visible share pin. If the pin's coord falls
+  // inside a building, route to that building (so the destination shows a
+  // real name). Otherwise synthesize a Point feature using the share note
+  // as the destination name and route to the bare coord — the path-finder
+  // already snaps endpoints to the nearest path node, so no extra work.
+  const handleRouteToSharePin = useCallback(() => {
+    if (!sharePin) return;
+    const [lng, lat] = sharePin;
+
+    const building = findContainingBuilding(lng, lat);
+    const destination: Feature<Geometry, GeoJsonProperties> = building ?? {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [lng, lat] },
+      properties: {
+        name: sharePinNote.trim() || "Shared Location",
+        _isSharedPin: true,
+      },
+    };
+
+    setSharePin(null);
+    setSharePinReceived(false);
+    handleNavigate(destination);
+  }, [findContainingBuilding, handleNavigate, sharePin, sharePinNote]);
+
+  const handleDeepLink = useCallback((rawUrl: string) => {
+    const parsed = parseShareLink(rawUrl);
+    if (!parsed) return;
+
+    setSharePin(parsed.coord);
+    setSharePinNote(parsed.note);
+    setSharePinReceived(true);
+    setTapMarkerCoord(null);
+
+    if (mapReadyRef.current && cameraRef.current) {
+      try {
+        cameraRef.current.setCamera({
+          centerCoordinate: parsed.coord,
+          zoomLevel: 18,
+          animationDuration: 800,
+        });
+      } catch (e) {
+        console.warn("Deep link camera error:", e);
+      }
+    } else {
+      pendingCenterRef.current = parsed.coord;
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    Linking.getInitialURL()
+      .then((url) => {
+        if (!cancelled && url) handleDeepLink(url);
+      })
+      .catch(() => {});
+    const sub = Linking.addEventListener("url", (event) => {
+      if (event?.url) handleDeepLink(event.url);
+    });
+    return () => {
+      cancelled = true;
+      sub.remove();
+    };
+  }, [handleDeepLink]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    const pending = pendingCenterRef.current;
+    if (!pending) return;
+    pendingCenterRef.current = null;
+    try {
+      cameraRef.current?.setCamera({
+        centerCoordinate: pending,
+        zoomLevel: 18,
+        animationDuration: 800,
+      });
+    } catch (e) {
+      console.warn("Deferred deep link camera error:", e);
+    }
+  }, [mapReady]);
+
+  const handleSharePin = useCallback(
+    async (note: string) => {
+      if (!sharePin) return;
+      const [lng, lat] = sharePin;
+      const params = `lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}` +
+        (note ? `&n=${encodeURIComponent(note)}` : "");
+      const url = `${SHARE_BASE_URL}?${params}`;
+      try {
+        // Send only the URL — receiving messengers will render a single
+        // link bubble with their own preview, instead of fragmenting into
+        // separate "text + url + link preview" messages.
+        await Share.share({ message: url });
+      } catch (e) {
+        console.warn("Share failed:", e);
+      }
+    },
+    [sharePin],
+  );
+
+  const handleDismissSharePin = useCallback(() => {
+    setSharePin(null);
+    setSharePinReceived(false);
+  }, []);
+
   const handleMapPress = useCallback(
     async (feature: Feature<Geometry, GeoJsonProperties>) => {
       const map = mapRef.current;
@@ -625,8 +814,14 @@ export function MapContainer({
       // (featureJustSelectedRef would have blocked us). Clear any existing
       // selection so the user can tap away to deselect.
       clearSelection();
-      setSelectedClassZoneId(null);
-      setSelectedClassZoneBuildingId(null);
+
+      // The tap marker (red) and share pin (orange) are mutually exclusive —
+      // a regular tap dismisses any open share pin so only one indicator is
+      // ever on the map. The reverse direction is handled in
+      // handleMapLongPress, which clears tapMarkerCoord before placing the
+      // share pin.
+      setSharePin(null);
+      setSharePinReceived(false);
 
       // Place a generic tap marker where the user tapped (only for non-building areas)
       const properties = feature.properties;
@@ -646,92 +841,10 @@ export function MapContainer({
     [classroomFinderVisible, clearAmenitySelection, clearSelection, onMapPress],
   );
 
-  const normalizeRoom = useCallback((room: string) => {
-    return room.trim().toUpperCase().replace(/^(\d+)-/, "");
-  }, []);
-
-  const findZoneByClassroom = useCallback(
-    (room: string): Feature<Geometry, GeoJsonProperties> | null => {
-      if (!classZones || !classroomFinderBuilding) return null;
-
-      const normalizedTarget = normalizeRoom(room);
-      const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
-
-      if (!selectedBuildingId) {
-        return null;
-      }
-
-      for (const feature of classZones.features) {
-        const zoneBuildingId =
-          typeof feature.properties?.building_id === "string"
-            ? String(feature.properties.building_id)
-            : null;
-
-        if (zoneBuildingId !== selectedBuildingId) {
-          continue;
-        }
-
-        const classrooms = feature.properties?.classrooms;
-
-        if (
-          Array.isArray(classrooms) &&
-          classrooms.some(
-            (value) => normalizeRoom(String(value)) === normalizedTarget
-          )
-        ) {
-          return feature as Feature<Geometry, GeoJsonProperties>;
-        }
-      }
-
-      return null;
-    },
-    [classZones, classroomFinderBuilding, getBuildingFeatureId, normalizeRoom],
-  );
-
-  const buildingsWithClassZones = useMemo(() => {
-    if (!classZones) return new Set<string>();
-    const ids = new Set<string>();
-    for (const feature of classZones.features) {
-      const bid = feature.properties?.building_id;
-      if (typeof bid === "string") ids.add(bid);
-    }
-    return ids;
-  }, [classZones]);
-
-  const classroomsForSelectedBuilding = useMemo(() => {
-    if (!classroomFinderBuilding || !classZones) {
-      return [];
-    }
-
-    const selectedBuildingId = getBuildingFeatureId(classroomFinderBuilding);
-
-    if (!selectedBuildingId) {
-      return [];
-    }
-
-    const matchingFeatures = classZones.features.filter((feature) => {
-      const zoneBuildingId =
-        typeof feature.properties?.building_id === "string"
-          ? String(feature.properties.building_id)
-          : null;
-
-      return zoneBuildingId === selectedBuildingId;
-    });
-
-    const allClassrooms = matchingFeatures.flatMap((feature) => {
-      const classrooms = feature.properties?.classrooms;
-      return Array.isArray(classrooms) ? classrooms : [];
-    });
-
-    return Array.from(new Set(allClassrooms.map(String))).sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" })
-    );
-  }, [classZones, classroomFinderBuilding, getBuildingFeatureId]);
+  const buildingsWithBlueprints = BLUEPRINT_OSM_IDS;
 
   const handleOpenClassroomFinder = useCallback(
     (building: Feature<Geometry, GeoJsonProperties>) => {
-      setSelectedClassZoneId(null);
-      setSelectedClassZoneBuildingId(null);
       setClassroomFinderBuilding(building);
       setClassroomFinderVisible(true);
       setTapMarkerCoord(null);
@@ -742,57 +855,9 @@ export function MapContainer({
 
   const handleCloseClassroomFinder = useCallback(() => {
     setClassroomFinderVisible(false);
-    setSelectedClassZoneId(null);
-    setSelectedClassZoneBuildingId(null);
     setClassroomFinderBuilding(null);
     setTapMarkerCoord(null);
   }, []);
-
-  const handleSelectClassroom = useCallback(
-    (room: string) => {
-      const zone = findZoneByClassroom(room);
-      if (!zone) {
-        return;
-      }
-
-      const zoneId =
-        typeof zone.properties?.zone_id === "string"
-          ? String(zone.properties.zone_id)
-          : null;
-
-      const buildingId =
-        typeof zone.properties?.building_id === "string"
-          ? String(zone.properties.building_id)
-          : null;
-
-      setSelectedClassZoneId(zoneId);
-      setSelectedClassZoneBuildingId(buildingId);
-
-      const camera = cameraRef.current;
-      if (!camera) return;
-
-      try {
-        const bounds = getFeatureBounds(zone);
-        if (bounds) {
-          camera.fitBounds(bounds.ne, bounds.sw, [80, 40, 140, 40], 800);
-          return;
-        }
-
-        const center = featureCenter(zone);
-        if (center) {
-          const safeCenter = clampCoordinate(center);
-          camera.setCamera({
-            centerCoordinate: safeCenter,
-            zoomLevel: 18,
-            animationDuration: 800,
-          });
-        }
-      } catch (e) {
-        console.warn("handleSelectClassroom camera error:", e);
-      }
-    },
-    [clampCoordinate, featureCenter, findZoneByClassroom, getFeatureBounds],
-  );
 
   return (
     <View style={styles.container}>
@@ -804,6 +869,7 @@ export function MapContainer({
         zoomEnabled={mapGesturesEnabled}
         scrollEnabled={mapGesturesEnabled}
         onPress={handleMapPress}
+        onLongPress={handleMapLongPress}
         onDidFinishLoadingMap={() => {
           mapRef.current?.setSourceVisibility(false, "carto", "building");
           mapRef.current?.setSourceVisibility(false, "carto", "path");
@@ -825,9 +891,6 @@ export function MapContainer({
           if (React.isValidElement(child)) {
             return React.cloneElement(child, {
               onBuildingPress: handleBuildingPress,
-              zoneData: classZones,
-              selectedZoneId: selectedClassZoneId,
-              selectedZoneBuildingId: selectedClassZoneBuildingId,
             } as any);
           }
           return child;
@@ -853,6 +916,27 @@ export function MapContainer({
               style={{
                 circleRadius: 10,
                 circleColor: "#EF4444",
+                circleStrokeColor: "#FFFFFF",
+                circleStrokeWidth: 3,
+              }}
+            />
+          </ShapeSource>
+        )}
+        {sharePinGeoJSON && (
+          <ShapeSource id="share-pin-source" shape={sharePinGeoJSON} hitbox={{ width: 0, height: 0 }}>
+            <CircleLayer
+              id="share-pin-halo"
+              style={{
+                circleRadius: 18,
+                circleColor: "#F59E0B",
+                circleOpacity: 0.25,
+              }}
+            />
+            <CircleLayer
+              id="share-pin"
+              style={{
+                circleRadius: 11,
+                circleColor: "#F59E0B",
                 circleStrokeColor: "#FFFFFF",
                 circleStrokeWidth: 3,
               }}
@@ -913,16 +997,10 @@ export function MapContainer({
       )}
 
       {classroomFinderVisible ? (
-        <ClassroomFinderPanel
+        <BlueprintViewer
           visible={classroomFinderVisible}
-          buildingName={
-            typeof classroomFinderBuilding?.properties?.name === "string"
-              ? classroomFinderBuilding.properties.name
-              : null
-          }
-          classrooms={classroomsForSelectedBuilding}
+          osmId={getBuildingFeatureId(classroomFinderBuilding)}
           onClose={handleCloseClassroomFinder}
-          onSelectClassroom={handleSelectClassroom}
           bottomSheetPosition={searchPanelHeight}
         />
       ) : (
@@ -932,7 +1010,7 @@ export function MapContainer({
           bottomSheetPosition={searchPanelHeight}
           onNavigate={handleNavigate}
           onOpenClassroomFinder={handleOpenClassroomFinder}
-          buildingsWithClassZones={buildingsWithClassZones}
+          buildingsWithBlueprints={buildingsWithBlueprints}
         />
       )}
 
@@ -945,8 +1023,11 @@ export function MapContainer({
         accessibilityLabel="Map attributions"
         onPress={() => {
           Alert.alert(
-            "Map Attributions",
-            "Map data © OpenStreetMap contributors (ODbL).\nBasemap tiles © CARTO.",
+            "Credits & Attributions",
+            "Map data © OpenStreetMap contributors (ODbL).\n" +
+              "Basemap tiles © CARTO.\n" +
+              "Floor plans courtesy of Cal Poly Facilities Management & Development.\n\n" +
+              "MustangMaps is an independent student project and is not affiliated with, endorsed by, or sponsored by California Polytechnic State University.",
             [
               {
                 text: "OpenStreetMap",
@@ -956,6 +1037,13 @@ export function MapContainer({
               {
                 text: "CARTO",
                 onPress: () => Linking.openURL("https://carto.com/attributions"),
+              },
+              {
+                text: "Cal Poly Facilities",
+                onPress: () =>
+                  Linking.openURL(
+                    "https://afd.calpoly.edu/facilities/spacefacility/space_data.asp",
+                  ),
               },
               { text: "Close", style: "cancel" },
             ],
@@ -984,6 +1072,16 @@ export function MapContainer({
         levels={amenityLevels}
         onClose={clearAmenitySelection}
         onNavigate={handleNavigate}
+      />
+
+      <DropPinCard
+        visible={sharePin !== null}
+        topInset={140}
+        initialNote={sharePinNote}
+        readOnly={sharePinReceived}
+        onShare={handleSharePin}
+        onDismiss={handleDismissSharePin}
+        onRoute={handleRouteToSharePin}
       />
 
     </View>

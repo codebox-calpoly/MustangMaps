@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["B2469T42RM.com.mustangmaps.app"],
+        "components": [
+          {
+            "/": "/p",
+            "?": { "lat": "?*", "lng": "?*" },
+            "comment": "shared pin link"
+          },
+          {
+            "/": "/p/*"
+          }
+        ]
+      }
+    ]
+  }
+}
