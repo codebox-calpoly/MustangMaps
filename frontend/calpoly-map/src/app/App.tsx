@@ -87,9 +87,10 @@ function applyDefaultFont() {
   };
   const originalCreateElement = ReactAny.createElement;
   ReactAny.createElement = function patchedCreateElement(
+    this: unknown,
     type: unknown,
     props: Record<string, unknown> | null | undefined,
-    ...children: unknown[]
+    ...children: React.ReactNode[]
   ) {
     if (type === Text && props) {
       return originalCreateElement.call(

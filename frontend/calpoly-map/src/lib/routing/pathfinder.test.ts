@@ -303,6 +303,8 @@ test("total distance is preserved after simplification", () => {
     Math.abs(segmentTotal - result.distance) < 5,
     `segment total ${segmentTotal.toFixed(1)}m should be close to A* total ${result.distance}m`,
   );
+});
+
 test("findPath can restrict to accessible edges only", () => {
   const graph: PathGraph = {
     nodes: {
