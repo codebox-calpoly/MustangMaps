@@ -20,7 +20,6 @@ import { usePathGraph } from '../hooks/usePathGraph';
 import { findPath } from '../lib/routing/pathfinder';
 import { LocationProvider } from "../context/UserLocationContext";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ClassZonesLayer } from "../components/map/layers/ClassZonesLayer";
 
 const BUILDING_OPTIONS: BuildingFilterOption[] = [
   { id: "all", label: "All" },
@@ -88,9 +87,10 @@ function applyDefaultFont() {
   };
   const originalCreateElement = ReactAny.createElement;
   ReactAny.createElement = function patchedCreateElement(
+    this: unknown,
     type: unknown,
     props: Record<string, unknown> | null | undefined,
-    ...children: unknown[]
+    ...children: React.ReactNode[]
   ) {
     if (type === Text && props) {
       return originalCreateElement.call(
@@ -263,7 +263,6 @@ function MapScreen({
       amenityOptions={amenityOptions}
     >
       <BuildingLayer key="buildings" buildingTypes={buildingTypeIds} />
-      <ClassZonesLayer key="class-zones" />
       <FavoritesLayer key="favorites" />
       <AmenitiesLayer key="amenities" amenityTypes={amenityTypeIds} />
       <RouteLineLayer key="route-line" />

@@ -8,7 +8,15 @@ MustangMaps is a mobile app that allows for a better and more interactive map of
 
 The purpose of MustangMaps is to provide a clean and working map of the Cal Poly SLO campus for students, faculty, and visitors to utilize. We want to provide unique and unbeatable features such as shortcuts through small passages or buildings, POI locations, event tracking, and much more.
 
-### Team
+### Team 2026-2027
+
+- [Sai Deekshitha Ganji](www.linkedin.com/in/sai-deekshitha-ganji) - Project Manager
+- [Scout Knight-Pheng](https://www.linkedin.com/in/scout-knight-pheng-208457391/) - Tech Lead
+- [First Last](www.linkedin.com/) - Tech Lead
+- [Ben Andrews](https://www.linkedin.com/in/benjamin-lucas-andrews/) - Designer/Developer
+- [Rayan Ezaz](https://www.linkedin.com/in/rayanezaz/) - Developer
+
+### Team 2025-2026
 
 - [Idhika Nagalingam](https://www.linkedin.com/in/idhikashini/) - Project Manager
 - [Siddharth Balaji](https://www.linkedin.com/in/siddharth-balaji-9b47712a5/) - Tech Lead
